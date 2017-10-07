@@ -1,0 +1,25 @@
+# Ignore everything
+*
+# Don't ignore subdirectories
+!*/
+# Don't ignore special files
+!*.md
+!*.rst
+# Don't ignore source files, etc
+!*.gitignore
+!*.C
+!*.cc
+!*.h
+!*.py
+# ignore __init__.py files
+__init__.py
+*.#*
+# Ignore 'jobs' generated directory
+jobs
+new
+old
+# Ignore generated graphics
+*.jpg
+*.jpeg
+*.eps
+*.png
