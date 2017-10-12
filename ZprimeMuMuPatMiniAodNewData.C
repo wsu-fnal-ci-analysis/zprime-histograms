@@ -59,7 +59,7 @@ FILE * pFile;
    double muon_mass = 0.1056583;
    weight=1.;
    if( DATA_type=="2016") weight=1.;
-   TFile *output = new TFile("CMSSW803-Analyse_ZprimeToMuMu_13TeV.root","recreate");
+   TFile *output = new TFile("ZprimeToMuMu_13TeV.root","recreate");
    //==================================================================================
    //                                                                                 =
    //             Start the histograms for CollinSoper CMF                            =
@@ -278,7 +278,7 @@ FILE * pFile;
 
    // Book txt file for candidate events
    Char_t txtOUT[500];
-   sprintf(txtOUT,"CMSSW745-Analyse_ZprimeToMuMu_13TeV_cand.txt");
+   sprintf(txtOUT,"ZprimeToMuMu_13TeV_cand.txt");
    output_txt.open(txtOUT);
    output_txt << "CANDIDATES Events:" << endl;
    Char_t outform[20000];

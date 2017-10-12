@@ -26,8 +26,8 @@ echo "Saving dir is $savedir"
 
 ${exedir}/RunZprimeMuMuAnalysis which ${exedir}/sig_input.txt 1 ${exedir}/bkg_input.txt 1 ${exedir}/data_input.txt 1 site year mc >& ${workdir}/RunZprimeMuMuAnalysis.log 
 cp -f ${workdir}/RunZprimeMuMuAnalysis.log /nfs/dust2/cms/group/DAS2016/${USER}/jobdir/.
-cp -f ${workdir}/CMSSW803-Analyse_ZprimeToMuMu_13TeV.root     ${savedir}/output.root
-cp -f ${workdir}/CMSSW803-Analyse_ZprimeToMuMu_13TeV_cand.txt ${savedir}/output_cand.txt
+cp -f ${workdir}/ZprimeToMuMu_13TeV.root     ${savedir}/output.root
+cp -f ${workdir}/ZprimeToMuMu_13TeV_cand.txt ${savedir}/output_cand.txt
 # cleaning the worker node
 
 #if [ -d "${workdir}" ]; then

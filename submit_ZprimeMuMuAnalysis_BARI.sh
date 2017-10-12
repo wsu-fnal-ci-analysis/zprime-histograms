@@ -33,6 +33,6 @@ bash compileZprimeMuMuAnalysis.sh
 ./RunZprimeMuMuAnalysis which sig_input.txt 1 bkg_input.txt 1 data_input.txt 1 site year mc >& ${workdir}/RunZprimeMuMuAnalysis.log
 
 mv -f ${workdir}/RunZprimeMuMuAnalysis.log /lustre/cms/store/user/defilip/ZprimeAnalysis/80X/jobdir/output.log
-mv -f ${workdir}/CMSSW803-Analyse_ZprimeToMuMu_13TeV.root     ${savedir}/output.root
-mv -f ${workdir}/CMSSW803-Analyse_ZprimeToMuMu_13TeV_cand.txt ${savedir}/output_cand.txt
+mv -f ${workdir}/ZprimeToMuMu_13TeV.root     ${savedir}/output.root
+mv -f ${workdir}/ZprimeToMuMu_13TeV_cand.txt ${savedir}/output_cand.txt
 

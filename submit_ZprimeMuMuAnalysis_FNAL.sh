@@ -4,6 +4,7 @@ echo "Processing on " `hostname` "at " `date`
 
 echo "Running ZprimeMuMu Analysis with executables RunZprimeMuMuAnalysis"
 source /cvmfs/cms.cern.ch/cmsset_default.sh 
+source /cvmfs/sft.cern.ch/lcg/views/LCG_91/x86_64-slc6-gcc7-opt/setup.sh
 export LD_LIBRARY_PATH=lib:$LD_LIBRARY_PATH
 export PATH=path:$PATH
 
@@ -30,5 +31,5 @@ bash compileZprimeMuMuAnalysis.sh
 
 ./RunZprimeMuMuAnalysis which sig_input.txt 1 bkg_input.txt 1 data_input.txt 1 site year mc >& ${workdir}/RunZprimeMuMuAnalysis.log 
 xrdcp --force ${workdir}/RunZprimeMuMuAnalysis.log root://cmseos.fnal.gov///store/user/${USER}/ZprimeAnalysis/jobdir/.
-xrdcp --force ${workdir}/CMSSW803-Analyse_ZprimeToMuMu_13TeV.root     ${savedir}/output.root
-xrdcp --force ${workdir}/CMSSW803-Analyse_ZprimeToMuMu_13TeV_cand.txt ${savedir}/output_cand.txt
+xrdcp --force ${workdir}/ZprimeToMuMu_13TeV.root     ${savedir}/output.root
+xrdcp --force ${workdir}/ZprimeToMuMu_13TeV_cand.txt ${savedir}/output_cand.txt

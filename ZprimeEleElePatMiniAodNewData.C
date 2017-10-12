@@ -99,7 +99,7 @@ FILE * pFile;
    h1_ZprimeRecomass60to120_         = new TH1F("ZprimeRecomass60to120","",60,60.0,120.0);
    // Book txt file for candidate events
    Char_t txtOUT[500];
-   sprintf(txtOUT,"CMSSW745-Analyse_ZprimeToMuMu_13TeV_cand.txt");
+   sprintf(txtOUT,"ZprimeToMuMu_13TeV_cand.txt");
    output_txt.open(txtOUT);
    output_txt << "CANDIDATES Events:" << endl;
    Char_t outform[20000];
