@@ -11,8 +11,8 @@ echo "PATH ${PATH}"
 echo "LD_LIBRARY_PATH ${LD_LIBRARY_PATH}"
 
 echo "Creating output location /store/user/${USER}/ZprimeAnalysis/"
-eosmkdir -p /store/user/${USER}/ZprimeAnalysis/jobdir
-eosmkdir -p /store/user/${USER}/ZprimeAnalysis/histodir
+xrdfs root://cmseos.fnal.gov mkdir -p ${USER} /store/user/${USER}/ZprimeAnalysis/jobdir
+xrdfs root://cmseos.fnal.gov mkdir -p ${USER} /store/user/${USER}/ZprimeAnalysis/histodir
 
 if [ -d "$_CONDOR_SCRATCH_DIR/" ]; then
     workdir=`echo $_CONDOR_SCRATCH_DIR/`;
