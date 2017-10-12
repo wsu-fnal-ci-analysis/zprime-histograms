@@ -43,6 +43,13 @@ public :
    UInt_t          event_evtNo;
    UInt_t          event_lumi;
    UInt_t          event_bunch;
+
+   // special for CI smaples
+   bool            isCISample;
+   Double_t        xsWeight;
+   Bool_t          passPreFSRMInvCut;
+   Bool_t          passMInvCut;
+
    vector<int>     *HLT_nb;
    vector<string>  *HLT_name;
    vector<bool>    *HLT_isaccept;
@@ -181,6 +188,12 @@ public :
    TBranch        *b_event_evtNo;   //!
    TBranch        *b_event_lumi;   //!
    TBranch        *b_event_bunch;   //!
+
+   // special for CI smaples
+   TBranch        *b_xsWeight;
+   TBranch        *b_passPreFSRMInvCut;
+   TBranch        *b_passMInvCut;
+
    TBranch        *b_HLT_nb;   //!
    TBranch        *b_HLT_name;   //!
    TBranch        *b_HLT_isaccept;   //!
@@ -673,6 +686,11 @@ void ZprimeMuMuPatMiniAodNewMC::Init(TTree *tree)
    // (once per file to be processed).
 
    // Set object pointer
+   /* // special for CI smaples */
+   /* xsWeight          = -1; */
+   /* passPreFSRMInvCut = false; */
+   /* passMInvCut       = false; */
+
    HLT_nb = 0;
    HLT_name = 0;
    HLT_isaccept = 0;
@@ -796,6 +814,16 @@ void ZprimeMuMuPatMiniAodNewMC::Init(TTree *tree)
    fChain->SetBranchAddress("event_evtNo", &event_evtNo, &b_event_evtNo);
    fChain->SetBranchAddress("event_lumi", &event_lumi, &b_event_lumi);
    fChain->SetBranchAddress("event_bunch", &event_bunch, &b_event_bunch);
+
+   // special for CI smaples (will fail if not present... need to robustify
+   isCISample = false;
+   if (std::string(name).find("CI") != std::string::npos) {
+     isCISample = true;
+     fChain->SetBranchAddress("xsWeight",          &xsWeight,          &b_xsWeight);
+     fChain->SetBranchAddress("passPreFSRMInvCut", &passPreFSRMInvCut, &b_passPreFSRMInvCut);
+     fChain->SetBranchAddress("passMInvCut",       &passMInvCut,       &b_passMInvCut);
+   }
+
    fChain->SetBranchAddress("HLT_nb", &HLT_nb, &b_HLT_nb);
    fChain->SetBranchAddress("HLT_name", &HLT_name, &b_HLT_name);
    fChain->SetBranchAddress("HLT_isaccept", &HLT_isaccept, &b_HLT_isaccept);

@@ -301,6 +301,13 @@ FILE * pFile;
      nb = fChain->GetEntry(jentry);   nbytes += nb;
      newweight=weight;
 
+     if (isCISample) {
+       // have to choose which cut to use
+       // if (!passMInvCut)
+       // 	 continue;
+       if (!passPreFSRMInvCut)
+	 continue;
+     }
      //if( inputfile.Contains("amcatnlo") && !(inputfile.Contains("DYJetsToTauTau"))) {
        //cout << "Reweighting sample of amcatnlo with weight= " << MC_weighting->at(0)<< endl;
        //weight=weight*MC_weighting->at(0);
