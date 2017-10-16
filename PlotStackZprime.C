@@ -870,7 +870,7 @@ void PlotStackZprime::plotm4l(std::string histlabel){
 	    legend->AddEntry(hfourlepbestmass_4l_afterSel_new_new,Vlabelbkg.at(datasetId).c_str(), "F");*/
 	  //hfourlepbestmass_4l_afterSel_new_new->Draw("sameP");
 	  if (datasetnamebkg.find("TTTo2L2Nu") < 200  &&
-	      datasetnamebkg.find(temp) < 200 && 
+	      datasetnamebkg.find(temp) < 200 &&
 	      (datasetnamebkg.find(whichenergy) < 200 || datasetnamebkg.find(whichsample) < 200) &&
 	      hfourlepbestmass_4l_afterSel_new_Tlike->GetEntries() > 0.)
 	    legend->AddEntry(hfourlepbestmass_4l_afterSel_new_Tlike,"t#bar{t}, tW, #bar{t}W", "F");
@@ -1338,7 +1338,7 @@ void PlotStackZprime::plotm4l(std::string histlabel){
   TH1F *hfourlepbestmass_4l_CITo2Mu_M800  = new TH1F("hfourlepbestmass_4l_CITo2Mu_M800",  "hfourlepbestmass_4l_CITo2Mu_M800",  Nbins, Xmin, Xmax);
   TH1F *hfourlepbestmass_4l_CITo2Mu_M1300 = new TH1F("hfourlepbestmass_4l_CITo2Mu_M1300", "hfourlepbestmass_4l_CITo2Mu_M1300", Nbins, Xmin, Xmax);
   TH1F *hfourlepbestmass_4l_CITo2Mu_M2000 = new TH1F("hfourlepbestmass_4l_CITo2Mu_M2000", "hfourlepbestmass_4l_CITo2Mu_M2000", Nbins, Xmin, Xmax);
-  TH1F *hfourlepbestmass_4l_CITo2Mu = new TH1F("hfourlepbestmass_4l_CITo2Mu", "hfourlepbestmass_4l_CITo2Mu", Nbins, Xmin, Xmax);
+  TH1F *hfourlepbestmass_4l_CITo2Mu       = new TH1F("hfourlepbestmass_4l_CITo2Mu",        "hfourlepbestmass_4l_CITo2Mu",      Nbins, Xmin, Xmax);
 
   std::string ciLVal, ciIntf, ciHeli;
   for (int datasetIdSig=Vdatasetnamesig.size()-1; datasetIdSig >=0; datasetIdSig--){
@@ -1376,24 +1376,28 @@ void PlotStackZprime::plotm4l(std::string histlabel){
       std::cout << "  Error= " << sqrt(hfourlepbestmass_4l_afterSel_new_new->GetEntries())*hfourlepbestmass_4l_afterSel_new_new->Integral(0,-1)/hfourlepbestmass_4l_afterSel_new_new->GetEntries();
     std::cout << std::endl;
 
-    if (datasetnamesig.find("CITo2Mu")<200)
+    double ci_factor = 1.0;
+    if (datasetnamesig.find("100kTeV") < 200)
+      ci_factor = -1.0;
+
+    if (datasetnamesig.find("CITo2Mu") < 200)
       hfourlepbestmass_4l_afterSel_new_new->Scale(1.3); // apply the k-factor
 
-    if (datasetnamesig.find("CITo2Mu_M300")<200) {
-      hfourlepbestmass_4l_CITo2Mu_M300->Add(hfourlepbestmass_4l_afterSel_new_new);
-      hfourlepbestmass_4l_CITo2Mu->Add(hfourlepbestmass_4l_afterSel_new_new);
+    if (datasetnamesig.find("CITo2Mu_M300") < 200) {
+      hfourlepbestmass_4l_CITo2Mu_M300->Add(hfourlepbestmass_4l_afterSel_new_new, ci_factor);
+      hfourlepbestmass_4l_CITo2Mu->Add(hfourlepbestmass_4l_afterSel_new_new, ci_factor);
     }
-    if (datasetnamesig.find("CITo2Mu_M800")<200) {
-      hfourlepbestmass_4l_CITo2Mu_M800->Add(hfourlepbestmass_4l_afterSel_new_new);
-      hfourlepbestmass_4l_CITo2Mu->Add(hfourlepbestmass_4l_afterSel_new_new);
+    if (datasetnamesig.find("CITo2Mu_M800") < 200) {
+      hfourlepbestmass_4l_CITo2Mu_M800->Add(hfourlepbestmass_4l_afterSel_new_new, ci_factor);
+      hfourlepbestmass_4l_CITo2Mu->Add(hfourlepbestmass_4l_afterSel_new_new, ci_factor);
     }
-    if (datasetnamesig.find("CITo2Mu_M1300")<200) {
-      hfourlepbestmass_4l_CITo2Mu_M1300->Add(hfourlepbestmass_4l_afterSel_new_new);
-      hfourlepbestmass_4l_CITo2Mu->Add(hfourlepbestmass_4l_afterSel_new_new);
+    if (datasetnamesig.find("CITo2Mu_M1300") < 200) {
+      hfourlepbestmass_4l_CITo2Mu_M1300->Add(hfourlepbestmass_4l_afterSel_new_new, ci_factor);
+      hfourlepbestmass_4l_CITo2Mu->Add(hfourlepbestmass_4l_afterSel_new_new, ci_factor);
     }
-    if (datasetnamesig.find("CITo2Mu_M2000")<200) {
-      hfourlepbestmass_4l_CITo2Mu_M2000->Add(hfourlepbestmass_4l_afterSel_new_new);
-      hfourlepbestmass_4l_CITo2Mu->Add(hfourlepbestmass_4l_afterSel_new_new);
+    if (datasetnamesig.find("CITo2Mu_M2000") < 200) {
+      hfourlepbestmass_4l_CITo2Mu_M2000->Add(hfourlepbestmass_4l_afterSel_new_new, ci_factor);
+      hfourlepbestmass_4l_CITo2Mu->Add(hfourlepbestmass_4l_afterSel_new_new, ci_factor);
     }
 
     if (datasetnamesig.find("Zprime") < 200 && datasetnamesig.find("5000") < 200)
@@ -1403,7 +1407,7 @@ void PlotStackZprime::plotm4l(std::string histlabel){
   // Zprime signal
   Double_t intErr = 0.;
   std::cout << "Zprime Signal expected at m_Z'=5000 GeV is " << hfourlepbestmass_4l_afterSel_new_Zprime5000->Integral(0,-1) << " +/- " << errorH125 << std::endl;
-  if (histlabel.find("ZprimeRecomass")<20 )
+  if (histlabel.find("ZprimeRecomass") < 20 )
     outputyields << "m_Z'=5 TeV " << hfourlepbestmass_4l_afterSel_new_Zprime5000->Integral(0,-1) << " +/- " << errorH125 << std::endl;
   hfourlepbestmass_4l_afterSel_new_Zprime5000->SetMarkerSize(0.95);
   hfourlepbestmass_4l_afterSel_new_Zprime5000->SetMarkerColor(kRed-4);
@@ -1415,7 +1419,7 @@ void PlotStackZprime::plotm4l(std::string histlabel){
 	    << " +/- " << sqrt(hfourlepbestmass_4l_CITo2Mu_M300->GetEntries())*hfourlepbestmass_4l_CITo2Mu_M300->Integral(0,-1)/hfourlepbestmass_4l_CITo2Mu_M300->GetEntries()
 	    << " +/- " << intErr // errors correct ???
 	    << std::endl;
-  if (histlabel.find("CITo2Mu_M300")<20 )
+  if (histlabel.find("CITo2Mu_M300") < 20 )
     outputyields << "CI:m_X=300 GeV " << hfourlepbestmass_4l_CITo2Mu_M300->Integral(0,-1) << std::endl;
 
   intErr = 0.;
@@ -1423,7 +1427,7 @@ void PlotStackZprime::plotm4l(std::string histlabel){
 	    << " +/- " << sqrt(hfourlepbestmass_4l_CITo2Mu_M800->GetEntries())*hfourlepbestmass_4l_CITo2Mu_M800->Integral(0,-1)/hfourlepbestmass_4l_CITo2Mu_M800->GetEntries()
 	    << " +/- " << intErr // errors correct ???
 	    << std::endl;
-  if (histlabel.find("CITo2Mu_M800")<20 )
+  if (histlabel.find("CITo2Mu_M800") < 20 )
     outputyields << "CI: m_X=800 GeV" << hfourlepbestmass_4l_CITo2Mu_M800->Integral(0,-1) << std::endl;
 
   intErr = 0.;
@@ -1431,7 +1435,7 @@ void PlotStackZprime::plotm4l(std::string histlabel){
 	    << " +/- " << sqrt(hfourlepbestmass_4l_CITo2Mu_M1300->GetEntries())*hfourlepbestmass_4l_CITo2Mu_M1300->Integral(0,-1)/hfourlepbestmass_4l_CITo2Mu_M1300->GetEntries()
 	    << " +/- " << intErr // errors correct ???
 	    << std::endl;
-  if (histlabel.find("CITo2Mu_M1300")<20 )
+  if (histlabel.find("CITo2Mu_M1300") < 20 )
     outputyields << "CI: m_X=1300 GeV" << hfourlepbestmass_4l_CITo2Mu_M1300->Integral(0,-1) << std::endl;
 
   intErr = 0.;
@@ -1439,7 +1443,7 @@ void PlotStackZprime::plotm4l(std::string histlabel){
 	    << " +/- " << sqrt(hfourlepbestmass_4l_CITo2Mu_M2000->GetEntries())*hfourlepbestmass_4l_CITo2Mu_M2000->Integral(0,-1)/hfourlepbestmass_4l_CITo2Mu_M2000->GetEntries()
 	    << " +/- " << intErr // errors correct ???
 	    << std::endl;
-  if (histlabel.find("CITo2Mu_M2000")<20 )
+  if (histlabel.find("CITo2Mu_M2000") < 20 )
     outputyields << "CI: m_X=2000 GeV" << hfourlepbestmass_4l_CITo2Mu_M2000->Integral(0,-1) << std::endl;
 
   hfourlepbestmass_4l_CITo2Mu_M300->SetMarkerSize(0.95);
@@ -1500,7 +1504,7 @@ void PlotStackZprime::plotm4l(std::string histlabel){
   //htotal->Add(hfourlepbestmass_4l_CITo2Mu_M800);
   //legend->AddEntry(hfourlepbestmass_4l_CITo2Mu_M800,"#Lambda = 10 TeV (m_{#mu^{+} #mu^{-}} = 800 GeV)", "L");
 
-  if (histlabel.find("ZprimeRecomass")<20){
+  if (histlabel.find("ZprimeRecomass") < 20){
     std::cout << "Plotting di-lepton mass" << std::endl;
     //htotal->Add(hfourlepbestmass_4l_afterSel_new_Zprime5000);
     //legend->AddEntry(hfourlepbestmass_4l_afterSel_new_Zprime5000,"m_{Z'}=5 TeV", "L");
