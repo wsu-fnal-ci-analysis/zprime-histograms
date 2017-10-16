@@ -12,10 +12,11 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 #include "TFile.h"
-#include <math.h>
+/* #include <math.h> */
 #include "TF2.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TH2D.h"
 #include "TH3F.h"
 #include "TLorentzVector.h"
 #include <time.h>
@@ -29,7 +30,8 @@
 #include "TVector3.h"
 // Header file for the classes stored in the TTree if any.
 #include <vector>
-using namespace std;
+// VERY BAD PRACTICE
+/* using namespace std; */
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -43,92 +45,92 @@ public :
    UInt_t          event_evtNo;
    UInt_t          event_lumi;
    UInt_t          event_bunch;
-   vector<int>     *HLT_nb;
-   vector<string>  *HLT_name;
-   vector<bool>    *HLT_isaccept;
-   vector<int>     *HLTObj_nbObj;
-   vector<float>   *HLTObj_pt;
-   vector<float>   *HLTObj_eta;
-   vector<float>   *HLTObj_phi;
-   vector<string>  *HLTObj_collection;
-   vector<int>     *iGenJet;
-   vector<int>     *idGenJet;
-   vector<int>     *statusGenJet;
-   vector<int>     *chargeGenJet;
-   vector<float>   *ptGenJet;
-   vector<float>   *etaGenJet;
-   vector<float>   *phiGenJet;
-   vector<int>     *iGen;
-   vector<int>     *idGen;
-   vector<int>     *statusGen;
-   vector<float>   *ptGen;
-   vector<float>   *etaGen;
-   vector<float>   *phiGen;
-   vector<int>     *chargeGen;
-   vector<float>   *EnergyGen;
-   vector<float>   *pxGen;
-   vector<float>   *pyGen;
-   vector<float>   *pzGen;
-   vector<int>     *Mu_nbMuon;
-   vector<bool>    *Mu_passOldMatchedStationsCut;
-   vector<bool>    *Mu_passNewMatchedStationsCut;
-   vector<bool>    *Mu_isTightMuon;
-   vector<bool>    *Mu_isLooseMuon;
-   vector<bool>    *Mu_isMuonsCleaned;
-   vector<bool>    *Mu_isGlobalMuon;
-   vector<bool>    *Mu_isPF;
-   vector<bool>    *Mu_isTrackerMuon;
-   vector<float>   *Mu_et;
-   vector<float>   *Mu_en;
-   vector<float>   *Mu_pt;
-   vector<float>   *Mu_eta;
-   vector<float>   *Mu_phi;
-   vector<float>   *Mu_charge;
-   vector<float>   *Mu_ptTunePMuonBestTrack;
-   vector<float>   *Mu_pxTunePMuonBestTrack;
-   vector<float>   *Mu_pyTunePMuonBestTrack;
-   vector<float>   *Mu_pzTunePMuonBestTrack;
-   vector<float>   *Mu_pTunePMuonBestTrack;
-   vector<float>   *Mu_etaTunePMuonBestTrack;
-   vector<float>   *Mu_phiTunePMuonBestTrack;
-   vector<float>   *Mu_thetaTunePMuonBestTrack;
-   vector<float>   *Mu_chargeTunePMuonBestTrack;
-   vector<float>   *Mu_dPToverPTTunePMuonBestTrack;
-   vector<float>   *Mu_absdxyTunePMuonBestTrack;
-   vector<float>   *Mu_absdzTunePMuonBestTrack;
-   vector<float>   *Mu_ptInnerTrack;
-   vector<float>   *Mu_pxInnerTrack;
-   vector<float>   *Mu_pyInnerTrack;
-   vector<float>   *Mu_pzInnerTrack;
-   vector<float>   *Mu_pInnerTrack;
-   vector<float>   *Mu_etaInnerTrack;
-   vector<float>   *Mu_phiInnerTrack;
-   vector<float>   *Mu_thetaInnerTrack;
-   vector<float>   *Mu_chargeInnerTrack;
-   vector<float>   *Mu_dPToverPTInnerTrack;
-   vector<float>   *Mu_absdxyInnerTrack;
-   vector<float>   *Mu_absdzInnerTrack;
-   vector<float>   *Mu_normalizedChi2;
-   vector<float>   *Mu_absdxy;
-   vector<float>   *Mu_absdz;
-   vector<float>   *Mu_vtxMass;
-   vector<float>   *Mu_vtxNormChi2;
-   vector<float>   *Mu_vtxMassLept;
-   vector<int>     *Mu_numberOfMatchedStations;
-   vector<int>     *Mu_numberOfValidPixelHits;
-   vector<int>     *Mu_numberOfValidMuonHits;
-   vector<int>     *Mu_numberOftrackerLayersWithMeasurement;
-   vector<float>   *Mu_emIso;
-   vector<float>   *Mu_hadIso;
-   vector<float>   *Mu_trackiso;
-   vector<float>   *Mu_pfSumChargedHadronPt;
-   vector<float>   *Mu_pfSumNeutralHadronEt;
-   vector<float>   *Mu_PFSumPhotonEt;
-   vector<float>   *Mu_pfSumPUPt;
-   vector<int>     *Mu_nbofpv;
-   vector<float>   *Mu_patDeltaBeta;
-   vector<int>     *Mu_stationMask;
-   vector<int>     *Mu_numberOfMatchedRPCLayers;
+   std::vector<int>     *HLT_nb;
+   std::vector<std::string>  *HLT_name;
+   std::vector<bool>    *HLT_isaccept;
+   std::vector<int>     *HLTObj_nbObj;
+   std::vector<float>   *HLTObj_pt;
+   std::vector<float>   *HLTObj_eta;
+   std::vector<float>   *HLTObj_phi;
+   std::vector<std::string>  *HLTObj_collection;
+   std::vector<int>     *iGenJet;
+   std::vector<int>     *idGenJet;
+   std::vector<int>     *statusGenJet;
+   std::vector<int>     *chargeGenJet;
+   std::vector<float>   *ptGenJet;
+   std::vector<float>   *etaGenJet;
+   std::vector<float>   *phiGenJet;
+   std::vector<int>     *iGen;
+   std::vector<int>     *idGen;
+   std::vector<int>     *statusGen;
+   std::vector<float>   *ptGen;
+   std::vector<float>   *etaGen;
+   std::vector<float>   *phiGen;
+   std::vector<int>     *chargeGen;
+   std::vector<float>   *EnergyGen;
+   std::vector<float>   *pxGen;
+   std::vector<float>   *pyGen;
+   std::vector<float>   *pzGen;
+   std::vector<int>     *Mu_nbMuon;
+   std::vector<bool>    *Mu_passOldMatchedStationsCut;
+   std::vector<bool>    *Mu_passNewMatchedStationsCut;
+   std::vector<bool>    *Mu_isTightMuon;
+   std::vector<bool>    *Mu_isLooseMuon;
+   std::vector<bool>    *Mu_isMuonsCleaned;
+   std::vector<bool>    *Mu_isGlobalMuon;
+   std::vector<bool>    *Mu_isPF;
+   std::vector<bool>    *Mu_isTrackerMuon;
+   std::vector<float>   *Mu_et;
+   std::vector<float>   *Mu_en;
+   std::vector<float>   *Mu_pt;
+   std::vector<float>   *Mu_eta;
+   std::vector<float>   *Mu_phi;
+   std::vector<float>   *Mu_charge;
+   std::vector<float>   *Mu_ptTunePMuonBestTrack;
+   std::vector<float>   *Mu_pxTunePMuonBestTrack;
+   std::vector<float>   *Mu_pyTunePMuonBestTrack;
+   std::vector<float>   *Mu_pzTunePMuonBestTrack;
+   std::vector<float>   *Mu_pTunePMuonBestTrack;
+   std::vector<float>   *Mu_etaTunePMuonBestTrack;
+   std::vector<float>   *Mu_phiTunePMuonBestTrack;
+   std::vector<float>   *Mu_thetaTunePMuonBestTrack;
+   std::vector<float>   *Mu_chargeTunePMuonBestTrack;
+   std::vector<float>   *Mu_dPToverPTTunePMuonBestTrack;
+   std::vector<float>   *Mu_absdxyTunePMuonBestTrack;
+   std::vector<float>   *Mu_absdzTunePMuonBestTrack;
+   std::vector<float>   *Mu_ptInnerTrack;
+   std::vector<float>   *Mu_pxInnerTrack;
+   std::vector<float>   *Mu_pyInnerTrack;
+   std::vector<float>   *Mu_pzInnerTrack;
+   std::vector<float>   *Mu_pInnerTrack;
+   std::vector<float>   *Mu_etaInnerTrack;
+   std::vector<float>   *Mu_phiInnerTrack;
+   std::vector<float>   *Mu_thetaInnerTrack;
+   std::vector<float>   *Mu_chargeInnerTrack;
+   std::vector<float>   *Mu_dPToverPTInnerTrack;
+   std::vector<float>   *Mu_absdxyInnerTrack;
+   std::vector<float>   *Mu_absdzInnerTrack;
+   std::vector<float>   *Mu_normalizedChi2;
+   std::vector<float>   *Mu_absdxy;
+   std::vector<float>   *Mu_absdz;
+   std::vector<float>   *Mu_vtxMass;
+   std::vector<float>   *Mu_vtxNormChi2;
+   std::vector<float>   *Mu_vtxMassLept;
+   std::vector<int>     *Mu_numberOfMatchedStations;
+   std::vector<int>     *Mu_numberOfValidPixelHits;
+   std::vector<int>     *Mu_numberOfValidMuonHits;
+   std::vector<int>     *Mu_numberOftrackerLayersWithMeasurement;
+   std::vector<float>   *Mu_emIso;
+   std::vector<float>   *Mu_hadIso;
+   std::vector<float>   *Mu_trackiso;
+   std::vector<float>   *Mu_pfSumChargedHadronPt;
+   std::vector<float>   *Mu_pfSumNeutralHadronEt;
+   std::vector<float>   *Mu_PFSumPhotonEt;
+   std::vector<float>   *Mu_pfSumPUPt;
+   std::vector<int>     *Mu_nbofpv;
+   std::vector<float>   *Mu_patDeltaBeta;
+   std::vector<int>     *Mu_stationMask;
+   std::vector<int>     *Mu_numberOfMatchedRPCLayers;
    Double_t        GenMet_pt;
    Double_t        PFMet_et_cor;
    Double_t        PFMet_pt_cor;
@@ -143,38 +145,38 @@ public :
    Double_t        CaloMet_sumEt;
    Double_t        PFMet_shiftedPt_JetEnUp;
    Double_t        PFMet_shiftedPt_JetEnDown;
-   vector<int>     *jet_nb;
-   vector<float>   *jet_charge;
-   vector<float>   *jet_et;
-   vector<float>   *jet_pt;
-   vector<float>   *jet_eta;
-   vector<float>   *jet_phi;
-   vector<float>   *jet_en;
-   vector<float>   *jet_theta;
-   vector<float>   *jet_beta;
-   vector<float>   *jet_pileup_mva_disc;
-   vector<int>     *Nb_bDiscriminators;
-   vector<float>   *jet_btag_pt;
-   vector<float>   *jet_btag_eta;
-   vector<float>   *jet_btag_phi;
-   vector<int>     *jet_btag_flavor;
-   vector<float>   *jet_btag_pfCSVv2IVF_discriminator;
-   vector<int>     *Nb_taus;
-   vector<float>   *Tau_pt;
-   vector<float>   *Tau_eta;
-   vector<float>   *Tau_phi;
-   vector<int>     *Tau_id;
-   vector<float>   *Tau_LooseCombinedIsolationDeltaBetaCorr3Hits;
+   std::vector<int>     *jet_nb;
+   std::vector<float>   *jet_charge;
+   std::vector<float>   *jet_et;
+   std::vector<float>   *jet_pt;
+   std::vector<float>   *jet_eta;
+   std::vector<float>   *jet_phi;
+   std::vector<float>   *jet_en;
+   std::vector<float>   *jet_theta;
+   std::vector<float>   *jet_beta;
+   std::vector<float>   *jet_pileup_mva_disc;
+   std::vector<int>     *Nb_bDiscriminators;
+   std::vector<float>   *jet_btag_pt;
+   std::vector<float>   *jet_btag_eta;
+   std::vector<float>   *jet_btag_phi;
+   std::vector<int>     *jet_btag_flavor;
+   std::vector<float>   *jet_btag_pfCSVv2IVF_discriminator;
+   std::vector<int>     *Nb_taus;
+   std::vector<float>   *Tau_pt;
+   std::vector<float>   *Tau_eta;
+   std::vector<float>   *Tau_phi;
+   std::vector<int>     *Tau_id;
+   std::vector<float>   *Tau_LooseCombinedIsolationDeltaBetaCorr3Hits;
    Int_t           pfphoton_size;
-   vector<float>   *pfphoton_pt;
-   vector<float>   *pfphoton_eta;
-   vector<float>   *pfphoton_phi;
-   vector<float>   *pfphoton_theta;
+   std::vector<float>   *pfphoton_pt;
+   std::vector<float>   *pfphoton_eta;
+   std::vector<float>   *pfphoton_phi;
+   std::vector<float>   *pfphoton_theta;
    Int_t           num_PU_vertices;
    Int_t           PU_BunchCrossing;
    Int_t           num_PU_gen_vertices;
    Float_t         Rho;
-   vector<float>   *MC_weighting;
+   std::vector<float>   *MC_weighting;
 
    // List of branches
    TBranch        *b_event_runNo;   //!
@@ -314,11 +316,11 @@ public :
    TBranch        *b_Rho;   //!
    TBranch        *b_MC_weighting;   //!
 
-   ZprimeMuMuPatMiniAodNewData(Char_t namechar_[300],TTree *tree=0,Double_t weight_=1.,string DATA_type_="DATA",string MC_type_="MC");
+   ZprimeMuMuPatMiniAodNewData(Char_t namechar_[300],TTree *tree=0,Double_t weight_=1.,std::string DATA_type_="DATA",std::string MC_type_="MC");
    virtual ~ZprimeMuMuPatMiniAodNewData();
    Double_t weight;
    Char_t name[300];
-   string DATA_type,MC_type;   
+   std::string DATA_type,MC_type;   
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -395,9 +397,9 @@ public :
    void plotAllHighPtMuonsID();
    void MuonPassingNewID();
    void MuonPassingTightID();
-   void CosThetaCollinSoper(float Et1,float Eta1,float Phi1,float En1,
-			    float Et2,float Eta2,float Phi2,float En2,
-			    float ChargeEle1,float RecoMass);
+   float CosThetaCollinSoper(float Et1,float Eta1,float Phi1,float En1,
+			     float Et2,float Eta2,float Phi2,float En2,
+			     float ChargeEle1,float RecoMass);
    float delR(float eta1,float phi1,float eta2,float phi2);
    double MassCorrection(float M);
    void DrawDiJetMassBB();
@@ -419,7 +421,7 @@ public :
    float ptEffCut;
    float PtDYTRecMu1,PtDYTRecMu2,PtRecTunePMu1,PtRecTunePMu2,PtRecMuBestTrack1,PtRecMuBestTrack2;
    float RecoHLTMatchingDeltaRcut,deltaRcut,minMassCut,maxMassCut;
-   float vtxChi2Mu,vtxMassMu;
+   float m_vtxChi2Mu,m_vtxMassMu, m_csAngle;
    float mPtGen1,mPhiGen1,mEtaGen1,mEnGen1;
    unsigned mGenFlag1;
    float mPtGen2,mPhiGen2,mEtaGen2,mEnGen2;
@@ -495,7 +497,7 @@ public :
    TH1F* h1_nbPVTightID_;
    TH1F* h1_PtTightID_;
    TH1F* h1_EtaTightID_;
-   ofstream output_txt; 
+   std::ofstream output_txt; 
    TH1F* h1_PtResolutionMBT_;
    TH1F* h1_PtResolutionTunePMBT_;
    TH1F* h1_PtResolutiontuneP_;
@@ -517,6 +519,10 @@ public :
    TH1F* h1_CosAngleCollinSoperCorrect700Mass3000_;
    TH1F* h1_CosAngleCollinSoperCorrect4900Mass5100_;
    TH1F* h1_absCosAngleCollinSoperCorrect4500Mass5500_;
+   /* std::array<std::array<TH1D*,4> 3> h1_MassBinned_       ; */
+   TH2D* h2_CSMassBinned_       ;
+   TH2D* h2_CSPosMassBinned_       ;
+   TH2D* h2_CSNegMassBinned_       ;
    TH1F* h1_ptHistoBefor_;
    TH1F* h1_ptHistoPassingVtxChi2Mu_;
    TH1F* h1_ptHistoPassingCosmicRejec_;
@@ -616,11 +622,11 @@ public :
 #endif
 
 #ifdef ZprimeMuMuPatMiniAodNewData_cxx
-ZprimeMuMuPatMiniAodNewData::ZprimeMuMuPatMiniAodNewData(Char_t namechar_[300], TTree *tree,Double_t weight_,string DATA_type_,string MC_type_) : fChain(0) 
+ZprimeMuMuPatMiniAodNewData::ZprimeMuMuPatMiniAodNewData(Char_t namechar_[300], TTree *tree,Double_t weight_,std::string DATA_type_,std::string MC_type_) : fChain(0) 
 {
   sprintf(name,"%s",namechar_);
   weight = weight_;
-  cout << "Name is= " << name << " and weight is=" << weight << endl;
+  std::cout << "Name is= " << name << " and weight is=" << weight << std::endl;
   DATA_type = DATA_type_;
   MC_type = MC_type_;
   

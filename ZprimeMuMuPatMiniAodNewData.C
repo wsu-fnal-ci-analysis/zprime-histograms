@@ -8,24 +8,13 @@
 //==============================================================
 #define ZprimeMuMuPatMiniAodNewData_cxx
 #include "ZprimeMuMuPatMiniAodNewData.h"
-#include <TH2.h>
-#include <TStyle.h>
-#include <TCanvas.h>
-#include "TFile.h"
 #include <math.h>
-#include "TF2.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TH3F.h"
-#include "TLorentzVector.h"
 #include <time.h>
-#include <iostream>
-#include <vector>
 #include <algorithm>
-#include <fstream>
-#include <sstream>
+
 using namespace std;
 #define PI 3.14159265
+
 bool myfunction (int i,int j) { return (i<j); }
 bool picklargemass (float lhs,float rhs) { return (lhs > rhs); }
 TString inputfile;
@@ -60,6 +49,8 @@ FILE * pFile;
    weight=1.;
    if( DATA_type=="2016") weight=1.;
    TFile *output = new TFile("ZprimeToMuMu_13TeV.root","recreate");
+   // Enable Sumw2 for histograms as we'll be normalizing them
+   TH1::SetDefaultSumw2();
    //==================================================================================
    //                                                                                 =
    //             Start the histograms for CollinSoper CMF                            =
@@ -121,6 +112,34 @@ FILE * pFile;
    h1_CosAngleCollinSoperCorrect700Mass3000_  = new TH1F("CosAngleCollinSoperCorrect700Mass3000","",NbBins,MinBin,MaxBin);
    h1_CosAngleCollinSoperCorrect4900Mass5100_ = new TH1F("CosAngleCollinSoperCorrect4900Mass5100","",NbBins,MinBin,MaxBin);
    h1_absCosAngleCollinSoperCorrect4500Mass5500_ = new TH1F("absCosAngleCollinSoperCorrect4500Mass5500","",5,0.0,1.0);
+  double etaBins[]  = {-2.4, -1.2,0.,1.2,2.4};
+  std::array<std::string,7> etaBinLabels{"All","BB","BE","EE","BE+","BE-","E+E-"};
+  std::array<std::string,3> csBinLabels{"","CS < 0;","CS > 0;"};
+  double massBins[] = {0., 200., 400., 500., 700., 1100., 1900., 3500., 5000.};
+  int nEtaBins  = sizeof(etaBins)/sizeof(etaBins[0]);
+  int nMassBins = sizeof(massBins)/sizeof(massBins[0]);
+
+  std::array<std::string,4> etaBin{"BB","BE","EE","Inc"};
+  std::array<std::string,3> csBin{"Pos","Neg","Inc"};
+  // int eb = 0;
+  // for (auto e: etaBin) {
+  //   int cb = 0
+  //   for (auto c: csBin) {
+  //     h1_MassBinned_[cb][eb]        = new TH1D("CS"+c+"Mass"+e       ,"", 20000,0,20000);
+  //     ++cb;
+  //   }
+  //   ++eb;
+  // }
+  h2_CSMassBinned_        = new TH2D("CSMassBinned"       ,"", 20000,0.,20000., 25,-0.5,24.5);
+  // h2_CSPosMassBinned_        = new TH2D("CSPosMassBinned"       ,"", 20000,0.,20000., 25,-0.5,24.5);
+  // h2_CSNegMassBinned_        = new TH2D("CSNegMassBinned"       ,"", 20000,0.,20000., 25,-0.5,24.5);
+  for (int eb = 0; eb < etaBinLabels.size(); ++eb) {
+    for (int cb = 0; cb < csBinLabels.size(); ++cb) {
+      h2_CSMassBinned_       ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
+      // h2_CSPosMassBinned_       ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+      // h2_CSNegMassBinned_       ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+    }
+  }
    //==================================================================================
    h1_ptHistoBefor_              = new TH1F("ptHistoBefor","",ptBins,ptMin,ptMax);
    h1_ptHistoPassingVtxChi2Mu_   = new TH1F("ptHistoPassingVtxChi2Mu","",ptBins,ptMin,ptMax);
@@ -333,7 +352,7 @@ FILE * pFile;
 					   EtaRecMu2,PhiRecMu2,ChargeRecMu2,pxRecMu2,pyRecMu2,pzRecMu2,pRecMu2,dxyRecMu2,
 					   PtRecTunePMu2,PtRecMuBestTrack2);
 
-     PickThehighestMass(vtxMassMu,vtxChi2Mu,event_evtNo);
+     PickThehighestMass(m_vtxMassMu,m_vtxChi2Mu,event_evtNo);
      double CosmicRejec = ThreeDangle(pxRecMu1,pyRecMu1,pzRecMu1,pRecMu1,
 				      pxRecMu2,pyRecMu2,pzRecMu2,pRecMu2);
      //=========================================================
@@ -342,9 +361,9 @@ FILE * pFile;
      //=========================================================
      //cout << "firstMu= " << firstMuFinal << " " << "secondMu= " << secondMuFinal << endl;
      if(firstMuFinal == 0 || secondMuFinal == 0) continue;
-     //cout << "Vertex mass mu= " << vtxMassMu << endl;
-     //if(vtxMassMu<60 || vtxMassMu>1200) continue;
-     if(vtxMassMu<60) continue;
+     //cout << "Vertex mass mu= " << m_vtxMassMu << endl;
+     //if(m_vtxMassMu<60 || m_vtxMassMu>1200) continue;
+     if(m_vtxMassMu<60) continue;
      //=========================================================
      //        start doing matching between reco & HLT         =
      //                                                        =
@@ -356,55 +375,55 @@ FILE * pFile;
      if(RecoMuon1MatchingWithHLT1==1 || RecoMuon2MatchingWithHLT2==1)
        {
 	 plotAllHighPtMuonsID();
-	 //PrintEventInformation(256843,465,665539990,vtxChi2Mu,vtxMassMu,CosmicRejec);
-	 if(vtxChi2Mu<20.0 && CosmicRejec>-0.9998)
+	 //PrintEventInformation(256843,465,665539990,m_vtxChi2Mu,m_vtxMassMu,CosmicRejec);
+	 if(m_vtxChi2Mu<20.0 && CosmicRejec>-0.9998)
 	   {
 	     DrawBTaggingDiscriminator(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
 	     if(PFMet_et_cor > 50.0) {
 	       h1_PFMetCorr_->Fill(PFMet_et_cor);
 	       h1_CaloMet_->Fill(CaloMet_pt);
-	       h1_MassMuMuBinWidthMET_->Fill(vtxMassMu);
-	       h1_MassMuMu1GeVbinMET_->Fill(vtxMassMu);
+	       h1_MassMuMuBinWidthMET_->Fill(m_vtxMassMu);
+	       h1_MassMuMu1GeVbinMET_->Fill(m_vtxMassMu);
 	     }
 	     bool passDijet = DiPFJet(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
 	     if(passDijet==1) {
-	       h1_MassMuMuDijetBinWidth_->Fill(vtxMassMu);
-	       h1_MassMuMuDijet1GeVbin_->Fill(vtxMassMu);
+	       h1_MassMuMuDijetBinWidth_->Fill(m_vtxMassMu);
+	       h1_MassMuMuDijet1GeVbin_->Fill(m_vtxMassMu);
 	     }
 
 	     bool passDijetcuts = DiPFJetCut(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
 	     if(passDijetcuts==1 && PFMet_et_cor > 50.0) {
-	       h1_MassMuMuDijetBinWidthMET_->Fill(vtxMassMu);
-	       h1_MassMuMuDijet1GeVbinMET_->Fill(vtxMassMu);
+	       h1_MassMuMuDijetBinWidthMET_->Fill(m_vtxMassMu);
+	       h1_MassMuMuDijet1GeVbinMET_->Fill(m_vtxMassMu);
 	     }
              if(passDijetcuts==1 && PFMet_et_cor > 100.0) {
-               h1_MassMuMuDijetBinWidthMET100_->Fill(vtxMassMu);
-               h1_MassMuMuDijet1GeVbinMET100_->Fill(vtxMassMu);
+               h1_MassMuMuDijetBinWidthMET100_->Fill(m_vtxMassMu);
+               h1_MassMuMuDijet1GeVbinMET100_->Fill(m_vtxMassMu);
              }
              bool passBTaggingDiscriminator2 = BTaggingDiscriminator2(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
 	     if(passBTaggingDiscriminator2==1) {
-	       h1_BTagMassMuMu_->Fill(vtxMassMu);
+	       h1_BTagMassMuMu_->Fill(m_vtxMassMu);
 	     }
 	     bool passBTaggingDiscriminator3 = BTaggingDiscriminator3(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
 	     if(passBTaggingDiscriminator3==1) {
-	       h1_BTagMassMuMu_->Fill(vtxMassMu);
+	       h1_BTagMassMuMu_->Fill(m_vtxMassMu);
              }
-	     PlotRecoInfo(CosmicRejec,vtxMassMu,MassGen,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,mPtGen1,EtaRecMu1,
+	     PlotRecoInfo(CosmicRejec,m_vtxMassMu,MassGen,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,mPtGen1,EtaRecMu1,
 			  PtRecTunePMuBestTrack2,PtRecTunePMu2,PtRecMuBestTrack2,mPtGen2,EtaRecMu2);
-	     CosThetaCollinSoper(PtRecTunePMuBestTrack1,EtaRecMu1,PhiRecMu1,EnRecMu1,
-				 PtRecTunePMuBestTrack2,EtaRecMu2,PhiRecMu2,EnRecMu2,
-				 ChargeRecMu1,vtxMassMu);
+	     m_csAngle = CosThetaCollinSoper(PtRecTunePMuBestTrack1,EtaRecMu1,PhiRecMu1,EnRecMu1,
+					     PtRecTunePMuBestTrack2,EtaRecMu2,PhiRecMu2,EnRecMu2,
+					     ChargeRecMu1,m_vtxMassMu);
 	     Boson(pxRecMu1,pyRecMu1,pzRecMu1,EnRecMu1,pxRecMu2,pyRecMu2,pzRecMu2,EnRecMu2,
 		   ChargeRecMu1,PFMet_et_cor,PFMet_px_cor,PFMet_py_cor,PFMet_pz_cor,PFMet_en_cor);
 	     bool passBTaggingDiscriminator = BTaggingDiscriminator(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
 	     if(passBTaggingDiscriminator==1)
 	       {
-		 h1_BTagMassMuMuBinWidth_->Fill(vtxMassMu);
-		 h1_BTagMassMuMu1GeVbin_->Fill(vtxMassMu);
+		 h1_BTagMassMuMuBinWidth_->Fill(m_vtxMassMu);
+		 h1_BTagMassMuMu1GeVbin_->Fill(m_vtxMassMu);
 	       }
 	     if(passBTaggingDiscriminator==0)
 	       {
-		 h1_ZprimeRecomassBinWidthAfterBtaging_->Fill(vtxMassMu);
+		 h1_ZprimeRecomassBinWidthAfterBtaging_->Fill(m_vtxMassMu);
 	       }
 	   }
        }
@@ -600,6 +619,8 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
   h1_ZprimeRecomass_->Fill(vertexMassMu,weight);
   h1_MassRecoInAccep_->Fill(MassGenerated,weight);
   //if (!(inputfile.Contains("WW") && vertexMassMu>2000.) ) {
+  int priEtaBin = -1;
+  int secEtaBin = -1;
     //BB
     if(fabs(etaMu1)<1.2 && fabs(etaMu2)<1.2)
       {
@@ -608,20 +629,24 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
 	//h1_ZprimeRecomass_->Fill(vertexMassMu,weight);
 	h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
         h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
+    priEtaBin = 1;
       }
     //BE
     if( fabs(etaMu1)<1.2 && (fabs(etaMu2) > 1.2 && fabs(etaMu2) < 2.4) )
       {
 	h1_ZprimeRecomassBinWidthAllBE_->Fill(vertexMassMu,weight);
+    priEtaBin = 2;
       }
     if( fabs(etaMu2)<1.2 && (fabs(etaMu1) > 1.2 && fabs(etaMu1) < 2.4) )
       {
 	h1_ZprimeRecomassBinWidthAllBE_->Fill(vertexMassMu,weight);
+    priEtaBin = 2;
       }
     //EE
     if( (fabs(etaMu1) > 1.2 && fabs(etaMu1) < 2.4) && (fabs(etaMu2) > 1.2 && fabs(etaMu2) < 2.4) )
       {
 	h1_ZprimeRecomassBinWidthAllEE_->Fill(vertexMassMu,weight);
+    priEtaBin = 3;
       }
     //============================================================================
     //BE+
@@ -632,6 +657,7 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
 	//h1_ZprimeRecomass_->Fill(vertexMassMu,weight);
 	h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
 	h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    secEtaBin = 4;
       }
 
     if( fabs(etaMu2)<1.2 && (etaMu1 > 1.2 && etaMu1 < 2.4) )
@@ -641,6 +667,7 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
 	//h1_ZprimeRecomass_->Fill(vertexMassMu,weight);
 	h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
 	h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    secEtaBin = 4;
       }
 
     //BE-
@@ -651,6 +678,7 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
 	//h1_ZprimeRecomass_->Fill(vertexMassMu,weight);
 	//h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
 	h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    secEtaBin = 5;
       }
 
     if( fabs(etaMu2)<1.2 && (etaMu1 > -2.4 && etaMu1 < -1.2) )
@@ -660,6 +688,7 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
 	//h1_ZprimeRecomass_->Fill(vertexMassMu,weight);
 	//h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,weight);
 	h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    secEtaBin = 5;
       }
 
     //E+E-
@@ -670,6 +699,7 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
 	//h1_ZprimeRecomass_->Fill(vertexMassMu,weight);
 	//h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,weight);
 	h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    secEtaBin = 6;
       }
     if( (etaMu2 > 1.2 && etaMu2 < 2.4) && (etaMu1 > -2.4 && etaMu1 < -1.2) )
       {
@@ -678,8 +708,23 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
 	//h1_ZprimeRecomass_->Fill(vertexMassMu,weight);
 	//h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,weight);
 	h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    secEtaBin = 6;
       }
     //}
+
+  h2_CSMassBinned_       ->Fill(m_vtxMassMu,               0.,weight);
+  h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+0,weight);
+  h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+0,weight);
+  if (m_csAngle > 0) {
+    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               2.,weight);
+    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+2,weight);
+    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+2,weight);
+  } else {
+    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               1.,weight);
+    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+1,weight);
+    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+1,weight);
+  }
+
   h1_ZprimeRecomass50_->Fill(vertexMassMu);
   h1_ZprimeRecomass20_->Fill(vertexMassMu);
   if(fabs(etaMu1)<1.2 && fabs(etaMu2)<1.2){h1_ZprimeRecomassBB_->Fill(vertexMassMu);}
@@ -1089,9 +1134,9 @@ void ZprimeMuMuPatMiniAodNewData::MuonPassingTightID(){
 }
 
 
-void ZprimeMuMuPatMiniAodNewData::CosThetaCollinSoper(float Et1,float Eta1,float Phi1,float En1,
-						  float Et2,float Eta2,float Phi2,float En2,
-						  float ChargeEle1,float RecoMass){
+float ZprimeMuMuPatMiniAodNewData::CosThetaCollinSoper(float Et1,float Eta1,float Phi1,float En1,
+						       float Et2,float Eta2,float Phi2,float En2,
+						       float ChargeEle1,float RecoMass){
 
   TLorentzVector Ele;
   TLorentzVector Elebar;
@@ -1175,6 +1220,8 @@ void ZprimeMuMuPatMiniAodNewData::CosThetaCollinSoper(float Et1,float Eta1,float
   //double sin2theta = pow(D.Pt()/Q.Mag(), 2)
   //- 1.0/pow(Q.Mag(), 2)/(pow(Q.Mag(), 2) + pow(Q.Pt(), 2))*pow(dt_qt, 2);
   //h1_Sin2AngleCollinSoperCorrect_->Fill(sin2theta,weight);
+
+  return costheta;
 }
 
 

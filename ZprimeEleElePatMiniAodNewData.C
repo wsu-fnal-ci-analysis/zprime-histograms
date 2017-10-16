@@ -20,7 +20,7 @@
 #include "TLorentzVector.h"
 #include <time.h>
 #include <iostream>
- #include <vector>
+#include <vector>
 #include <algorithm>
 #include <fstream>
 #include <sstream>
@@ -59,6 +59,8 @@ FILE * pFile;
    weight=1.;
    //if( DATA_type=="2015") weight=1.;
    TFile *output = new TFile("Data_B_rereco_json_analysis.root","recreate");
+   // Enable Sumw2 for histograms as we'll be normalizing them
+   // TH1::SetDefaultSumw2();
    //================================================================================== 
    //                                                                                 =
    //             Start the histograms for CollinSoper CMF                            =
