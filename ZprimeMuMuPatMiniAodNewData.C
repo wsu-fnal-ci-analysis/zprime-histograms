@@ -65,7 +65,7 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
   float binNormNr2=0.;
   for (int ibin = 0; ibin <= NMBINS2; ibin++) {
     logMbins2[ibin] = exp(log(MMIN2) + (log(MMAX2)-log(MMIN2))*ibin/NMBINS2);
-    //cout << logMbins2[ibin] << endl;
+    //cout << logMbins2[ibin] << std::endl;
   }
   h1_BTagMassMuMuBinWidth_        = new TH1F("BTagMassMuMuBinWidth","BTagMassMuMuBinWidth",NMBINS2, logMbins2);
   h1_MassMuMuDijetBinWidth_       = new TH1F("MassMuMuDijetBinWidth","MassMuMuDijetBinWidth",NMBINS2, logMbins2);
@@ -112,8 +112,9 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
   h1_CosAngleCollinSoperCorrect700Mass3000_  = new TH1F("CosAngleCollinSoperCorrect700Mass3000","",NbBins,MinBin,MaxBin);
   h1_CosAngleCollinSoperCorrect4900Mass5100_ = new TH1F("CosAngleCollinSoperCorrect4900Mass5100","",NbBins,MinBin,MaxBin);
   h1_absCosAngleCollinSoperCorrect4500Mass5500_ = new TH1F("absCosAngleCollinSoperCorrect4500Mass5500","",5,0.0,1.0);
-  double etaBins[]  = {-2.4, -1.2,0.,1.2,2.4};
-  std::array<std::string,7> etaBinLabels{"All","BB","BE","EE","BE+","BE-","E+E-"};
+
+  double etaBins[] = {-2.4,-1.2,0.,1.2,2.4};
+  std::array<std::string,9> etaBinLabels{"All","BB","BE","EE","BE+","BE-","E+E-","E-E-","E+E+"};
   std::array<std::string,3> csBinLabels{"","CS < 0;","CS > 0;"};
   double massBins[] = {0., 200., 400., 500., 700., 1100., 1900., 3500., 5000.};
   int nEtaBins  = sizeof(etaBins)/sizeof(etaBins[0]);
@@ -125,19 +126,40 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
   // for (auto e: etaBin) {
   //   int cb = 0
   //   for (auto c: csBin) {
+  //     h1_SmearedMassBinned_[cb][eb] = new TH1D("CS"+c+"SmearedMass"+e,"", 20000,0,20000);
   //     h1_MassBinned_[cb][eb]        = new TH1D("CS"+c+"Mass"+e       ,"", 20000,0,20000);
+  //     h1_MassUpBinned_[cb][eb]      = new TH1D("CS"+c+"MassUp"+e     ,"", 20000,0,20000);
+  //     h1_MassDownBinned_[cb][eb]    = new TH1D("CS"+c+"MassDown"+e   ,"", 20000,0,20000);
   //     ++cb;
   //   }
   //   ++eb;
   // }
-  h2_CSMassBinned_        = new TH2D("CSMassBinned"       ,"", 20000,0.,20000., 25,-0.5,24.5);
-  // h2_CSPosMassBinned_        = new TH2D("CSPosMassBinned"       ,"", 20000,0.,20000., 25,-0.5,24.5);
-  // h2_CSNegMassBinned_        = new TH2D("CSNegMassBinned"       ,"", 20000,0.,20000., 25,-0.5,24.5);
+  // h2_CSSmearedMassBinned_ = new TH2D("CSSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
+  h2_CSMassBinned_        = new TH2D("CSMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSMassUpBinned_      = new TH2D("CSMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSMassDownBinned_    = new TH2D("CSMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosSmearedMassBinned_ = new TH2D("CSPosSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosMassBinned_        = new TH2D("CSPosMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosMassUpBinned_      = new TH2D("CSPosMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosMassDownBinned_    = new TH2D("CSPosMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegSmearedMassBinned_ = new TH2D("CSNegSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegMassBinned_        = new TH2D("CSNegMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegMassUpBinned_      = new TH2D("CSNegMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegMassDownBinned_    = new TH2D("CSNegMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
   for (int eb = 0; eb < etaBinLabels.size(); ++eb) {
     for (int cb = 0; cb < csBinLabels.size(); ++cb) {
+      // h2_CSSmearedMassBinned_->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
       h2_CSMassBinned_       ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
+      // h2_CSMassUpBinned_     ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
+      // h2_CSMassDownBinned_   ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
+      // h2_CSPosSmearedMassBinned_->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
       // h2_CSPosMassBinned_       ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+      // h2_CSPosMassUpBinned_     ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+      // h2_CSPosMassDownBinned_   ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+      // h2_CSNegSmearedMassBinned_->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
       // h2_CSNegMassBinned_       ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+      // h2_CSNegMassUpBinned_     ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+      // h2_CSNegMassDownBinned_   ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
     }
   }
   //==================================================================================
@@ -254,7 +276,7 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
 
   for (int ibin = 0; ibin <= NMBINS; ibin++) {
     logMbins[ibin] = exp(log(MMIN) + (log(MMAX)-log(MMIN))*ibin/NMBINS);
-    //cout << logMbins[ibin] << endl;
+    //cout << logMbins[ibin] << std::endl;
   }
   h1_ZprimeRecomassBinWidthAll_     = new TH1F("ZprimeRecomassBinWidthAll","ZprimeRecomassBinWidthAll",NMBINS, logMbins);
   h1_ZprimeRecomassBinWidth_        = new TH1F("ZprimeRecomassBinWidth","ZprimeRecomassBinWidth",NMBINS, logMbins);
@@ -299,10 +321,10 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
   Char_t txtOUT[500];
   sprintf(txtOUT,"ZprimeToMuMu_13TeV_cand.txt");
   output_txt.open(txtOUT);
-  output_txt << "CANDIDATES Events:" << endl;
+  output_txt << "CANDIDATES Events:" << std::endl;
   Char_t outform[20000];
   sprintf (outform,"run: lumi: event: dil_mass: pTmu1: pTmu2: Etamu1: Etamu2:");
-  output_txt  << outform << endl;
+  output_txt  << outform << std::endl;
   //==================================================================================
   if (fChain == 0) return;
   Long64_t nentries = fChain->GetEntriesFast();
@@ -312,7 +334,7 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     //if (inputfile.Contains("amcatnlo") && !(inputfile.Contains("DYJetsToTauTau"))) {
-    //cout << "Reweighting sample of amcatnlo with weight= " << MC_weighting->at(0)<< endl;
+    //cout << "Reweighting sample of amcatnlo with weight= " << MC_weighting->at(0)<< std::endl;
     //weight=weight*MC_weighting->at(0);
     //}
     //if (event_runNo==251249) continue;
@@ -345,23 +367,26 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
     //=========================================================
     bool firstMuFinal  = SelectFirstMuon(PtRecTunePMuBestTrack1,EnRecMu1,EtaRecMu1,PhiRecMu1,ChargeRecMu1,flagmu1,
 					 pxRecMu1,pyRecMu1,pzRecMu1,pRecMu1,dxyRecMu1,PtRecTunePMu1,
-					 PtRecMuBestTrack1);
+					 PtRecMuBestTrack1,
+					 genET1, genEta1, genPhi1, genEn1);
 
     bool secondMuFinal = SelectSecondMuon(ChargeRecMu1,flagmu1,PtRecTunePMuBestTrack1,EtaRecMu1,PhiRecMu1,
 					  PtRecTunePMuBestTrack2,EnRecMu2,
 					  EtaRecMu2,PhiRecMu2,ChargeRecMu2,pxRecMu2,pyRecMu2,pzRecMu2,pRecMu2,dxyRecMu2,
-					  PtRecTunePMu2,PtRecMuBestTrack2);
+					  PtRecTunePMu2,PtRecMuBestTrack2,
+					  genET2, genEta2, genPhi2, genEn2);
 
     PickThehighestMass(m_vtxMassMu,m_vtxChi2Mu,event_evtNo);
+
     double CosmicRejec = ThreeDangle(pxRecMu1,pyRecMu1,pzRecMu1,pRecMu1,
 				     pxRecMu2,pyRecMu2,pzRecMu2,pRecMu2);
     //=========================================================
     //        call the method for N-1 plots                   =
     //                                                        =
     //=========================================================
-    //cout << "firstMu= " << firstMuFinal << " " << "secondMu= " << secondMuFinal << endl;
+    //cout << "firstMu= " << firstMuFinal << " " << "secondMu= " << secondMuFinal << std::endl;
     if (firstMuFinal == 0 || secondMuFinal == 0) continue;
-    //cout << "Vertex mass mu= " << m_vtxMassMu << endl;
+    //cout << "Vertex mass mu= " << m_vtxMassMu << std::endl;
     //if (m_vtxMassMu<60 || m_vtxMassMu>1200) continue;
     if (m_vtxMassMu<60) continue;
     //=========================================================
@@ -645,20 +670,20 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
   h1_ZprimeRecomass_->Fill(vertexMassMu,weight);
   h1_MassRecoInAccep_->Fill(MassGenerated,weight);
 
-  h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        0.,weight);
+  // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        0.,weight);
   h2_CSMassBinned_       ->Fill(m_vtxMassMu,               0.,weight);
-  h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),0.,weight);
-  h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),0.,weight);
+  // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),0.,weight);
+  // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),0.,weight);
   if (m_csAngle > 0) {
-    h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        2.,weight);
+    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        2.,weight);
     h2_CSMassBinned_       ->Fill(m_vtxMassMu,               2.,weight);
-    h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),2.,weight);
-    h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),2.,weight);
+    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),2.,weight);
+    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),2.,weight);
   } else {
-    h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        1.,weight);
+    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        1.,weight);
     h2_CSMassBinned_       ->Fill(m_vtxMassMu,               1.,weight);
-    h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),1.,weight);
-    h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),1.,weight);
+    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),1.,weight);
+    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),1.,weight);
   }
 
   /*
@@ -672,10 +697,10 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
 	      << "  h2_CSMassBinned_->ProjectionX(\"tmp\",1,1)->GetEntries(): " << h2_CSMassBinned_->ProjectionX("tmp",1,1)->GetEntries()
 	      << "  h1_ZprimeRecomass_->GetEntries(): " << h1_ZprimeRecomass_->GetEntries()
 	      << std::endl;
-  if (fabs(weight-newweight) > 0)
+  if (fabs(weight-weight) > 0)
     std::cout << "Mass values different"
 	      << "  weight: " << weight
-	      << "  newweight: " << newweight
+	      << "  weight: " << weight
 	      << std::endl;
   if (fabs(m_vtxMassMu-vertexMassMu) > 0)
     std::cout << "Mass values different"
@@ -688,49 +713,49 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
   int secEtaBin = -1;
 
   if (fabs(etaMu1) < 1.2 && fabs(etaMu2) < 1.2) {  //BB
-    h1_ZprimeRecomassBinWidthBB_->Fill(vertexMassMu,newweight);
-    h1_ZprimeRecomass60to120BB_->Fill(vertexMassMu,newweight);
+    h1_ZprimeRecomassBinWidthBB_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomass60to120BB_->Fill(vertexMassMu,weight);
     // SHOULD BE FILLED FOR ALL EVENTS???
-    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,newweight);
-    h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,newweight);
+    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
     priEtaBin = 1;
   } else if ((fabs(etaMu1) < 1.2 && (fabs(etaMu2) > 1.2 && fabs(etaMu2) < 2.4)) ||
 	     (fabs(etaMu2) < 1.2 && (fabs(etaMu1) > 1.2 && fabs(etaMu1) < 2.4))) {  //BE
-    h1_ZprimeRecomassBinWidthAllBE_->Fill(vertexMassMu,newweight);
-    h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,newweight);
-    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,newweight);
+    h1_ZprimeRecomassBinWidthAllBE_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
     priEtaBin = 2;
 
     //==================Sub-categories============================================
     if ((fabs(etaMu1) < 1.2 && (etaMu2 > 1.2 && etaMu2 < 2.4)) ||
 	(fabs(etaMu2) < 1.2 && (etaMu1 > 1.2 && etaMu1 < 2.4))) {  //BE+
-      h1_ZprimeRecomassBinWidthBEpos_->Fill(vertexMassMu,newweight);
-      h1_ZprimeRecomass60to120BEpos_->Fill(vertexMassMu,newweight);
-      // h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,newweight);
-      // h1_ZprimeRecomass60to120_->Fill(vertexMassMu,newweight);
+      h1_ZprimeRecomassBinWidthBEpos_->Fill(vertexMassMu,weight);
+      h1_ZprimeRecomass60to120BEpos_->Fill(vertexMassMu,weight);
+      // h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
+      // h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
       secEtaBin = 4;
     } else if ((fabs(etaMu1) < 1.2 && (etaMu2 > -2.4 && etaMu2 < -1.2)) ||
 	       (fabs(etaMu2) < 1.2 && (etaMu1 > -2.4 && etaMu1 < -1.2))) {  //BE-
-      h1_ZprimeRecomassBinWidthBEnev_->Fill(vertexMassMu,newweight);
-      h1_ZprimeRecomass60to120BEnev_->Fill(vertexMassMu,newweight);
+      h1_ZprimeRecomassBinWidthBEnev_->Fill(vertexMassMu,weight);
+      h1_ZprimeRecomass60to120BEnev_->Fill(vertexMassMu,weight);
       // WHY FILLED FOR BE+ BUT NOT BE-??
-      // h1_ZprimeRecomass_->Fill(vertexMassMu,newweight); // DUPLICATE!!!!!
-      // h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,newweight);
-      // h1_ZprimeRecomass60to120_->Fill(vertexMassMu,newweight);
+      // h1_ZprimeRecomass_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
+      // h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
+      // h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
       secEtaBin = 5;
     }
   } else if ((fabs(etaMu1) > 1.2 && fabs(etaMu1) < 2.4) &&
 	     (fabs(etaMu2) > 1.2 && fabs(etaMu2) < 2.4)) {  //EE
-    h1_ZprimeRecomassBinWidthAllEE_->Fill(vertexMassMu,newweight);
+    h1_ZprimeRecomassBinWidthAllEE_->Fill(vertexMassMu,weight);
     priEtaBin = 3;
   //==================Sub-categories============================================
     if (((etaMu1 > 1.2 && etaMu1 < 2.4) && (etaMu2 > -2.4 && etaMu2 < -1.2)) ||
 	((etaMu2 > 1.2 && etaMu2 < 2.4) && (etaMu1 > -2.4 && etaMu1 < -1.2))) {  //E+E-
-      h1_ZprimeRecomassBinWidthEE_->Fill(vertexMassMu,newweight);
-      h1_ZprimeRecomass60to120EE_->Fill(vertexMassMu,newweight);
-      //h1_ZprimeRecomass_->Fill(vertexMassMu,newweight); // DUPLICATE!!!!!
-      //h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,newweight); // DUPLICATE!!!!!
-      h1_ZprimeRecomass60to120_->Fill(vertexMassMu,newweight);
+      h1_ZprimeRecomassBinWidthEE_->Fill(vertexMassMu,weight);
+      h1_ZprimeRecomass60to120EE_->Fill(vertexMassMu,weight);
+      //h1_ZprimeRecomass_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
+      //h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
+      h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
       secEtaBin = 6;
     // currently ignored cases?
     } else if ((etaMu1 > -2.4 && etaMu1 < -1.2) && (etaMu2 > -2.4 && etaMu2 < -1.2)) {  //E-E-
@@ -818,42 +843,42 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
 	    << std::endl;
   std::cout << "primary bin (" << priEtaBin << "*3)+0(" << (priEtaBin*3)+0 << ")" << std::endl;
   */
-  h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+0,weight);
+  // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+0,weight);
   h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+0,weight);
-  h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+0,weight);
-  h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+0,weight);
+  // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+0,weight);
+  // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+0,weight);
   if (secEtaBin > 0) {
     // std::cout << "secondary bin (" << secEtaBin << "*3)+0(" << (secEtaBin*3)+0 << ")" << std::endl;
-    h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+0,weight);
+    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+0,weight);
     h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+0,weight);
-    h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+0,weight);
-    h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+0,weight);
+    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+0,weight);
+    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+0,weight);
   }
   if (m_csAngle > 0) {
     // std::cout << "primary bin (" << priEtaBin << "*3)+2(" << (priEtaBin*3)+2 << ")" << std::endl;
-    h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+2,weight);
+    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+2,weight);
     h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+2,weight);
-    h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+2,weight);
-    h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+2,weight);
+    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+2,weight);
+    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+2,weight);
     if (secEtaBin > 0) {
       // std::cout << "secondary bin (" << secEtaBin << "*3)+2(" << (secEtaBin*3)+2 << ")" << std::endl;
-      h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+2,weight);
+      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+2,weight);
       h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+2,weight);
-      h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+2,weight);
-      h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+2,weight);
+      // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+2,weight);
+      // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+2,weight);
     }
   } else {
     // std::cout << "primary bin (" << priEtaBin << "*3)+1(" << (priEtaBin*3)+1 << ")" << std::endl;
-    h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+1,weight);
+    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+1,weight);
     h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+1,weight);
-    h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+1,weight);
-    h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+1,weight);
+    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+1,weight);
+    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+1,weight);
     if (secEtaBin > 0) {
       // std::cout << "secondary bin (" << secEtaBin << "*3)+1(" << (secEtaBin*3)+1 << ")" << std::endl;
-      h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+1,weight);
+      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+1,weight);
       h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+1,weight);
-      h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+1,weight);
-      h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+1,weight);
+      // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+1,weight);
+      // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+1,weight);
     }
   }
 
@@ -931,17 +956,17 @@ void ZprimeMuMuPatMiniAodNewData::PickThehighestMass(float &vtxHighestMass,float
     {
       Nb++;
       countlept=2*i;
-      //cout << "vtx mass" << Mu_vtxMass->at(i) << " Chi2= " << Mu_vtxNormChi2->at(i)<< endl;
-      //cout << "vtx Mass lepton= " << Mu_vtxMassLept->at(countlept) << " " <<  Mu_vtxMassLept->at(countlept+1)<< endl;
+      //cout << "vtx mass" << Mu_vtxMass->at(i) << " Chi2= " << Mu_vtxNormChi2->at(i)<< std::endl;
+      //cout << "vtx Mass lepton= " << Mu_vtxMassLept->at(countlept) << " " <<  Mu_vtxMassLept->at(countlept+1)<< std::endl;
       float chargepair=0;
       for (unsigned j=0; j<Mu_nbMuon->size(); j++) {
 	if (Mu_ptTunePMuonBestTrack->at(j)==Mu_vtxMassLept->at(countlept)) chargepair=Mu_chargeTunePMuonBestTrack->at(j);
 	if (Mu_ptTunePMuonBestTrack->at(j)==Mu_vtxMassLept->at(countlept+1)) chargepair=chargepair*Mu_chargeTunePMuonBestTrack->at(j);
       }
 
-      //cout << "Chargepair for vtxmass= " <<  Mu_vtxMass->at(i) << "   is " << chargepair << endl;
+      //cout << "Chargepair for vtxmass= " <<  Mu_vtxMass->at(i) << "   is " << chargepair << std::endl;
       if (chargepair!=-1) continue;
-      //cout << "Chargepair for vtxmass= " <<  Mu_vtxMass->at(i) << "   is " << chargepair << endl;
+      //cout << "Chargepair for vtxmass= " <<  Mu_vtxMass->at(i) << "   is " << chargepair << std::endl;
 
 
       int leptmatchBest=0;
@@ -949,7 +974,7 @@ void ZprimeMuMuPatMiniAodNewData::PickThehighestMass(float &vtxHighestMass,float
       if (Mu_vtxMassLept->at(countlept)==PtRecTunePMu2 && Mu_vtxMassLept->at(countlept+1)==PtRecTunePMu1) leptmatchBest=2;
 
       if (leptmatchBest!=2) continue;
-      //cout << "Chargepair surviving matching for vtxmass= " <<  Mu_vtxMass->at(i) << "   with " << leptmatchBest << " leptons" << endl;
+      //cout << "Chargepair surviving matching for vtxmass= " <<  Mu_vtxMass->at(i) << "   with " << leptmatchBest << " leptons" << std::endl;
 
       if (Mu_vtxNormChi2->at(i)> 20) continue;
       if (Mu_vtxMass->at(i)>Massinv) {
@@ -1409,7 +1434,7 @@ void ZprimeMuMuPatMiniAodNewData::PrintEventInformation(unsigned int runNumber, 
                  << "        " << event_lumi
                  << "        " << event_evtNo
                  << "        " << vtxChi2
-                 << "        " << vtxMass << endl;
+                 << "        " << vtxMass << std::endl;
       for (unsigned i=0; i<Mu_nbMuon->size(); i++) {
         /*if (fabs(Mu_etaTunePMuonBestTrack->at(i)) < EtaCut) {
 	  std::cout << "[1] eta="<<Mu_etaTunePMuonBestTrack->at(i) << std::endl;

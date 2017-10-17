@@ -677,6 +677,8 @@ ZprimeMuMuPatMiniAodNewMC::ZprimeMuMuPatMiniAodNewMC(Char_t namechar_[300], TTre
 ZprimeMuMuPatMiniAodNewMC::~ZprimeMuMuPatMiniAodNewMC()
 {
    if (!fChain) return;
+   std::cout << std::hex << fChain << std::endl;
+   std::cout << std::hex << fChain->GetCurrentFile() << std::endl;
    delete fChain->GetCurrentFile();
 }
 

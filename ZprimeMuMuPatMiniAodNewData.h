@@ -19,7 +19,6 @@
 #include "TH2D.h"
 #include "TH3F.h"
 #include "TLorentzVector.h"
-#include <time.h>
 #include <iostream>
 #include <vector>
 #include <TROOT.h>
@@ -328,7 +327,7 @@ public :
    virtual void     Loop();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
-    bool DiPFJet(float MuonEta1,float MuonPhi1,float MuonEta2,float MuonPhi2);
+   bool DiPFJet(float MuonEta1,float MuonPhi1,float MuonEta2,float MuonPhi2);
    bool DiPFJetCut(float MuonEta1,float MuonPhi1,float MuonEta2,float MuonPhi2);
    void PrintEventInformation(unsigned int runNumber, unsigned int lumiNumber, unsigned int eventNumber,
 			      float vtxChi2, float vtxMass, float CosmicRejection);
@@ -336,12 +335,14 @@ public :
                         float &Phimuon1,int &ChargeMu1,unsigned &FlagMu1,
                         float &pxmuon1,float &pymuon1,float &pzmuon1,
                         float &pmuon1,float &dxymuon1,float &pTmuon1tuneP,
-			float &pTmuonBestTrack1);
+			float &pTmuonBestTrack1,
+			float &genMu1Pt, float &genMu1Eta, float &genMu1Phi, float &genMu1En);
    bool SelectSecondMuon(int ChargeMu1,unsigned FlagMu1,float pTmuon1,float Etamuon1,float Phimuon1,
 			 float &pTmuon2,float &Enmuon2,
                          float &Etamuon2,float &Phimuon2,int &ChargeMu2,float &pxmuon2,
                          float &pymuon2,float &pzmuon2,float &pmuon2,float &dxymuon2,
-			 float &pTmuon2tuneP,float &pTmuonBestTrack2);
+			 float &pTmuon2tuneP,float &pTmuonBestTrack2,
+			 float &genMu2Pt, float &genMu2Eta, float &genMu2Phi, float &genMu2En);
    float Mass(float Pt1,float Eta1,float Phi1,float En1,
               float Pt2,float Eta2,float Phi2,float En2);
    void PlotRecoInfo(float CosmicMuonRejec,float vertexMassMu,float MassGenerated,
@@ -352,24 +353,25 @@ public :
    void PickThehighestMass(float &vtxHighestMass,float &vtxHighestChi2,int EvtNb);
    double ThreeDangle(float pxMu1,float pyMu1,float pzMu1,float pMu1,
                       float pxMu2,float pyMu2,float pzMu2,float pMu2);
-   bool SelectFirstGenMu(float &ETMu1,float &PhiSCMu1,
-                         float &EtaSCMu1,float &EnMu1,
+   bool SelectFirstGenMu(float &ETMu1,float &PhiMu1,
+                         float &EtaMu1,float &EnMu1,
                          int &IDele1,int &Statele1,
                          unsigned &GenFlag1);
    
-   bool SelectSecondGenMu(unsigned GenFlag1,float ETMu1,float &ETMu2,float &PhiSCMu2,
-                          float &EtaSCMu2,float &EnMu2,int &IDele2,int &Statele2);
+   bool SelectSecondGenMu(unsigned GenFlag1,float ETMu1,float &ETMu2,float &PhiMu2,
+                          float &EtaMu2,float &EnMu2,int &IDele2,int &Statele2);
    /*
    bool GenRecoMatchMu1(float RecoEta1,float RecoPhi1,
-                        float &ETMu1,float &PhiSCMu1,
-                        float &EtaSCMu1,float &EnMu1,
+                        float &ETMu1,float &PhiMu1,
+                        float &EtaMu1,float &EnMu1,
                         unsigned &GenFlag1);
    */
-   bool GenRecoMatchMu(float RecoEta1,float RecoPhi1);
+   bool GenRecoMatchMu(float RecoEta1,float RecoPhi1,
+		       float &ptGmu,float &etaGmu,float &phiGmu,float &enGmu);
    /*
    bool GenRecoMatchMu2(unsigned GenFlag1,float RecoEta2,float RecoPhi2,
-                        float &ETMu2,float &PhiSCMu2,
-                        float &EtaSCMu2,float &EnMu2);
+                        float &ETMu2,float &PhiMu2,
+                        float &EtaMu2,float &EnMu2);
    */
    void PlotGenInfo(float ZprimeGenMass,float EtaGenMu1,float EtaGenMu2,float PtGenMu1,
 		    float PtGenMu2,float EnGenMu1,float EnGenMu2);
@@ -519,7 +521,10 @@ public :
    TH1F* h1_CosAngleCollinSoperCorrect700Mass3000_;
    TH1F* h1_CosAngleCollinSoperCorrect4900Mass5100_;
    TH1F* h1_absCosAngleCollinSoperCorrect4500Mass5500_;
+   /* std::array<std::array<TH1D*,4> 3> h1_SmearedMassBinned_; */
    /* std::array<std::array<TH1D*,4> 3> h1_MassBinned_       ; */
+   /* std::array<std::array<TH1D*,4> 3> h1_MassUpBinned_     ; */
+   /* std::array<std::array<TH1D*,4> 3> h1_MassDownBinned_   ; */
    TH2D* h2_CSMassBinned_       ;
    TH2D* h2_CSPosMassBinned_       ;
    TH2D* h2_CSNegMassBinned_       ;
@@ -646,6 +651,8 @@ ZprimeMuMuPatMiniAodNewData::ZprimeMuMuPatMiniAodNewData(Char_t namechar_[300], 
 ZprimeMuMuPatMiniAodNewData::~ZprimeMuMuPatMiniAodNewData()
 {
    if (!fChain) return;
+   std::cout << std::hex << fChain << std::endl;
+   std::cout << std::hex << fChain->GetCurrentFile() << std::endl;
    delete fChain->GetCurrentFile();
 }
 

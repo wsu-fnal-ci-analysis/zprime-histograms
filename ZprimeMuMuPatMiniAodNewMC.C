@@ -116,7 +116,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop()
   h1_CosAngleCollinSoperCorrect4900Mass5100_    = new TH1F("CosAngleCollinSoperCorrect4900Mass5100","",NbBins,MinBin,MaxBin);
   h1_absCosAngleCollinSoperCorrect4500Mass5500_ = new TH1F("absCosAngleCollinSoperCorrect4500Mass5500","",5,0.0,1.0);
 
-  double etaBins[]  = {-2.4, -1.2,0.,1.2,2.4};
+  double etaBins[] = {-2.4,-1.2,0.,1.2,2.4};
   std::array<std::string,9> etaBinLabels{"All","BB","BE","EE","BE+","BE-","E+E-","E-E-","E+E+"};
   std::array<std::string,3> csBinLabels{"","CS < 0;","CS > 0;"};
   double massBins[] = {0., 200., 400., 500., 700., 1100., 1900., 3500., 5000.};
@@ -943,7 +943,7 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
       h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+1,weight);
     }
   }
-  //}
+
   h1_ZprimeRecomass50_->Fill(vertexMassMu,weight);
   h1_ZprimeRecomass20_->Fill(vertexMassMu,weight);
   if (fabs(etaMu1) < 1.2 && fabs(etaMu2) < 1.2) {
