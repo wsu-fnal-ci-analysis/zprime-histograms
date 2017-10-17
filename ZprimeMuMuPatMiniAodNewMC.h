@@ -20,6 +20,7 @@
 #include "TH3F.h"
 #include "TLorentzVector.h"
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <TROOT.h>
 #include <TChain.h>
@@ -337,9 +338,10 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop();
+   virtual void     Loop(bool debug);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
+   void initMemberVariables();
    bool DiPFJet(float MuonEta1,float MuonPhi1,float MuonEta2,float MuonPhi2);
    bool DiPFJetCut(float MuonEta1,float MuonPhi1,float MuonEta2,float MuonPhi2);
    void PrintEventInformation(unsigned int runNumber, unsigned int lumiNumber, unsigned int eventNumber,
@@ -428,7 +430,8 @@ public :
    void DrawWJetsMassBE2();
    void DrawWJetsMassEE();
    float FRweight(float eta, float pt);
-   //================================================================================
+
+   //=========Do any of these ever get properly initialized?=========================
    float FR_Ptcut;
    float parEB1,parEB2,parEB3,parEB4,parEB5,parEB6,parEB7,parEB8,parEB9,parEB10;
    float parEE1,parEE2,parEE3,parEE4,parEE5,parEE6,parEE7,parEE8,parEE9,parEE10;
@@ -440,9 +443,9 @@ public :
    float PtDYTRecMu1,PtDYTRecMu2,PtRecTunePMu1,PtRecTunePMu2,PtRecMuBestTrack1,PtRecMuBestTrack2;
    float RecoHLTMatchingDeltaRcut,deltaRcut,minMassCut,maxMassCut;
    float m_vtxChi2Mu,m_vtxMassMu,m_vtxMassSmearedMu,m_scaleUnc,m_csAngle;
-   float mPtGen1,mPhiGen1,mEtaGen1,mEnGen1;
-   unsigned mGenFlag1;
-   float mPtGen2,mPhiGen2,mEtaGen2,mEnGen2;
+   float m_ptGen1,m_phiGen1,m_etaGen1,m_enGen1;
+   unsigned m_genFlag1;
+   float m_ptGen2,m_phiGen2,m_etaGen2,m_enGen2;
    int ChargeRecMu1,ChargeRecMu2;
    unsigned flagmu1;
    unsigned flag1;
@@ -451,203 +454,208 @@ public :
    float pxRecMu1,pyRecMu1,pzRecMu1,pRecMu1,dxyRecMu1;
    float pxRecMu2,pyRecMu2,pzRecMu2,pRecMu2,dxyRecMu2;
 
-   float genET1,genPhi1,genEta1,genEn1;
-   int genID1,genStat1;
-   float genET2,genPhi2,genEta2,genEn2;
-   int genID2,genStat2;
-   float MassGen,RecoMass;
-   int NbGen,NbReco;
+   float m_genET1,m_genPhi1,m_genEta1,m_genEn1;
+   int m_genID1,m_genStat1;
+   float m_genET2,m_genPhi2,m_genEta2,m_genEn2;
+   int m_genID2,m_genStat2;
+   float m_MassGen,m_RecoMass;  // seems not used...
+   int m_nbGen,m_nbReco;
    int nbTP,nbTT,nbTF;
    float TagProbeEtaCut;
    float Eff;
    float MassCutMin,MassCutMax;
    float MassResolution;
    float EtaCut;
-   TH1F* h1_ZprimeRecomassBeforeTrigger_;
-   TH1F* h1_ZprimeRecomass_;
-   TH1F* h1_ZprimeRecomasslogscale_;
-   TH1F* h1_ZprimeRecomass60to120_;
-   TH1F* h1_ZprimeRecomassAbove400GeV_;
-   TH1F* h1_ZprimeRecomassAbove1000GeV_;
-   TH1F* h1_3Dangle_;
-   TH1F* h1_DxyDiff_;
-   TH1F* h1_ZprimeGenmass_;
-   TH1F* h1_ZprimeGenEta1_;
-   TH1F* h1_ZprimeGenEta2_;
-   TH1F* h1_ZprimeGenPt1_;
-   TH1F* h1_ZprimeGenPt2_;
-   TH1F* h1_ZprimeGenEn1_;
-   TH1F* h1_ZprimeGenEn2_;
-   TH1F* h1_MassRecoGenDif_;
-   TH1F* h1_dPToverPT_;
-   TH1F* h1_normalizedChi2_;
-   TH1F* h1_numberOftrackerLayersWithMeasurement_;
-   TH1F* h1_numberOfValidPixelHits_;
-   TH1F* h1_numberOfValidMuonHits_;
-   TH1F* h1_numberOfMatchedStations_;
-   TH1F* h1_trackiso_;
-   TH1F* h1_absdxy_;
-   TH1F* h1_PtEffpterror_;
-   TH1F* h1_PtEffptnumberOftrackerLayers_;
-   TH1F* h1_PtEffptnumberOfPixelHits_;
-   TH1F* h1_PtEffptnumberOfMuonHits_;
-   TH1F* h1_PtEffptnumberOfMatchedStations_;
-   TH1F* h1_PtEffptTrackIso_;
-   TH1F* h1_PtEffptabsdsy_;
-   TH1F* h1_PtEffpfSumChargedHadron_;
-   TH1F* h1_PtEffpfSumNeutralHadron_;
-   TH1F* h1_PtEffpfPhotonIso_;
-   TH1F* h1_FracpfSumChargedHadron_;
-   TH1F* h1_FracpfSumNeutralHadron_;
-   TH1F* h1_FracpfPhotonIso_;
-   TH1F* h1_EtaEffpterror_;
-   TH1F* h1_EtaEffptnumberOftrackerLayers_;
-   TH1F* h1_EtaEffptnumberOfPixelHits_;
-   TH1F* h1_EtaEffptnumberOfMuonHits_;
-   TH1F* h1_EtaEffptnumberOfMatchedStations_;
-   TH1F* h1_EtaEffptTrackIso_;
-   TH1F* h1_EtaEffptabsdsy_;
-   TH1F* h1_nbPVID_;
-   TH1F* h1_PtID_;
-   TH1F* h1_EtaID_;
-   TH1F* h1_nbPVNewID_;
-   TH1F* h1_PtNewID_;
-   TH1F* h1_EtaNewID_;
-   TH1F* h1_nbPVTightID_;
-   TH1F* h1_PtTightID_;
-   TH1F* h1_EtaTightID_;
+
+   int m_nbFireHLT;
    std::ofstream output_txt;
-   TH1F* h1_PtResolutionMBT_;
-   TH1F* h1_PtResolutionTunePMBT_;
-   TH1F* h1_PtResolutiontuneP_;
-   TH1F* h1_MassResultionEBEB1_;
-   TH1F* h1_MassResultionEBEB2_;
-   TH1F* h1_MassResultionEBEB3_;
-   TH1F* h1_MassResultionEBEB4_;
-   TH1F* h1_MassResultionEBEB5_;
-   TH1F* h1_MassResultionEBEB6_;
-   TH1F* h1_MassResultionEBEB7_;
-   TH1F* h1_MassResultionEBEB8_;
-   TH1F* h1_MassResultionEBEB9_;
-   TH1F* h1_MassResultionEBEB10_;
-   TH1F* h1_MassGenInAccep_;
-   TH1F* h1_MassRecoInAccep_;
-   TH1F* h1_CosAngleCollinSoperCorrect60Mass120_;
-   TH1F* h1_CosAngleCollinSoperCorrect120Mass300_;
-   TH1F* h1_CosAngleCollinSoperCorrect300Mass700_;
-   TH1F* h1_CosAngleCollinSoperCorrect700Mass3000_;
-   TH1F* h1_CosAngleCollinSoperCorrect4900Mass5100_;
-   TH1F* h1_absCosAngleCollinSoperCorrect4500Mass5500_;
+
+   // HISTOGRAMS
+   /* std::shared_ptr<TH1F> h1_ZprimeRecomassBeforeTrigger_; */
+   std::shared_ptr<TH1F> h1_ZprimeRecomass_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomasslogscale_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomass60to120_;
+   /* std::shared_ptr<TH1F> h1_ZprimeRecomassAbove400GeV_; */
+   /* std::shared_ptr<TH1F> h1_ZprimeRecomassAbove1000GeV_; */
+   std::shared_ptr<TH1F> h1_3Dangle_;
+   /* std::shared_ptr<TH1F> h1_DxyDiff_; */
+   std::shared_ptr<TH1F> h1_ZprimeGenmass_;
+   std::shared_ptr<TH1F> h1_ZprimeGenEta1_;
+   std::shared_ptr<TH1F> h1_ZprimeGenEta2_;
+   std::shared_ptr<TH1F> h1_ZprimeGenPt1_;
+   std::shared_ptr<TH1F> h1_ZprimeGenPt2_;
+   std::shared_ptr<TH1F> h1_ZprimeGenEn1_;
+   std::shared_ptr<TH1F> h1_ZprimeGenEn2_;
+   /* std::shared_ptr<TH1F> h1_MassRecoGenDif_; */
+   std::shared_ptr<TH1F> h1_dPToverPT_;
+   /* std::shared_ptr<TH1F> h1_normalizedChi2_; */
+   std::shared_ptr<TH1F> h1_numberOftrackerLayersWithMeasurement_;
+   std::shared_ptr<TH1F> h1_numberOfValidPixelHits_;
+   std::shared_ptr<TH1F> h1_numberOfValidMuonHits_;
+   std::shared_ptr<TH1F> h1_numberOfMatchedStations_;
+   std::shared_ptr<TH1F> h1_trackiso_;
+   std::shared_ptr<TH1F> h1_absdxy_;
+   std::shared_ptr<TH1F> h1_PtEffpterror_;
+   std::shared_ptr<TH1F> h1_PtEffptnumberOftrackerLayers_;
+   std::shared_ptr<TH1F> h1_PtEffptnumberOfPixelHits_;
+   std::shared_ptr<TH1F> h1_PtEffptnumberOfMuonHits_;
+   std::shared_ptr<TH1F> h1_PtEffptnumberOfMatchedStations_;
+   std::shared_ptr<TH1F> h1_PtEffptTrackIso_;
+   std::shared_ptr<TH1F> h1_PtEffptabsdsy_;
+   /* std::shared_ptr<TH1F> h1_PtEffpfSumChargedHadron_; */
+   /* std::shared_ptr<TH1F> h1_PtEffpfSumNeutralHadron_; */
+   /* std::shared_ptr<TH1F> h1_PtEffpfPhotonIso_; */
+   /* std::shared_ptr<TH1F> h1_FracpfSumChargedHadron_; */
+   /* std::shared_ptr<TH1F> h1_FracpfSumNeutralHadron_; */
+   /* std::shared_ptr<TH1F> h1_FracpfPhotonIso_; */
+   std::shared_ptr<TH1F> h1_EtaEffpterror_;
+   std::shared_ptr<TH1F> h1_EtaEffptnumberOftrackerLayers_;
+   std::shared_ptr<TH1F> h1_EtaEffptnumberOfPixelHits_;
+   std::shared_ptr<TH1F> h1_EtaEffptnumberOfMuonHits_;
+   std::shared_ptr<TH1F> h1_EtaEffptnumberOfMatchedStations_;
+   std::shared_ptr<TH1F> h1_EtaEffptTrackIso_;
+   std::shared_ptr<TH1F> h1_EtaEffptabsdsy_;
+   std::shared_ptr<TH1F> h1_nbPVID_;
+   std::shared_ptr<TH1F> h1_PtID_;
+   std::shared_ptr<TH1F> h1_EtaID_;
+   std::shared_ptr<TH1F> h1_nbPVNewID_;
+   std::shared_ptr<TH1F> h1_PtNewID_;
+   std::shared_ptr<TH1F> h1_EtaNewID_;
+   std::shared_ptr<TH1F> h1_nbPVTightID_;
+   std::shared_ptr<TH1F> h1_PtTightID_;
+   std::shared_ptr<TH1F> h1_EtaTightID_;
+
+   std::shared_ptr<TH1F> h1_PtResolutionMBT_;
+   std::shared_ptr<TH1F> h1_PtResolutionTunePMBT_;
+   std::shared_ptr<TH1F> h1_PtResolutiontuneP_;
+   std::shared_ptr<TH1F> h1_MassResultionEBEB1_;
+   std::shared_ptr<TH1F> h1_MassResultionEBEB2_;
+   std::shared_ptr<TH1F> h1_MassResultionEBEB3_;
+   std::shared_ptr<TH1F> h1_MassResultionEBEB4_;
+   std::shared_ptr<TH1F> h1_MassResultionEBEB5_;
+   std::shared_ptr<TH1F> h1_MassResultionEBEB6_;
+   std::shared_ptr<TH1F> h1_MassResultionEBEB7_;
+   /* std::shared_ptr<TH1F> h1_MassResultionEBEB8_; */
+   /* std::shared_ptr<TH1F> h1_MassResultionEBEB9_; */
+   /* std::shared_ptr<TH1F> h1_MassResultionEBEB10_; */
+   std::shared_ptr<TH1F> h1_MassGenInAccep_;
+   std::shared_ptr<TH1F> h1_MassRecoInAccep_;
+   std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect60Mass120_;
+   std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect120Mass300_;
+   std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect300Mass700_;
+   std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect700Mass3000_;
+   std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect4900Mass5100_;
+   std::shared_ptr<TH1F> h1_absCosAngleCollinSoperCorrect4500Mass5500_;
    /* std::array<std::array<TH1D*,4> 3> h1_SmearedMassBinned_; */
    /* std::array<std::array<TH1D*,4> 3> h1_MassBinned_       ; */
    /* std::array<std::array<TH1D*,4> 3> h1_MassUpBinned_     ; */
    /* std::array<std::array<TH1D*,4> 3> h1_MassDownBinned_   ; */
-   TH2D* h2_CSSmearedMassBinned_;
-   TH2D* h2_CSMassBinned_       ;
-   TH2D* h2_CSMassUpBinned_     ;
-   TH2D* h2_CSMassDownBinned_   ;
-   TH2D* h2_CSPosSmearedMassBinned_;
-   TH2D* h2_CSPosMassBinned_       ;
-   TH2D* h2_CSPosMassUpBinned_     ;
-   TH2D* h2_CSPosMassDownBinned_   ;
-   TH2D* h2_CSNegSmearedMassBinned_;
-   TH2D* h2_CSNegMassBinned_       ;
-   TH2D* h2_CSNegMassUpBinned_     ;
-   TH2D* h2_CSNegMassDownBinned_   ;
-   TH1F* h1_ptHistoBefor_;
-   TH1F* h1_ptHistoPassingVtxChi2Mu_;
-   TH1F* h1_ptHistoPassingCosmicRejec_;
-   TH1F* h1_ptHistoPassingHLT_;
-   TH1F* h1_etaHistoBefor_;
-   TH1F* h1_etaHistoPassingVtxChi2Mu_;
-   TH1F* h1_etaHistoPassingCosmicRejec_;
-   TH1F* h1_etaHistoPassingHLT_;
-   TH1F* h1_3DangleHisto1_;
-   TH1F* h1_3DangleHisto2_;
-   TH1F* h1_Fail3DangleHistoMass_;
-   TH1F* h1_Fail3DangleHistoPhi_;
-   TH1F* h_ptHistoFRDum_;
-   TH1F* h_ptHistoFRNum_;
-   TH1F* h1_ZprimeRecomass50_;
-   TH1F* h1_ZprimeRecomassBB_;
-   TH1F* h1_ZprimeRecomassEE_;
-   TH1F* h1_ZprimeRecomassBE_;
-   TH1F* h1_ZprimeRecomass20_;
-   TH2F* h2_ZprimeRecomassNewbin_;
-   TH1F *h1_ZprimeRecomassBinWidth_;
-   int NbFireHLT;
-   TH1F *h_NbFireHLT;
-   TH1F* h1_ptAfterTrigger_;
-   TH1F* h1_ptBeforeTrigger_;
-   TH1F* h1_PtTuneP_;
-   TH1F* h1_PFMetCorr_;
-   TH1F* h1_CaloMet_;
-   TH1F* h1_ZprimeRecomassBinWidthBB_;
-   TH1F* h1_ZprimeRecomassBinWidthBEpos_;
-   TH1F* h1_ZprimeRecomassBinWidthBEnev_;
-   TH1F* h1_ZprimeRecomassBinWidthEE_;
-   TH1F* h1_ZprimeRecomass60to120BEpos_;
-   TH1F* h1_ZprimeRecomass60to120BEnev_;
-   TH1F* h1_ZprimeRecomass60to120EE_;
-   TH1F* h1_ZprimeRecomass60to120BB_;
-   TH1F* h1_ZprimeRecomassBinWidthAfterBtaging_;
-   TH1F* h1_jetBTag_;
-   TH1F* h1_jetBTagB_;
-   TH1F* h1_jetBTagC_;
-   TH1F* h1_jetBTagUDSG_;
-   TH1F* h1_jetBTagStep1_;
-   TH1F* h1_jetBTagStep2_;
-   TH1F* h1_jetBTagStep3_;
-   TH1F* h1_nbBTagStep1_;
-   TH1F* h1_nbBTagStep2_;
-   TH1F* h1_nbBTagStep3_;
-   TH1F* h1_BosPt_;
-   TH1F* h1_BosPhi_;
-   TH1F* h1_DeltaPhi_;
-   TH1F* h1_DeltaPtoverPt_;
-   TH1F* h1_Mt_;
-   TH1F* h1_MissingEt_;
-   TH1F* h1_BTagMassMuMu_;
-   TH1F* h1_BTagMassMuMu1GeVbin_;
-   TH1F* h1_BTagMassMuMuBinWidth_;
-   TH1F* h1_MassMuMuDijetBinWidth_;
-   TH1F* h1_MassMuMuDijet1GeVbin_;
-   TH1F* h1_MassMuMuDijetBinWidthMET_;
-   TH1F* h1_MassMuMuBinWidthMET_;
-   TH1F* h1_MassMuMuDijet1GeVbinMET_;
-   TH1F* h1_MassMuMu1GeVbinMET_;
-   TH1F* h1_MassMuMuDijetBinWidthMET100_;
-   TH1F* h1_MassMuMuDijet1GeVbinMET100_;
-   TH1F* h1_NbPFjetsAll_;
-   TH1F* h1_NbPFjets2_;
-   TH1F* h1_ptPFjetsAll_;
-   TH1F* h1_ZprimeRecomassBinWidthAllBE_;
-   TH1F* h1_ZprimeRecomassBinWidthAllEE_;
-   TH1F* h1_ZprimeRecomassBinWidthAll_;
-   TH1F* h1_DijetBinWidthBB_;
-   TH1F* h1_DijetBinWidthBE_;
-   TH1F* h1_DijetBinWidthEE_;
-   TH1F* h1_DijetBinWidthBBBE_;
-   TH1F* h1_DijetEta1_;
-   TH1F* h1_DijetEta2_;
-   TH1F* h1_WjetsBinWidthBB_;
-   TH1F* h1_WjetsBinWidthBE_;
-   TH1F* h1_WjetsBinWidthEE_;
-   TH1F* h1_WjetsBinWidthBBBE_;
-   TH1F* h1_Dijet1GeVBB_;
-   TH1F* h1_Dijet1GeVBEEE_;
-   TH1F* h1_Dijet1GeVEE_;
-   TH1F* h1_Dijet1GeVBBBEEE_;
-   TH1F* h1_Wjets1GeVBB_;
-   TH1F* h1_Wjets1GeVBEEE_;
-   TH1F* h1_Wjets1GeVEE_;
-   TH1F* h1_Wjets1GeVBBBEEE_;
-   TH1F* h1_Dijet20GeVBB_;
-   TH1F* h1_Dijet20GeVBEEE_;
-   TH1F* h1_Dijet20GeVBBBEEE_;
-   TH1F* h1_Wjets20GeVBB_;
-   TH1F* h1_Wjets20GeVBEEE_;
-   TH1F* h1_Wjets20GeVBBBEEE_;
+   std::shared_ptr<TH2D> h2_CSSmearedMassBinned_;
+   std::shared_ptr<TH2D> h2_CSMassBinned_       ;
+   std::shared_ptr<TH2D> h2_CSMassUpBinned_     ;
+   std::shared_ptr<TH2D> h2_CSMassDownBinned_   ;
+   std::shared_ptr<TH2D> h2_CSPosSmearedMassBinned_;
+   std::shared_ptr<TH2D> h2_CSPosMassBinned_       ;
+   std::shared_ptr<TH2D> h2_CSPosMassUpBinned_     ;
+   std::shared_ptr<TH2D> h2_CSPosMassDownBinned_   ;
+   std::shared_ptr<TH2D> h2_CSNegSmearedMassBinned_;
+   std::shared_ptr<TH2D> h2_CSNegMassBinned_       ;
+   std::shared_ptr<TH2D> h2_CSNegMassUpBinned_     ;
+   std::shared_ptr<TH2D> h2_CSNegMassDownBinned_   ;
+   /* std::shared_ptr<TH1F> h1_ptHistoBefor_; */
+   /* std::shared_ptr<TH1F> h1_ptHistoPassingVtxChi2Mu_; */
+   /* std::shared_ptr<TH1F> h1_ptHistoPassingCosmicRejec_; */
+   /* std::shared_ptr<TH1F> h1_ptHistoPassingHLT_; */
+   /* std::shared_ptr<TH1F> h1_etaHistoBefor_; */
+   /* std::shared_ptr<TH1F> h1_etaHistoPassingVtxChi2Mu_; */
+   /* std::shared_ptr<TH1F> h1_etaHistoPassingCosmicRejec_; */
+   /* std::shared_ptr<TH1F> h1_etaHistoPassingHLT_; */
+   /* std::shared_ptr<TH1F> h1_3DangleHisto1_; */
+   /* std::shared_ptr<TH1F> h1_3DangleHisto2_; */
+   /* std::shared_ptr<TH1F> h1_Fail3DangleHistoMass_; */
+   /* std::shared_ptr<TH1F> h1_Fail3DangleHistoPhi_; */
+   /* std::shared_ptr<TH1F> h1_ptHistoFRDum_; */
+   /* std::shared_ptr<TH1F> h1_ptHistoFRNum_; */
+   std::shared_ptr<TH1F> h1_ZprimeRecomass50_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomassBB_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomassEE_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomassBE_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomass20_;
+   /* std::shared_ptr<TH2F> h2_ZprimeRecomassNewbin_; */
+   std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidth_;
+
+   /* std::shared_ptr<TH1F> h1_NbFireHLT; */
+   std::shared_ptr<TH1F> h1_ptAfterTrigger_;
+   std::shared_ptr<TH1F> h1_ptBeforeTrigger_;
+   std::shared_ptr<TH1F> h1_PtTuneP_;
+   std::shared_ptr<TH1F> h1_PFMetCorr_;
+   std::shared_ptr<TH1F> h1_CaloMet_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthBB_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthBEpos_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthBEnev_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthEE_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomass60to120BEpos_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomass60to120BEnev_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomass60to120EE_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomass60to120BB_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthAfterBtaging_;
+   /* std::shared_ptr<TH1F> h1_jetBTag_; */
+   /* std::shared_ptr<TH1F> h1_jetBTagB_; */
+   /* std::shared_ptr<TH1F> h1_jetBTagC_; */
+   /* std::shared_ptr<TH1F> h1_jetBTagUDSG_; */
+   std::shared_ptr<TH1F> h1_jetBTagStep1_;
+   std::shared_ptr<TH1F> h1_jetBTagStep2_;
+   std::shared_ptr<TH1F> h1_jetBTagStep3_;
+   std::shared_ptr<TH1F> h1_nbBTagStep1_;
+   std::shared_ptr<TH1F> h1_nbBTagStep2_;
+   std::shared_ptr<TH1F> h1_nbBTagStep3_;
+   std::shared_ptr<TH1F> h1_BosPt_;
+   std::shared_ptr<TH1F> h1_BosPhi_;
+   std::shared_ptr<TH1F> h1_DeltaPhi_;
+   std::shared_ptr<TH1F> h1_DeltaPtoverPt_;
+   std::shared_ptr<TH1F> h1_Mt_;
+   std::shared_ptr<TH1F> h1_MissingEt_;
+   std::shared_ptr<TH1F> h1_BTagMassMuMu_;
+   std::shared_ptr<TH1F> h1_BTagMassMuMu1GeVbin_;
+   std::shared_ptr<TH1F> h1_BTagMassMuMuBinWidth_;
+   std::shared_ptr<TH1F> h1_MassMuMuDijetBinWidth_;
+   std::shared_ptr<TH1F> h1_MassMuMuDijet1GeVbin_;
+   std::shared_ptr<TH1F> h1_MassMuMuDijetBinWidthMET_;
+   std::shared_ptr<TH1F> h1_MassMuMuBinWidthMET_;
+   std::shared_ptr<TH1F> h1_MassMuMuDijet1GeVbinMET_;
+   std::shared_ptr<TH1F> h1_MassMuMu1GeVbinMET_;
+   std::shared_ptr<TH1F> h1_MassMuMuDijetBinWidthMET100_;
+   std::shared_ptr<TH1F> h1_MassMuMuDijet1GeVbinMET100_;
+   std::shared_ptr<TH1F> h1_NbPFjetsAll_;
+   std::shared_ptr<TH1F> h1_NbPFjets2_;
+   std::shared_ptr<TH1F> h1_ptPFjetsAll_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthAllBE_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthAllEE_;
+   std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthAll_;
+   std::shared_ptr<TH1F> h1_DijetBinWidthBB_;
+   std::shared_ptr<TH1F> h1_DijetBinWidthBE_;
+   std::shared_ptr<TH1F> h1_DijetBinWidthEE_;
+   std::shared_ptr<TH1F> h1_DijetBinWidthBBBE_;
+   std::shared_ptr<TH1F> h1_DijetEta1_;
+   std::shared_ptr<TH1F> h1_DijetEta2_;
+   std::shared_ptr<TH1F> h1_WjetsBinWidthBB_;
+   std::shared_ptr<TH1F> h1_WjetsBinWidthBE_;
+   std::shared_ptr<TH1F> h1_WjetsBinWidthEE_;
+   std::shared_ptr<TH1F> h1_WjetsBinWidthBBBE_;
+   std::shared_ptr<TH1F> h1_Dijet1GeVBB_;
+   std::shared_ptr<TH1F> h1_Dijet1GeVBEEE_;
+   std::shared_ptr<TH1F> h1_Dijet1GeVEE_;
+   std::shared_ptr<TH1F> h1_Dijet1GeVBBBEEE_;
+   std::shared_ptr<TH1F> h1_Wjets1GeVBB_;
+   std::shared_ptr<TH1F> h1_Wjets1GeVBEEE_;
+   std::shared_ptr<TH1F> h1_Wjets1GeVEE_;
+   std::shared_ptr<TH1F> h1_Wjets1GeVBBBEEE_;
+   std::shared_ptr<TH1F> h1_Dijet20GeVBB_;
+   std::shared_ptr<TH1F> h1_Dijet20GeVBEEE_;
+   std::shared_ptr<TH1F> h1_Dijet20GeVBBBEEE_;
+   std::shared_ptr<TH1F> h1_Wjets20GeVBB_;
+   std::shared_ptr<TH1F> h1_Wjets20GeVBEEE_;
+   std::shared_ptr<TH1F> h1_Wjets20GeVBBBEEE_;
 };
 
 #endif
@@ -672,6 +680,7 @@ ZprimeMuMuPatMiniAodNewMC::ZprimeMuMuPatMiniAodNewMC(Char_t namechar_[300], TTre
 
    }
    Init(tree);
+   initMemberVariables();
 }
 
 ZprimeMuMuPatMiniAodNewMC::~ZprimeMuMuPatMiniAodNewMC()
@@ -717,13 +726,13 @@ void ZprimeMuMuPatMiniAodNewMC::Init(TTree *tree)
    /* passPreFSRMInvCut = false; */
    /* passMInvCut       = false; */
 
-   HLT_nb = 0;
-   HLT_name = 0;
+   HLT_nb       = 0;
+   HLT_name     = 0;
    HLT_isaccept = 0;
    HLTObj_nbObj = 0;
-   HLTObj_pt = 0;
-   HLTObj_eta = 0;
-   HLTObj_phi = 0;
+   HLTObj_pt    = 0;
+   HLTObj_eta   = 0;
+   HLTObj_phi   = 0;
    HLTObj_collection = 0;
    iGenJet = 0;
    idGenJet = 0;
@@ -832,7 +841,7 @@ void ZprimeMuMuPatMiniAodNewMC::Init(TTree *tree)
    MC_weighting = 0;
    // Set branch addresses and branch pointers
    if (!tree) return;
-   fChain = tree;
+   fChain   = tree;
    fCurrent = -1;
    fChain->SetMakeClass(1);
 
@@ -850,8 +859,8 @@ void ZprimeMuMuPatMiniAodNewMC::Init(TTree *tree)
      fChain->SetBranchAddress("passMInvCut",       &passMInvCut,       &b_passMInvCut);
    }
 
-   fChain->SetBranchAddress("HLT_nb", &HLT_nb, &b_HLT_nb);
-   fChain->SetBranchAddress("HLT_name", &HLT_name, &b_HLT_name);
+   fChain->SetBranchAddress("HLT_nb",       &HLT_nb,       &b_HLT_nb);
+   fChain->SetBranchAddress("HLT_name",     &HLT_name,     &b_HLT_name);
    fChain->SetBranchAddress("HLT_isaccept", &HLT_isaccept, &b_HLT_isaccept);
    fChain->SetBranchAddress("HLTObj_nbObj", &HLTObj_nbObj, &b_HLTObj_nbObj);
    fChain->SetBranchAddress("HLTObj_pt", &HLTObj_pt, &b_HLTObj_pt);

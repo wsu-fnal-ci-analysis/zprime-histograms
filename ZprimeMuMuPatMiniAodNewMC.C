@@ -22,7 +22,138 @@ bool picklargemass (float lhs,float rhs) { return (lhs > rhs); }
 TString inputfile;
 float newweight=1.;
 
-void ZprimeMuMuPatMiniAodNewMC::Loop()
+void ZprimeMuMuPatMiniAodNewMC::initMemberVariables()
+{
+  m_nbGen          = 0;
+  m_nbReco         = 0;
+  MassCutMin     = 0.0;
+  MassCutMax     = 2000.0;
+  EtaCut         = 2.4;
+  MassResolution = 0.10;
+  deltaRcut      = 0.15;
+  RecoHLTMatchingDeltaRcut = 0.20;
+  minMassCut  = 50.0;
+  maxMassCut  = 4000.0;
+  ptEffCut    = 3000.0;
+  FR_Ptcut    = 53.0; //53.0;
+
+  parEB1 = -99999.;
+  parEB2 = -99999.;
+  parEB3 = -99999.;
+  parEB4 = -99999.;
+  parEB5 = -99999.;
+  parEB6 = -99999.;
+  parEB7 = -99999.;
+  parEB8 = -99999.;
+  parEB9 = -99999.;
+  parEB10 = -99999.;
+
+  parEE1 = -99999.;
+  parEE2 = -99999.;
+  parEE3 = -99999.;
+  parEE4 = -99999.;
+  parEE5 = -99999.;
+  parEE6 = -99999.;
+  parEE7 = -99999.;
+  parEE8 = -99999.;
+  parEE9 = -99999.;
+  parEE10 = -99999.;
+
+  parEB11 = -99999.;
+  parEB22 = -99999.;
+  parEB33 = -99999.;
+  parEE11 = -99999.;
+  parEE22 = -99999.;
+  parEE33 = -99999.;
+
+  HLT_pt  = -99999.;
+  HLT_eta = -99999.;
+  HLT_phi = -99999.;
+
+  PtDYTRecMu1       = -99999.;
+  PtDYTRecMu2       = -99999.;
+  PtRecTunePMu1     = -99999.;
+  PtRecTunePMu2     = -99999.;
+  PtRecMuBestTrack1 = -99999.;
+  PtRecMuBestTrack2 = -99999.;
+
+  m_vtxChi2Mu = -99999.;
+  m_vtxMassMu = -99999.;
+  m_vtxMassSmearedMu = -99999.;
+  m_scaleUnc  = -99999.;
+  m_csAngle   = -99999.;
+
+  m_ptGen1   = -99999.;
+  m_phiGen1  = -99999.;
+  m_etaGen1  = -99999.;
+  m_enGen1   = -99999.;
+  m_genFlag1 = -1;
+
+  m_ptGen2  = -99999.;
+  m_phiGen2 = -99999.;
+  m_etaGen2 = -99999.;
+  m_enGen2  = -99999.;
+
+  ChargeRecMu1 = 0;
+  ChargeRecMu2 = 0;
+
+  flagmu1 = -1;
+  flag1   = -1;
+
+  PtRecTunePMuBestTrack1 = -99999.;
+  EnRecMu1  = -99999.;
+  EtaRecMu1 = -99999.;
+  PhiRecMu1 = -99999.;
+
+  PtRecTunePMuBestTrack2 = -99999.;
+  EnRecMu2  = -99999.;
+  EtaRecMu2 = -99999.;
+  PhiRecMu2 = -99999.;
+
+  pxRecMu1 = -99999.;
+  pyRecMu1 = -99999.;
+  pzRecMu1 = -99999.;
+  pRecMu1  = -99999.;
+  dxyRecMu1 = -99999.;
+
+  pxRecMu2 = -99999.;
+  pyRecMu2 = -99999.;
+  pzRecMu2 = -99999.;
+  pRecMu2  = -99999.;
+  dxyRecMu2 = -99999.;
+
+  m_genET1  = -99999.;
+  m_genPhi1 = -99999.;
+  m_genEta1 = -99999.;
+  m_genEn1  = -99999.;;
+
+  m_genID1   = -1;
+  m_genStat1 = -1;
+
+  m_genET2 = -99999.;
+  m_genPhi2 = -99999.;
+  m_genEta2 = -99999.;
+  m_genEn2 = -99999.;
+
+  m_genID2 = -1;
+  m_genStat2 = -1;
+
+  m_MassGen = -99999.;
+  // seems not used...
+  m_RecoMass = -99999.;
+
+  nbTP = 0;
+  nbTT = 0;
+  nbTF = 0;
+
+  TagProbeEtaCut = -99999.;
+
+  Eff = -99999.;
+
+  m_nbFireHLT = 0;
+}
+
+void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 {
   time_t start,end;
   double dif;
@@ -30,8 +161,8 @@ void ZprimeMuMuPatMiniAodNewMC::Loop()
   FILE * pFile;
   pFile = fopen ("myfile.txt","w");
   //values needed for AccepXeff study
-  NbGen = 0;
-  NbReco= 0;
+  m_nbGen = 0;
+  m_nbReco= 0;
   int binMass   = 10000; //100; //100; //100; //100; //100; //100; //100; //100; //100; //10000;
   float minMass = 0.0;
   float maxMass = 10000.0;
@@ -51,7 +182,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop()
   double muon_mass = 0.1056583;
   // weight=1.;  // this is dumb, definitely don't want to reset the weight...
   if (DATA_type=="2016") weight=1.;
-  TFile *output = new TFile("ZprimeToMuMu_13TeV.root","recreate");
+  std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToMuMu_13TeV.root","recreate");
   // Enable Sumw2 for histograms as we'll be normalizing them
   TH1::SetDefaultSumw2(true);
   //==================================================================================
@@ -59,8 +190,8 @@ void ZprimeMuMuPatMiniAodNewMC::Loop()
   //             Start the histograms for CollinSoper CMF                            =
   //                                                                                 =
   //==================================================================================
-  h1_DijetEta1_       = new TH1F("DijetEta1","",100,0.0,3.0);
-  h1_DijetEta2_       = new TH1F("DijetEta2","",100,0.0,3.0);
+  h1_DijetEta1_       = std::make_shared<TH1F>("DijetEta1","",100,0.0,3.0);
+  h1_DijetEta2_       = std::make_shared<TH1F>("DijetEta2","",100,0.0,3.0);
   // Build the histo with constant log bin width
   const int NMBINS2 = 27;
   const double MMIN2 = 60., MMAX2 = 2000.;
@@ -70,51 +201,51 @@ void ZprimeMuMuPatMiniAodNewMC::Loop()
     logMbins2[ibin] = exp(log(MMIN2) + (log(MMAX2)-log(MMIN2))*ibin/NMBINS2);
     //std:cout << logMbins2[ibin] << std::endl;
   }
-  h1_BTagMassMuMuBinWidth_        = new TH1F("BTagMassMuMuBinWidth","BTagMassMuMuBinWidth",NMBINS2, logMbins2);
-  h1_MassMuMuDijetBinWidth_       = new TH1F("MassMuMuDijetBinWidth","MassMuMuDijetBinWidth",NMBINS2, logMbins2);
-  h1_MassMuMuDijetBinWidthMET_    = new TH1F("MassMuMuDijetBinWidthMET","MassMuMuDijetBinWidthMET",NMBINS2, logMbins2);
-  h1_MassMuMuBinWidthMET_         = new TH1F("MassMuMuBinWidthMET","MassMuMuBinWidthMET",NMBINS2, logMbins2);
-  h1_MassMuMuDijet1GeVbin_        = new TH1F("MassMuMuDijet1GeVbin","",3000,0.0,3000.0);
-  h1_MassMuMuDijet1GeVbinMET_     = new TH1F("MassMuMuDijet1GeVbinMET","",3000,0.0,3000.0);
-  h1_MassMuMu1GeVbinMET_          = new TH1F("MassMuMu1GeVbinMET","",3000,0.0,3000.0);
-  h1_MassMuMuDijetBinWidthMET100_ = new TH1F("MassMuMuDijetBinWidthMET100","MassMuMuDijetBinWidthMET100",NMBINS2, logMbins2);
-  h1_MassMuMuDijet1GeVbinMET100_  = new TH1F("MassMuMuDijet1GeVbinMET100","",3000,0.0,3000.0);
+  h1_BTagMassMuMuBinWidth_        = std::make_shared<TH1F>("BTagMassMuMuBinWidth","BTagMassMuMuBinWidth",NMBINS2, logMbins2);
+  h1_MassMuMuDijetBinWidth_       = std::make_shared<TH1F>("MassMuMuDijetBinWidth","MassMuMuDijetBinWidth",NMBINS2, logMbins2);
+  h1_MassMuMuDijetBinWidthMET_    = std::make_shared<TH1F>("MassMuMuDijetBinWidthMET","MassMuMuDijetBinWidthMET",NMBINS2, logMbins2);
+  h1_MassMuMuBinWidthMET_         = std::make_shared<TH1F>("MassMuMuBinWidthMET","MassMuMuBinWidthMET",NMBINS2, logMbins2);
+  h1_MassMuMuDijet1GeVbin_        = std::make_shared<TH1F>("MassMuMuDijet1GeVbin","",3000,0.0,3000.0);
+  h1_MassMuMuDijet1GeVbinMET_     = std::make_shared<TH1F>("MassMuMuDijet1GeVbinMET","",3000,0.0,3000.0);
+  h1_MassMuMu1GeVbinMET_          = std::make_shared<TH1F>("MassMuMu1GeVbinMET","",3000,0.0,3000.0);
+  h1_MassMuMuDijetBinWidthMET100_ = std::make_shared<TH1F>("MassMuMuDijetBinWidthMET100","MassMuMuDijetBinWidthMET100",NMBINS2, logMbins2);
+  h1_MassMuMuDijet1GeVbinMET100_  = std::make_shared<TH1F>("MassMuMuDijet1GeVbinMET100","",3000,0.0,3000.0);
 
-  NbFireHLT = 0;
-  int NbBins   = 10;
+  m_nbFireHLT = 0;
+  int   NbBins = 10;
   float MinBin = -1.0;
   float MaxBin =  1.0;
-  h1_ptPFjetsAll_        = new TH1F("ptPFjetsAll","",100,0.0,2000.0);
-  h1_NbPFjetsAll_        = new TH1F("NbPFjetsAll","",5,0.0,5.0);
-  h1_NbPFjets2_          = new TH1F("NbPFjets2","",5,0.0,5.0);
-  h1_BTagMassMuMu_       = new TH1F("BTagMassMuMu","",100,0.0,3000.0);
-  h1_BTagMassMuMu1GeVbin_= new TH1F("BTagMassMuMu1GeVbin","",3000,0.0,3000.0);
-  h1_nbBTagStep1_        = new TH1F("nbBTagStep1","",5,0.0,5.0);
-  h1_jetBTagStep1_       = new TH1F("jetBTagStep1","",50,0.0,1.0);
-  h1_nbBTagStep2_        = new TH1F("nbBTagStep2","",5,0.0,5.0);
-  h1_jetBTagStep2_       = new TH1F("jetBTagStep2","",50,0.0,1.0);
-  h1_nbBTagStep3_        = new TH1F("nbBTagStep3","",5,0.0,5.0);
-  h1_jetBTagStep3_       = new TH1F("jetBTagStep3","",50,0.0,1.0);
-  h1_MissingEt_          = new TH1F("MissingEt","",100,0.0,2000.0);
-  h1_Mt_                 = new TH1F("Mt","",100,0.0,2000.0);
-  h1_DeltaPtoverPt_      = new TH1F("DeltaPtoverPt","",100,0.0,1.0);
-  h1_DeltaPhi_           = new TH1F("DeltaPhi","",50,-4.0,4.0);
-  h1_BosPt_              = new TH1F("BosPt","",40,0.0,200.0);
-  h1_BosPhi_             = new TH1F("BosPhi","",50,-4.0,4.0);
-  h1_jetBTagB_           = new TH1F("jetBTagB","",50,0.0,1.0);
-  h1_jetBTagC_           = new TH1F("jetBTagC","",50,0.0,1.0);
-  h1_jetBTagUDSG_        = new TH1F("jetBTagUDSG","",50,0.0,1.0);
-  h1_PFMetCorr_          = new TH1F("PFMetCorr","",100,0.0,2000.0);
-  h1_CaloMet_            = new TH1F("CaloMet","",100,0.0,2000.0);
-  h_NbFireHLT            = new TH1F("NbFireHLT", "NbFireHLT", 30 , 0. , 30. );
-  h1_ptBeforeTrigger_    = new TH1F("ptBeforeTrigger","",50,0.0,2000.0);
-  h1_ptAfterTrigger_     = new TH1F("ptAfterTrigger","",50,0.0,2000.0);
-  h1_CosAngleCollinSoperCorrect60Mass120_       = new TH1F("CosAngleCollinSoperCorrect60Mass120","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect120Mass300_      = new TH1F("CosAngleCollinSoperCorrect120Mass300","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect300Mass700_      = new TH1F("CosAngleCollinSoperCorrect300Mass700","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect700Mass3000_     = new TH1F("CosAngleCollinSoperCorrect700Mass3000","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect4900Mass5100_    = new TH1F("CosAngleCollinSoperCorrect4900Mass5100","",NbBins,MinBin,MaxBin);
-  h1_absCosAngleCollinSoperCorrect4500Mass5500_ = new TH1F("absCosAngleCollinSoperCorrect4500Mass5500","",5,0.0,1.0);
+  h1_ptPFjetsAll_        = std::make_shared<TH1F>("ptPFjetsAll","",100,0.0,2000.0);
+  h1_NbPFjetsAll_        = std::make_shared<TH1F>("NbPFjetsAll","",5,0.0,5.0);
+  h1_NbPFjets2_          = std::make_shared<TH1F>("NbPFjets2","",5,0.0,5.0);
+  h1_BTagMassMuMu_       = std::make_shared<TH1F>("BTagMassMuMu","",100,0.0,3000.0);
+  h1_BTagMassMuMu1GeVbin_= std::make_shared<TH1F>("BTagMassMuMu1GeVbin","",3000,0.0,3000.0);
+  h1_nbBTagStep1_        = std::make_shared<TH1F>("nbBTagStep1","",5,0.0,5.0);
+  h1_jetBTagStep1_       = std::make_shared<TH1F>("jetBTagStep1","",50,0.0,1.0);
+  h1_nbBTagStep2_        = std::make_shared<TH1F>("nbBTagStep2","",5,0.0,5.0);
+  h1_jetBTagStep2_       = std::make_shared<TH1F>("jetBTagStep2","",50,0.0,1.0);
+  h1_nbBTagStep3_        = std::make_shared<TH1F>("nbBTagStep3","",5,0.0,5.0);
+  h1_jetBTagStep3_       = std::make_shared<TH1F>("jetBTagStep3","",50,0.0,1.0);
+  h1_MissingEt_          = std::make_shared<TH1F>("MissingEt","",100,0.0,2000.0);
+  h1_Mt_                 = std::make_shared<TH1F>("Mt","",100,0.0,2000.0);
+  h1_DeltaPtoverPt_      = std::make_shared<TH1F>("DeltaPtoverPt","",100,0.0,1.0);
+  h1_DeltaPhi_           = std::make_shared<TH1F>("DeltaPhi","",50,-4.0,4.0);
+  h1_BosPt_              = std::make_shared<TH1F>("BosPt","",40,0.0,200.0);
+  h1_BosPhi_             = std::make_shared<TH1F>("BosPhi","",50,-4.0,4.0);
+  // NOT FILLED h1_jetBTagB_           = std::make_shared<TH1F>("jetBTagB","",50,0.0,1.0);
+  // NOT FILLED h1_jetBTagC_           = std::make_shared<TH1F>("jetBTagC","",50,0.0,1.0);
+  // NOT FILLED h1_jetBTagUDSG_        = std::make_shared<TH1F>("jetBTagUDSG","",50,0.0,1.0);
+  h1_PFMetCorr_          = std::make_shared<TH1F>("PFMetCorr","",100,0.0,2000.0);
+  h1_CaloMet_            = std::make_shared<TH1F>("CaloMet","",100,0.0,2000.0);
+  // NOT FILLED h1_NbFireHLT           = std::make_shared<TH1F>("NbFireHLT", "NbFireHLT", 30 , 0. , 30. );
+  // NOT FILLED h1_ptBeforeTrigger_    = std::make_shared<TH1F>("ptBeforeTrigger","",50,0.0,2000.0);
+  // NOT FILLED h1_ptAfterTrigger_     = std::make_shared<TH1F>("ptAfterTrigger","",50,0.0,2000.0);
+  h1_CosAngleCollinSoperCorrect60Mass120_       = std::make_shared<TH1F>("CosAngleCollinSoperCorrect60Mass120","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect120Mass300_      = std::make_shared<TH1F>("CosAngleCollinSoperCorrect120Mass300","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect300Mass700_      = std::make_shared<TH1F>("CosAngleCollinSoperCorrect300Mass700","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect700Mass3000_     = std::make_shared<TH1F>("CosAngleCollinSoperCorrect700Mass3000","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect4900Mass5100_    = std::make_shared<TH1F>("CosAngleCollinSoperCorrect4900Mass5100","",NbBins,MinBin,MaxBin);
+  h1_absCosAngleCollinSoperCorrect4500Mass5500_ = std::make_shared<TH1F>("absCosAngleCollinSoperCorrect4500Mass5500","",5,0.0,1.0);
 
   double etaBins[] = {-2.4,-1.2,0.,1.2,2.4};
   std::array<std::string,9> etaBinLabels{"All","BB","BE","EE","BE+","BE-","E+E-","E-E-","E+E+"};
@@ -129,26 +260,26 @@ void ZprimeMuMuPatMiniAodNewMC::Loop()
   // for (auto e: etaBin) {
   //   int cb = 0
   //   for (auto c: csBin) {
-  //     h1_SmearedMassBinned_[cb][eb] = new TH1D("CS"+c+"SmearedMass"+e,"", 20000,0,20000);
-  //     h1_MassBinned_[cb][eb]        = new TH1D("CS"+c+"Mass"+e       ,"", 20000,0,20000);
-  //     h1_MassUpBinned_[cb][eb]      = new TH1D("CS"+c+"MassUp"+e     ,"", 20000,0,20000);
-  //     h1_MassDownBinned_[cb][eb]    = new TH1D("CS"+c+"MassDown"+e   ,"", 20000,0,20000);
+  //     h1_SmearedMassBinned_[cb][eb] = std::make_shared<TH1D>(("CS"+c+"SmearedMass"+e,"", 20000,0,20000);
+  //     h1_MassBinned_[cb][eb]        = std::make_shared<TH1D>(("CS"+c+"Mass"+e       ,"", 20000,0,20000);
+  //     h1_MassUpBinned_[cb][eb]      = std::make_shared<TH1D>(("CS"+c+"MassUp"+e     ,"", 20000,0,20000);
+  //     h1_MassDownBinned_[cb][eb]    = std::make_shared<TH1D>(("CS"+c+"MassDown"+e   ,"", 20000,0,20000);
   //     ++cb;
   //   }
   //   ++eb;
   // }
-  h2_CSSmearedMassBinned_ = new TH2D("CSSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
-  h2_CSMassBinned_        = new TH2D("CSMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
-  h2_CSMassUpBinned_      = new TH2D("CSMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
-  h2_CSMassDownBinned_    = new TH2D("CSMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSPosSmearedMassBinned_ = new TH2D("CSPosSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSPosMassBinned_        = new TH2D("CSPosMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSPosMassUpBinned_      = new TH2D("CSPosMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSPosMassDownBinned_    = new TH2D("CSPosMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSNegSmearedMassBinned_ = new TH2D("CSNegSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSNegMassBinned_        = new TH2D("CSNegMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSNegMassUpBinned_      = new TH2D("CSNegMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSNegMassDownBinned_    = new TH2D("CSNegMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+  h2_CSSmearedMassBinned_ = std::make_shared<TH2D>("CSSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
+  h2_CSMassBinned_        = std::make_shared<TH2D>("CSMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
+  h2_CSMassUpBinned_      = std::make_shared<TH2D>("CSMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
+  h2_CSMassDownBinned_    = std::make_shared<TH2D>("CSMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosSmearedMassBinned_ = std::make_shared<TH2D>("CSPosSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosMassBinned_        = std::make_shared<TH2D>("CSPosMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosMassUpBinned_      = std::make_shared<TH2D>("CSPosMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosMassDownBinned_    = std::make_shared<TH2D>("CSPosMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegSmearedMassBinned_ = std::make_shared<TH2D>("CSNegSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegMassBinned_        = std::make_shared<TH2D>("CSNegMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegMassUpBinned_      = std::make_shared<TH2D>("CSNegMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegMassDownBinned_    = std::make_shared<TH2D>("CSNegMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
   for (int eb = 0; eb < etaBinLabels.size(); ++eb) {
     for (int cb = 0; cb < csBinLabels.size(); ++cb) {
       h2_CSSmearedMassBinned_->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
@@ -166,109 +297,109 @@ void ZprimeMuMuPatMiniAodNewMC::Loop()
     }
   }
   //==================================================================================
-  h1_ptHistoBefor_               = new TH1F("ptHistoBefor","",ptBins,ptMin,ptMax);
-  h1_ptHistoPassingVtxChi2Mu_    = new TH1F("ptHistoPassingVtxChi2Mu","",ptBins,ptMin,ptMax);
-  h1_ptHistoPassingCosmicRejec_  = new TH1F("ptHistoPassingCosmicRejec","",ptBins,ptMin,ptMax);
-  h1_ptHistoPassingHLT_          = new TH1F("ptHistoPassingHLT","",ptBins,ptMin,ptMax);
-  h1_etaHistoBefor_              = new TH1F("etaHistoBefor","",30,0.0,3.0);
-  h1_etaHistoPassingVtxChi2Mu_   = new TH1F("etaHistoPassingVtxChi2Mu","",30,0.0,3.0);
-  h1_etaHistoPassingCosmicRejec_ = new TH1F("etaHistoPassingCosmicRejec","",30,0.0,3.0);
-  h1_etaHistoPassingHLT_         = new TH1F("etaHistoPassingHLT","",30,0.0,3.0);
+  // NOT USED h1_ptHistoBefor_               = std::make_shared<TH1F>("ptHistoBefor","",ptBins,ptMin,ptMax);
+  // NOT USED h1_ptHistoPassingVtxChi2Mu_    = std::make_shared<TH1F>("ptHistoPassingVtxChi2Mu","",ptBins,ptMin,ptMax);
+  // NOT USED h1_ptHistoPassingCosmicRejec_  = std::make_shared<TH1F>("ptHistoPassingCosmicRejec","",ptBins,ptMin,ptMax);
+  // NOT USED h1_ptHistoPassingHLT_          = std::make_shared<TH1F>("ptHistoPassingHLT","",ptBins,ptMin,ptMax);
+  // NOT USED h1_etaHistoBefor_              = std::make_shared<TH1F>("etaHistoBefor","",30,0.0,3.0);
+  // NOT USED h1_etaHistoPassingVtxChi2Mu_   = std::make_shared<TH1F>("etaHistoPassingVtxChi2Mu","",30,0.0,3.0);
+  // NOT USED h1_etaHistoPassingCosmicRejec_ = std::make_shared<TH1F>("etaHistoPassingCosmicRejec","",30,0.0,3.0);
+  // NOT USED h1_etaHistoPassingHLT_         = std::make_shared<TH1F>("etaHistoPassingHLT","",30,0.0,3.0);
   //==================================================================================
   //                                                                                 =
   //            Start a histograms for Mass resolution                               =
   //                                                                                 =
   //==================================================================================
-  h1_MassResultionEBEB1_      = new TH1F("MassResultionEBEB1","",100,-0.5,0.5);
-  h1_MassResultionEBEB2_      = new TH1F("MassResultionEBEB2","",100,-0.5,0.5);
-  h1_MassResultionEBEB3_      = new TH1F("MassResultionEBEB3","",100,-0.5,0.5);
-  h1_MassResultionEBEB4_      = new TH1F("MassResultionEBEB4","",100,-0.5,0.5);
-  h1_MassResultionEBEB5_      = new TH1F("MassResultionEBEB5","",100,-0.5,0.5);
-  h1_MassResultionEBEB6_      = new TH1F("MassResultionEBEB6","",100,-0.5,0.5);
-  h1_MassResultionEBEB7_      = new TH1F("MassResultionEBEB7","",100,-0.5,0.5);
-  h1_MassResultionEBEB8_      = new TH1F("MassResultionEBEB8","",100,-0.5,0.5);
-  h1_MassResultionEBEB9_      = new TH1F("MassResultionEBEB9","",100,-0.5,0.5);
-  h1_MassResultionEBEB10_     = new TH1F("MassResultionEBEB10","",100,-0.5,0.5);
+  h1_MassResultionEBEB1_      = std::make_shared<TH1F>("MassResultionEBEB1","",100,-0.5,0.5);
+  h1_MassResultionEBEB2_      = std::make_shared<TH1F>("MassResultionEBEB2","",100,-0.5,0.5);
+  h1_MassResultionEBEB3_      = std::make_shared<TH1F>("MassResultionEBEB3","",100,-0.5,0.5);
+  h1_MassResultionEBEB4_      = std::make_shared<TH1F>("MassResultionEBEB4","",100,-0.5,0.5);
+  h1_MassResultionEBEB5_      = std::make_shared<TH1F>("MassResultionEBEB5","",100,-0.5,0.5);
+  h1_MassResultionEBEB6_      = std::make_shared<TH1F>("MassResultionEBEB6","",100,-0.5,0.5);
+  h1_MassResultionEBEB7_      = std::make_shared<TH1F>("MassResultionEBEB7","",100,-0.5,0.5);
+  // NOT USED h1_MassResultionEBEB8_      = std::make_shared<TH1F>("MassResultionEBEB8","",100,-0.5,0.5);
+  // NOT USED h1_MassResultionEBEB9_      = std::make_shared<TH1F>("MassResultionEBEB9","",100,-0.5,0.5);
+  // NOT USED h1_MassResultionEBEB10_     = std::make_shared<TH1F>("MassResultionEBEB10","",100,-0.5,0.5);
   //==================================================================================
   //                                                                                 =
   //            Start the histograms for the mass of Z                               =
   //                                                                                 =
   //==================================================================================
-  h1_ZprimeRecomasslogscale_     = new TH1F("ZprimeRecomasslogscale","",42,log10(60.0),log10(1200.0));
-  h2_ZprimeRecomassNewbin_       = new TH2F("ZprimeRecomassNewbin","ZprimeRecomassNewbin",80,50.,1000.,500,0.001,1000.);
-  h1_MassGenInAccep_             = new TH1F("MassGenInAccep","",58,0.0,5000.0);
-  h1_MassRecoInAccep_            = new TH1F("MassRecoInAccep","",58,0.0,5000.0);
-  h1_ZprimeRecomass_             = new TH1F("ZprimeRecomass","",binMass,minMass,maxMass);
-  h1_ZprimeRecomass20_           = new TH1F("ZprimeRecomass20","",300,0.0,6000.0);
-  h1_ZprimeRecomassBB_           = new TH1F("ZprimeRecomassBB","",binMass,minMass,maxMass);
-  h1_ZprimeRecomassEE_           = new TH1F("ZprimeRecomassEE","",binMass,minMass,maxMass);
-  h1_ZprimeRecomassBE_           = new TH1F("ZprimeRecomassBE","",binMass,minMass,maxMass);
-  h1_ZprimeRecomass50_           = new TH1F("ZprimeRecomass50","",120,0.0,6000.0);
-  // h1_ZprimeRecomass60to120_      = new TH1F("ZprimeRecomass60to120","",binMass,minMass,maxMass);
-  h1_ZprimeRecomassAbove1000GeV_ = new TH1F("ZprimeRecomassAbove1000GeV","",binMass,minMass,maxMass);
-  h1_ZprimeGenmass_              = new TH1F("ZprimeGenmass","",binMass,minMass,maxMass);
-  h1_ZprimeGenEta1_              = new TH1F("ZprimeGenEta1","",100,-8.0,8.0);
-  h1_ZprimeGenEta2_              = new TH1F("ZprimeGenEta2","",100,-8.0,8.0);
-  h1_ZprimeGenPt1_               = new TH1F("ZprimeGenPt1","",100,0.0,2000.0);
-  h1_ZprimeGenPt2_               = new TH1F("ZprimeGenPt2","",100,0.0,2000.0);
-  h1_ZprimeGenEn1_               = new TH1F("ZprimeGenEn1","",100,0.0,2000.0);
-  h1_ZprimeGenEn2_               = new TH1F("ZprimeGenEn2","",100,0.0,2000.0);
-  h1_3Dangle_                    = new TH1F("3Dangle","",100,-2.0,2.0);
-  h1_DxyDiff_                    = new TH1F("DxyDiff","",100,10.0,10.0);
-  h1_MassRecoGenDif_             = new TH1F("MassRecoGenDif","",100,-0.5,0.5);
-  h1_PtResolutionTunePMBT_       = new TH1F("PtResolutionTunePMBT","",100,-0.5,0.5);
-  h1_PtResolutiontuneP_          = new TH1F("PtResolutiontuneP","",100,-0.5,0.5);
-  h1_PtResolutionMBT_            = new TH1F("PtResolutionMBT","",100,-0.5,0.5);
+  h1_ZprimeRecomasslogscale_     = std::make_shared<TH1F>("ZprimeRecomasslogscale","",42,log10(60.0),log10(1200.0));
+  // NOT USED h2_ZprimeRecomassNewbin_       = std::make_shared<TH2F>("ZprimeRecomassNewbin","ZprimeRecomassNewbin",80,50.,1000.,500,0.001,1000.);
+  h1_MassGenInAccep_             = std::make_shared<TH1F>("MassGenInAccep","",58,0.0,5000.0);
+  h1_MassRecoInAccep_            = std::make_shared<TH1F>("MassRecoInAccep","",58,0.0,5000.0);
+  h1_ZprimeRecomass_             = std::make_shared<TH1F>("ZprimeRecomass","",binMass,minMass,maxMass);
+  h1_ZprimeRecomass20_           = std::make_shared<TH1F>("ZprimeRecomass20","",300,0.0,6000.0);
+  h1_ZprimeRecomassBB_           = std::make_shared<TH1F>("ZprimeRecomassBB","",binMass,minMass,maxMass);
+  h1_ZprimeRecomassEE_           = std::make_shared<TH1F>("ZprimeRecomassEE","",binMass,minMass,maxMass);
+  h1_ZprimeRecomassBE_           = std::make_shared<TH1F>("ZprimeRecomassBE","",binMass,minMass,maxMass);
+  h1_ZprimeRecomass50_           = std::make_shared<TH1F>("ZprimeRecomass50","",120,0.0,6000.0);
+  // h1_ZprimeRecomass60to120_      = std::make_shared<TH1F>("ZprimeRecomass60to120","",binMass,minMass,maxMass);
+  // NOT USED h1_ZprimeRecomassAbove1000GeV_ = std::make_shared<TH1F>("ZprimeRecomassAbove1000GeV","",binMass,minMass,maxMass);
+  h1_ZprimeGenmass_              = std::make_shared<TH1F>("ZprimeGenmass","",binMass,minMass,maxMass);
+  h1_ZprimeGenEta1_              = std::make_shared<TH1F>("ZprimeGenEta1","",100,-8.0,8.0);
+  h1_ZprimeGenEta2_              = std::make_shared<TH1F>("ZprimeGenEta2","",100,-8.0,8.0);
+  h1_ZprimeGenPt1_               = std::make_shared<TH1F>("ZprimeGenPt1","",100,0.0,2000.0);
+  h1_ZprimeGenPt2_               = std::make_shared<TH1F>("ZprimeGenPt2","",100,0.0,2000.0);
+  h1_ZprimeGenEn1_               = std::make_shared<TH1F>("ZprimeGenEn1","",100,0.0,2000.0);
+  h1_ZprimeGenEn2_               = std::make_shared<TH1F>("ZprimeGenEn2","",100,0.0,2000.0);
+  h1_3Dangle_                    = std::make_shared<TH1F>("3Dangle","",100,-2.0,2.0);
+  // NOT USED h1_DxyDiff_                    = std::make_shared<TH1F>("DxyDiff","",100,10.0,10.0);
+  // NOT USED h1_MassRecoGenDif_             = std::make_shared<TH1F>("MassRecoGenDif","",100,-0.5,0.5);
+  h1_PtResolutionTunePMBT_       = std::make_shared<TH1F>("PtResolutionTunePMBT","",100,-0.5,0.5);
+  h1_PtResolutiontuneP_          = std::make_shared<TH1F>("PtResolutiontuneP","",100,-0.5,0.5);
+  h1_PtResolutionMBT_            = std::make_shared<TH1F>("PtResolutionMBT","",100,-0.5,0.5);
   //==================================================================================
   //                                                                                 =
   //                 Start the histograms for N-1 dist                               =
   //                                                                                 =
   //==================================================================================
-  h1_dPToverPT_                            = new TH1F("dPToverPT","",100,0.0,0.5);
-  h1_normalizedChi2_                       = new TH1F("normalizedChi2","",100,0.0,20.0);
-  h1_numberOftrackerLayersWithMeasurement_ = new TH1F("numberOftrackerLayersWithMeasurement","",20,0.0,20.0);
-  h1_numberOfValidPixelHits_               = new TH1F("numberOfValidPixelHits","",10,0.0,10.0);
-  h1_numberOfValidMuonHits_                = new TH1F("numberOfValidMuonHits","",60,0.0,60.0);
-  h1_numberOfMatchedStations_              = new TH1F("numberOfMatchedStations","",10,0.0,10.0);
-  h1_trackiso_                             = new TH1F("trackiso","",50,0.0,0.3);
-  h1_absdxy_                               = new TH1F("absdxy","",100,0.0,0.3);
-  h1_PtEffpterror_                   = new TH1F("PtEffpterror","",ptBins,ptMin,ptMax);
-  h1_PtEffptnumberOftrackerLayers_   = new TH1F("PtEffptnumberOftrackerLayers","",ptBins,ptMin,ptMax);
-  h1_PtEffptnumberOfPixelHits_       = new TH1F("PtEffptnumberOfPixelHits","",ptBins,ptMin,ptMax);
-  h1_PtEffptnumberOfMuonHits_        = new TH1F("PtEffptnumberOfMuonHits","",ptBins,ptMin,ptMax);
-  h1_PtEffptnumberOfMatchedStations_ = new TH1F("PtEffptnumberOfMatchedStations","",ptBins,ptMin,ptMax);
-  h1_PtEffptTrackIso_                = new TH1F("PtEffptTrackIso","",ptBins,ptMin,ptMax);
-  h1_PtEffptabsdsy_                  = new TH1F("PtEffptabsdsy","",ptBins,ptMin,ptMax);
-  h1_PtEffpfSumChargedHadron_        = new TH1F("PtEffpfSumChargedHadron","",ptBins,ptMin,ptMax);
-  h1_PtEffpfSumNeutralHadron_        = new TH1F("PtEffpfSumNeutralHadron","",ptBins,ptMin,ptMax);
-  h1_PtEffpfPhotonIso_               = new TH1F("PtEffpfPhotonIso","",ptBins,ptMin,ptMax);
-  h1_EtaEffpterror_                  = new TH1F("EtaEffpterror","",30,0.0,3.0);
-  h1_EtaEffptnumberOftrackerLayers_  = new TH1F("EtaEffptnumberOftrackerLayers","",30,0.0,3.0);
-  h1_EtaEffptnumberOfPixelHits_      = new TH1F("EtaEffptnumberOfPixelHits","",30,0.0,3.0);
-  h1_EtaEffptnumberOfMuonHits_       = new TH1F("EtaEffptnumberOfMuonHits","",30,0.0,3.0);
-  h1_EtaEffptnumberOfMatchedStations_= new TH1F("EtaEffptnumberOfMatchedStations","",30,0.0,3.0);
-  h1_EtaEffptTrackIso_               = new TH1F("EtaEffptTrackIso","",30,0.0,3.0);
-  h1_EtaEffptabsdsy_                 = new TH1F("EtaEffptabsdsy","",30,0.0,3.0);
-  h1_nbPVID_               = new TH1F("nbPVID","",50,0.0,50.0);
-  h1_PtID_                 = new TH1F("PtID","",ptBins,ptMin,ptMax);
-  h1_EtaID_                = new TH1F("EtaID","",30,0.0,3.0);
-  h1_nbPVNewID_            = new TH1F("nbPVNewID","",50,0.0,50.0);
-  h1_PtNewID_              = new TH1F("PtNewID","",ptBins,ptMin,ptMax);
-  h1_EtaNewID_             = new TH1F("EtaNewID","",30,0.0,3.0);
-  h1_nbPVTightID_          = new TH1F("nbPVTightID","",50,0.0,50.0);
-  h1_PtTightID_            = new TH1F("PtTightID","",ptBins,ptMin,ptMax);
-  h1_EtaTightID_           = new TH1F("EtaTightID","",30,0.0,3.0);
-  // h1_3DangleHisto1_        = new TH1F("3DangleHisto1","",50,0.00001,0.1);
-  // h1_3DangleHisto2_        = new TH1F("3DangleHisto2","",100,0.00001,10.0);  //100,0.1,10.0);
+  h1_dPToverPT_                            = std::make_shared<TH1F>("dPToverPT","",100,0.0,0.5);
+  // NOT USED h1_normalizedChi2_                       = std::make_shared<TH1F>("normalizedChi2","",100,0.0,20.0);
+  h1_numberOftrackerLayersWithMeasurement_ = std::make_shared<TH1F>("numberOftrackerLayersWithMeasurement","",20,0.0,20.0);
+  h1_numberOfValidPixelHits_               = std::make_shared<TH1F>("numberOfValidPixelHits","",10,0.0,10.0);
+  h1_numberOfValidMuonHits_                = std::make_shared<TH1F>("numberOfValidMuonHits","",60,0.0,60.0);
+  h1_numberOfMatchedStations_              = std::make_shared<TH1F>("numberOfMatchedStations","",10,0.0,10.0);
+  h1_trackiso_                             = std::make_shared<TH1F>("trackiso","",50,0.0,0.3);
+  h1_absdxy_                               = std::make_shared<TH1F>("absdxy","",100,0.0,0.3);
+  h1_PtEffpterror_                   = std::make_shared<TH1F>("PtEffpterror","",ptBins,ptMin,ptMax);
+  h1_PtEffptnumberOftrackerLayers_   = std::make_shared<TH1F>("PtEffptnumberOftrackerLayers","",ptBins,ptMin,ptMax);
+  h1_PtEffptnumberOfPixelHits_       = std::make_shared<TH1F>("PtEffptnumberOfPixelHits","",ptBins,ptMin,ptMax);
+  h1_PtEffptnumberOfMuonHits_        = std::make_shared<TH1F>("PtEffptnumberOfMuonHits","",ptBins,ptMin,ptMax);
+  h1_PtEffptnumberOfMatchedStations_ = std::make_shared<TH1F>("PtEffptnumberOfMatchedStations","",ptBins,ptMin,ptMax);
+  h1_PtEffptTrackIso_                = std::make_shared<TH1F>("PtEffptTrackIso","",ptBins,ptMin,ptMax);
+  h1_PtEffptabsdsy_                  = std::make_shared<TH1F>("PtEffptabsdsy","",ptBins,ptMin,ptMax);
+  // NOT USED h1_PtEffpfSumChargedHadron_        = std::make_shared<TH1F>("PtEffpfSumChargedHadron","",ptBins,ptMin,ptMax);
+  // NOT USED h1_PtEffpfSumNeutralHadron_        = std::make_shared<TH1F>("PtEffpfSumNeutralHadron","",ptBins,ptMin,ptMax);
+  // NOT USED h1_PtEffpfPhotonIso_               = std::make_shared<TH1F>("PtEffpfPhotonIso","",ptBins,ptMin,ptMax);
+  h1_EtaEffpterror_                  = std::make_shared<TH1F>("EtaEffpterror","",30,0.0,3.0);
+  h1_EtaEffptnumberOftrackerLayers_  = std::make_shared<TH1F>("EtaEffptnumberOftrackerLayers","",30,0.0,3.0);
+  h1_EtaEffptnumberOfPixelHits_      = std::make_shared<TH1F>("EtaEffptnumberOfPixelHits","",30,0.0,3.0);
+  h1_EtaEffptnumberOfMuonHits_       = std::make_shared<TH1F>("EtaEffptnumberOfMuonHits","",30,0.0,3.0);
+  h1_EtaEffptnumberOfMatchedStations_= std::make_shared<TH1F>("EtaEffptnumberOfMatchedStations","",30,0.0,3.0);
+  h1_EtaEffptTrackIso_               = std::make_shared<TH1F>("EtaEffptTrackIso","",30,0.0,3.0);
+  h1_EtaEffptabsdsy_                 = std::make_shared<TH1F>("EtaEffptabsdsy","",30,0.0,3.0);
+  h1_nbPVID_               = std::make_shared<TH1F>("nbPVID","",50,0.0,50.0);
+  h1_PtID_                 = std::make_shared<TH1F>("PtID","",ptBins,ptMin,ptMax);
+  h1_EtaID_                = std::make_shared<TH1F>("EtaID","",30,0.0,3.0);
+  h1_nbPVNewID_            = std::make_shared<TH1F>("nbPVNewID","",50,0.0,50.0);
+  h1_PtNewID_              = std::make_shared<TH1F>("PtNewID","",ptBins,ptMin,ptMax);
+  h1_EtaNewID_             = std::make_shared<TH1F>("EtaNewID","",30,0.0,3.0);
+  h1_nbPVTightID_          = std::make_shared<TH1F>("nbPVTightID","",50,0.0,50.0);
+  h1_PtTightID_            = std::make_shared<TH1F>("PtTightID","",ptBins,ptMin,ptMax);
+  h1_EtaTightID_           = std::make_shared<TH1F>("EtaTightID","",30,0.0,3.0);
+  // h1_3DangleHisto1_        = std::make_shared<TH1F>("3DangleHisto1","",50,0.00001,0.1);
+  // h1_3DangleHisto2_        = std::make_shared<TH1F>("3DangleHisto2","",100,0.00001,10.0);  //100,0.1,10.0);
 
-  h1_3DangleHisto1_        = new TH1F("3DangleHisto1","",1000,0.00001,1.0);
-  h1_3DangleHisto2_        = new TH1F("3DangleHisto2","",1000,0.00001,10.0);
-  h1_Fail3DangleHistoMass_ = new TH1F("Fail3DangleHistoMass","",100,100.0,12000.0);
-  h1_Fail3DangleHistoPhi_  = new TH1F("Fail3DangleHistoPhi","",100,-4.0,4.0);
+  // NOT USED h1_3DangleHisto1_        = std::make_shared<TH1F>("3DangleHisto1","",1000,0.00001,1.0);
+  // NOT USED h1_3DangleHisto2_        = std::make_shared<TH1F>("3DangleHisto2","",1000,0.00001,10.0);
+  // NOT USED h1_Fail3DangleHistoMass_ = std::make_shared<TH1F>("Fail3DangleHistoMass","",100,100.0,12000.0);
+  // NOT USED h1_Fail3DangleHistoPhi_  = std::make_shared<TH1F>("Fail3DangleHistoPhi","",100,-4.0,4.0);
   //-----------------------------------------------------------------------------------
-  h_ptHistoFRDum_ = new TH1F("ptHistoFRDum","",ptBins,ptMin,ptMax);
-  h_ptHistoFRNum_ = new TH1F("ptHistoFRNum","",ptBins,ptMin,ptMax);
-  h1_PtTuneP_     = new TH1F("PtTuneP","",200,0.0,10000.0);
+  // NOT USED h1_ptHistoFRDum_ = std::make_shared<TH1F>("ptHistoFRDum","",ptBins,ptMin,ptMax);
+  // NOT USED h1_ptHistoFRNum_ = std::make_shared<TH1F>("ptHistoFRNum","",ptBins,ptMin,ptMax);
+  h1_PtTuneP_      = std::make_shared<TH1F>("PtTuneP","",200,0.0,10000.0);
   //----------------------------------------------------------------------------------------------
 
   // Build the histo with constant log bin width
@@ -281,44 +412,44 @@ void ZprimeMuMuPatMiniAodNewMC::Loop()
     logMbins[ibin] = exp(log(MMIN) + (log(MMAX)-log(MMIN))*ibin/NMBINS);
     //std:cout << logMbins[ibin] << std::endl;
   }
-  h1_ZprimeRecomassBinWidthAll_     = new TH1F("ZprimeRecomassBinWidthAll","ZprimeRecomassBinWidthAll",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidth_        = new TH1F("ZprimeRecomassBinWidth","ZprimeRecomassBinWidth",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthAllBE_   = new TH1F("ZprimeRecomassBinWidthAllBE","ZprimeRecomassBinWidthAllBE",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthAllEE_   = new TH1F("ZprimeRecomassBinWidthAllEE","ZprimeRecomassBinWidthAllEE",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthEE_      = new TH1F("ZprimeRecomassBinWidthEE","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBB_      = new TH1F("ZprimeRecomassBinWidthBB","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBEpos_   = new TH1F("ZprimeRecomassBinWidthBEpos","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBEnev_   = new TH1F("ZprimeRecomassBinWidthBEnev","",NMBINS, logMbins);
-  h1_ZprimeRecomass60to120BEpos_    = new TH1F("ZprimeRecomass60to120BEpos","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BEnev_    = new TH1F("ZprimeRecomass60to120BEnev","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120EE_       = new TH1F("ZprimeRecomass60to120EE","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BB_       = new TH1F("ZprimeRecomass60to120BB","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120_         = new TH1F("ZprimeRecomass60to120","",60,60.0,120.0);
-  h1_ZprimeRecomassBinWidthAfterBtaging_ = new TH1F("ZprimeRecomassBinWidthAfterBtaging","ZprimeRecomassBinWidthAfterBtaging",NMBINS, logMbins);
-  h1_DijetBinWidthBB_         = new TH1F("DijetBinWidthBB","",NMBINS, logMbins);
-  h1_DijetBinWidthBE_         = new TH1F("DijetBinWidthBE","",NMBINS, logMbins);
-  h1_DijetBinWidthEE_         = new TH1F("DijetBinWidthEE","",NMBINS, logMbins);
-  h1_DijetBinWidthBBBE_       = new TH1F("DijetBinWidthBBBE","",NMBINS, logMbins);
-  h1_WjetsBinWidthBB_         = new TH1F("WjetsBinWidthBB","",NMBINS, logMbins);
-  h1_WjetsBinWidthBE_         = new TH1F("WjetsBinWidthBE","",NMBINS, logMbins);
-  h1_WjetsBinWidthEE_         = new TH1F("WjetsBinWidthEE","",NMBINS, logMbins);
-  h1_WjetsBinWidthBBBE_       = new TH1F("WjetsBinWidthBBBE","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthAll_     = std::make_shared<TH1F>("ZprimeRecomassBinWidthAll","ZprimeRecomassBinWidthAll",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidth_        = std::make_shared<TH1F>("ZprimeRecomassBinWidth","ZprimeRecomassBinWidth",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthAllBE_   = std::make_shared<TH1F>("ZprimeRecomassBinWidthAllBE","ZprimeRecomassBinWidthAllBE",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthAllEE_   = std::make_shared<TH1F>("ZprimeRecomassBinWidthAllEE","ZprimeRecomassBinWidthAllEE",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthEE_      = std::make_shared<TH1F>("ZprimeRecomassBinWidthEE","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBB_      = std::make_shared<TH1F>("ZprimeRecomassBinWidthBB","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBEpos_   = std::make_shared<TH1F>("ZprimeRecomassBinWidthBEpos","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBEnev_   = std::make_shared<TH1F>("ZprimeRecomassBinWidthBEnev","",NMBINS, logMbins);
+  h1_ZprimeRecomass60to120BEpos_    = std::make_shared<TH1F>("ZprimeRecomass60to120BEpos","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BEnev_    = std::make_shared<TH1F>("ZprimeRecomass60to120BEnev","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120EE_       = std::make_shared<TH1F>("ZprimeRecomass60to120EE","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BB_       = std::make_shared<TH1F>("ZprimeRecomass60to120BB","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120_         = std::make_shared<TH1F>("ZprimeRecomass60to120","",60,60.0,120.0);
+  h1_ZprimeRecomassBinWidthAfterBtaging_ = std::make_shared<TH1F>("ZprimeRecomassBinWidthAfterBtaging","ZprimeRecomassBinWidthAfterBtaging",NMBINS, logMbins);
+  h1_DijetBinWidthBB_         = std::make_shared<TH1F>("DijetBinWidthBB","",NMBINS, logMbins);
+  h1_DijetBinWidthBE_         = std::make_shared<TH1F>("DijetBinWidthBE","",NMBINS, logMbins);
+  h1_DijetBinWidthEE_         = std::make_shared<TH1F>("DijetBinWidthEE","",NMBINS, logMbins);
+  h1_DijetBinWidthBBBE_       = std::make_shared<TH1F>("DijetBinWidthBBBE","",NMBINS, logMbins);
+  h1_WjetsBinWidthBB_         = std::make_shared<TH1F>("WjetsBinWidthBB","",NMBINS, logMbins);
+  h1_WjetsBinWidthBE_         = std::make_shared<TH1F>("WjetsBinWidthBE","",NMBINS, logMbins);
+  h1_WjetsBinWidthEE_         = std::make_shared<TH1F>("WjetsBinWidthEE","",NMBINS, logMbins);
+  h1_WjetsBinWidthBBBE_       = std::make_shared<TH1F>("WjetsBinWidthBBBE","",NMBINS, logMbins);
 
-  h1_Dijet1GeVBB_     = new TH1F("Dijet1GeVBB","",3000,0.0,3000.0);
-  h1_Dijet1GeVBEEE_   = new TH1F("Dijet1GeVBEEE","",3000,0.0,3000.0);
-  h1_Dijet1GeVEE_     = new TH1F("Dijet1GeVEE","",3000,0.0,3000.0);
-  h1_Dijet1GeVBBBEEE_ = new TH1F("Dijet1GeVBBBEEE","",3000,0.0,3000.0);
-  h1_Wjets1GeVBB_     = new TH1F("Wjets1GeVBB","",3000,0.0,3000.0);
-  h1_Wjets1GeVBEEE_   = new TH1F("Wjets1GeVBEEE","",3000,0.0,3000.0);
-  h1_Wjets1GeVEE_     = new TH1F("Wjets1GeVEE","",3000,0.0,3000.0);
-  h1_Wjets1GeVBBBEEE_ = new TH1F("Wjets1GeVBBBEEE","",3000,0.0,3000.0);
+  h1_Dijet1GeVBB_     = std::make_shared<TH1F>("Dijet1GeVBB","",3000,0.0,3000.0);
+  h1_Dijet1GeVBEEE_   = std::make_shared<TH1F>("Dijet1GeVBEEE","",3000,0.0,3000.0);
+  h1_Dijet1GeVEE_     = std::make_shared<TH1F>("Dijet1GeVEE","",3000,0.0,3000.0);
+  h1_Dijet1GeVBBBEEE_ = std::make_shared<TH1F>("Dijet1GeVBBBEEE","",3000,0.0,3000.0);
+  h1_Wjets1GeVBB_     = std::make_shared<TH1F>("Wjets1GeVBB","",3000,0.0,3000.0);
+  h1_Wjets1GeVBEEE_   = std::make_shared<TH1F>("Wjets1GeVBEEE","",3000,0.0,3000.0);
+  h1_Wjets1GeVEE_     = std::make_shared<TH1F>("Wjets1GeVEE","",3000,0.0,3000.0);
+  h1_Wjets1GeVBBBEEE_ = std::make_shared<TH1F>("Wjets1GeVBBBEEE","",3000,0.0,3000.0);
 
-  h1_Dijet20GeVBB_     = new TH1F("Dijet20GeVBB","",300,0.0,6000.0);
-  h1_Dijet20GeVBEEE_   = new TH1F("Dijet20GeVBEEE","",300,0.0,6000.0);
-  h1_Dijet20GeVBBBEEE_ = new TH1F("Dijet20GeVBBBEEE","",300,0.0,6000.0);
-  h1_Wjets20GeVBB_     = new TH1F("Wjet20GeVBB","",300,0.0,6000.0);
-  h1_Wjets20GeVBEEE_   = new TH1F("Wjets20GeVBEEE","",300,0.0,6000.0);
-  h1_Wjets20GeVBBBEEE_ = new TH1F("Wjets20GeVBBBEEE","",300,0.0,6000.0);
+  h1_Dijet20GeVBB_     = std::make_shared<TH1F>("Dijet20GeVBB","",300,0.0,6000.0);
+  h1_Dijet20GeVBEEE_   = std::make_shared<TH1F>("Dijet20GeVBEEE","",300,0.0,6000.0);
+  h1_Dijet20GeVBBBEEE_ = std::make_shared<TH1F>("Dijet20GeVBBBEEE","",300,0.0,6000.0);
+  h1_Wjets20GeVBB_     = std::make_shared<TH1F>("Wjet20GeVBB","",300,0.0,6000.0);
+  h1_Wjets20GeVBEEE_   = std::make_shared<TH1F>("Wjets20GeVBEEE","",300,0.0,6000.0);
+  h1_Wjets20GeVBBBEEE_ = std::make_shared<TH1F>("Wjets20GeVBBBEEE","",300,0.0,6000.0);
 
   // Book txt file for candidate events
   Char_t txtOUT[500];
@@ -336,12 +467,18 @@ void ZprimeMuMuPatMiniAodNewMC::Loop()
   //==================================================================================
   if (fChain == 0) return;
   Long64_t nentries = fChain->GetEntriesFast();
+  if (debug)
+    nentries = 1000;
+
+  int wwto2l2nu_input(0),wwto2l2nu_fail_gen_mass(0),wwto2l2nu_fail_reco_mass(0);
+  int ttto2l2nu_input(0),ttto2l2nu_fail_gen_mass(0),ttto2l2nu_fail_reco_mass(0);
 
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
-    nb = fChain->GetEntry(jentry);   nbytes += nb;
+    nb = fChain->GetEntry(jentry);
+    nbytes += nb;
     newweight=weight;
 
     if (isCISample) {
@@ -388,19 +525,19 @@ void ZprimeMuMuPatMiniAodNewMC::Loop()
     bool firstMuFinal  = SelectFirstMuon(PtRecTunePMuBestTrack1,EnRecMu1,EtaRecMu1,PhiRecMu1,ChargeRecMu1,flagmu1,
 					 pxRecMu1,pyRecMu1,pzRecMu1,pRecMu1,dxyRecMu1,PtRecTunePMu1,
 					 PtRecMuBestTrack1,
-					 genET1, genEta1, genPhi1, genEn1);
+					 m_genET1, m_genEta1, m_genPhi1, m_genEn1);
 
     bool secondMuFinal = SelectSecondMuon(ChargeRecMu1,flagmu1,PtRecTunePMuBestTrack1,EtaRecMu1,PhiRecMu1,
 					  PtRecTunePMuBestTrack2,EnRecMu2,
 					  EtaRecMu2,PhiRecMu2,ChargeRecMu2,pxRecMu2,pyRecMu2,pzRecMu2,pRecMu2,dxyRecMu2,
 					  PtRecTunePMu2,PtRecMuBestTrack2,
-					  genET2, genEta2, genPhi2, genEn2);
+					  m_genET2, m_genEta2, m_genPhi2, m_genEn2);
 
-    MassGen = GenMass(genET1, genEta1, genPhi1, genEn1,
-		      genET2, genEta2, genPhi2, genEn2);
+    m_MassGen = GenMass(m_genET1, m_genEta1, m_genPhi1, m_genEn1,
+			m_genET2, m_genEta2, m_genPhi2, m_genEn2);
     PickThehighestMass(m_vtxMassMu,m_vtxChi2Mu,event_evtNo);
 
-    m_vtxMassSmearedMu = smearedMass(EtaRecMu1, EtaRecMu2, m_vtxMassMu, MassGen, m_scaleUnc);
+    m_vtxMassSmearedMu = smearedMass(EtaRecMu1, EtaRecMu2, m_vtxMassMu, m_MassGen, m_scaleUnc);
 
     double CosmicRejec = ThreeDangle(pxRecMu1,pyRecMu1,pzRecMu1,pRecMu1,
 				     pxRecMu2,pyRecMu2,pzRecMu2,pRecMu2);
@@ -458,15 +595,22 @@ void ZprimeMuMuPatMiniAodNewMC::Loop()
 	      h1_BTagMassMuMu_->Fill(m_vtxMassMu,weight);
 	    }
 
-	    // WHAT IS HAPPENING HERE?
+	    // Special inclusively binned samples, used only in the low mass region?
+	    //  - Scaling is off...
 	    // WW sample
+	    // need to keep a running track of how many events are rejcted, and adjust the weight appropriately
 	    //if (datasetName.Contains("WWTo2L2Nu")) {
 	    if ( inputfile.Contains("WWTo2L2Nu")) {
 	      //std:cout << "Reweighting sample of WWTo2L2Nu with weight=0" << std::endl;
-	      //if (MassGen>600.) newweight=0;
-	      if (m_vtxMassMu>600.) {
-		std::cout << "Reweighting sample of WWTo2L2Nu with weight=0" << std::endl;
-		newweight=0;
+	      wwto2l2nu_input++;
+	      if (m_MassGen > 600.)
+		wwto2l2nu_fail_gen_mass++;
+	      if (m_vtxMassMu > 600.) {  // WHY CUT ON THE RECO MASS???
+		// std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
+		// 	  << m_MassGen << ") reco("
+		// 	  << m_vtxMassMu << ")" << std::endl;
+		// newweight=0;
+		wwto2l2nu_fail_reco_mass++;
 	      }
 	    }
 
@@ -474,32 +618,21 @@ void ZprimeMuMuPatMiniAodNewMC::Loop()
 	    //if (datasetName.Contains("TTTo2L2Nu")) {
 	    if ( inputfile.Contains("TTTo2L2Nu")) {
 	      //std:cout << "Reweighting sample of TTTo2L2Nu with weight=0" << std::endl;
-	      //if (MassGen>500.) newweight=0;
-	      if (m_vtxMassMu>500.) {
-		std::cout << "Reweighting sample of TTTo2L2Nu with weight=0" << std::endl;
-		newweight=0;
+	      ttto2l2nu_input++;
+	      if (m_MassGen > 500.)
+		ttto2l2nu_fail_gen_mass++;
+	      if (m_vtxMassMu > 500.) {  // WHY CUT ON THE RECO MASS???
+		// std::cout << "Reweighting sample of TTTo2L2Nu with weight=0: gen("
+		// 	  << m_MassGen << ") reco("
+		// 	  << m_vtxMassMu << ")" << std::endl;
+		// newweight=0;
+		ttto2l2nu_fail_reco_mass++;
 	      }
 	    }
 
-	    // CITo2Mu_Lam10TeV_LLConM300 sample
-	    if ( inputfile.Contains("CITo2Mu_Lam10TeV_LLConM300")) {
-	      //std:cout << "Reweighting sample of CITo2Mu_Lam10TeV_LLConM300 with weight=0" << std::endl;
-	      if (m_vtxMassMu<300.) {
-		std::cout << "Reweighting sample of CITo2Mu_Lam10TeV_LLConM300 with weight=0" << std::endl;
-		newweight=0;
-	      }
-	    }
-
-	    // CITo2Mu_Lam10TeV_LLConM800 sample
-
-	    //if ( inputfile.Contains("CITo2Mu_Lam10TeV_LLConM800")) {
-	    //  std::cout << "Reweighting sample of CITo2Mu_Lam10TeV_LLConM800 with weight=0" << std::endl;
-	    //  if (m_vtxMassMu<800.) weight=0;
-	    //}
-
-	    PlotRecoInfo(CosmicRejec,m_vtxMassMu,MassGen,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,mPtGen1,EtaRecMu1,
-			 PtRecTunePMuBestTrack2,PtRecTunePMu2,PtRecMuBestTrack2,mPtGen2,EtaRecMu2);
-	    PlotGenInfo(MassGen,genEta1,genEta2,genET1,genET2,genEn1,genEn2);
+	    PlotRecoInfo(CosmicRejec,m_vtxMassMu,m_MassGen,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,m_ptGen1,EtaRecMu1,
+			 PtRecTunePMuBestTrack2,PtRecTunePMu2,PtRecMuBestTrack2,m_ptGen2,EtaRecMu2);
+	    PlotGenInfo(m_MassGen,m_genEta1,m_genEta2,m_genET1,m_genET2,m_genEn1,m_genEn2);
 	    m_csAngle = CosThetaCollinSoper(PtRecTunePMuBestTrack1,EtaRecMu1,PhiRecMu1,EnRecMu1,
 					    PtRecTunePMuBestTrack2,EtaRecMu2,PhiRecMu2,EnRecMu2,
 					    ChargeRecMu1,m_vtxMassMu);
@@ -516,6 +649,18 @@ void ZprimeMuMuPatMiniAodNewMC::Loop()
 	  }
       }
   }
+
+  if ( inputfile.Contains("TTTo2L2Nu"))
+    std::cout << "===Low mass TTTo2L2Nu info====" << std::endl
+	      << "Total:     " << ttto2l2nu_input          << std::endl
+	      << "Fail GEN:  " << ttto2l2nu_fail_gen_mass  << std::endl
+	      << "Fail RECO: " << ttto2l2nu_fail_reco_mass << std::endl;
+  if ( inputfile.Contains("WWTo2L2Nu"))
+    std::cout << "===Low mass WWTo2L2Nu info====" << std::endl
+	      << "Total:     " << wwto2l2nu_input          << std::endl
+	      << "Fail GEN:  " << wwto2l2nu_fail_gen_mass  << std::endl
+	      << "Fail RECO: " << wwto2l2nu_fail_reco_mass << std::endl;
+
   ///===================================================
   fclose (pFile);
   //==================================================================================
@@ -1017,14 +1162,14 @@ float ZprimeMuMuPatMiniAodNewMC::smearedMass(float Eta1, float Eta2,
 
   //sigma BB
   if (fabs(Eta1) <= 1.2 && fabs(Eta2) <= 1.2) {
-    scaleUnc = 0.01;
+    m_scaleUnc = 0.01;
     a = 0.00701;
     b = 3.32e-05;
     c = -1.29e-08;
     d = 2.73e-12;
     e = -2.05e-16;
   } else { //sigma BE
-    scaleUnc = 0.03;
+    m_scaleUnc = 0.03;
     a = 0.0124;
     b = 3.75e-05;
     c = -1.52e-08;
@@ -1035,7 +1180,7 @@ float ZprimeMuMuPatMiniAodNewMC::smearedMass(float Eta1, float Eta2,
 
   double extraSmear = res*0.15;
 
-  TRandom3 *rand = new TRandom3(0);
+  std::shared_ptr<TRandom3> rand = std::make_shared<TRandom3>(0); // why not a different random seed?
   return vtxMass*rand->Gaus(1,extraSmear);
 }
 
@@ -1065,13 +1210,17 @@ void ZprimeMuMuPatMiniAodNewMC::PickThehighestMass(float &vtxHighestMass,float &
 
 
     int leptmatchBest=0;
-    if (Mu_vtxMassLept->at(countlept)==PtRecTunePMu1 && Mu_vtxMassLept->at(countlept+1)==PtRecTunePMu2) leptmatchBest=2;
-    if (Mu_vtxMassLept->at(countlept)==PtRecTunePMu2 && Mu_vtxMassLept->at(countlept+1)==PtRecTunePMu1) leptmatchBest=2;
+    if (Mu_vtxMassLept->at(countlept)==PtRecTunePMu1 && Mu_vtxMassLept->at(countlept+1)==PtRecTunePMu2)
+      leptmatchBest=2;
+    if (Mu_vtxMassLept->at(countlept)==PtRecTunePMu2 && Mu_vtxMassLept->at(countlept+1)==PtRecTunePMu1)
+      leptmatchBest=2;
 
-    if (leptmatchBest!=2) continue;
+    if (leptmatchBest!=2)
+      continue;
     //std:cout << "Chargepair surviving matching for vtxmass= " <<  Mu_vtxMass->at(i) << "   with " << leptmatchBest << " leptons" << std::endl;
 
-    if (Mu_vtxNormChi2->at(i)> 20) continue;
+    if (Mu_vtxNormChi2->at(i)> 20)
+      continue;
     if (Mu_vtxMass->at(i)>Massinv) {
       Massinv = Mu_vtxMass->at(i);
       iflag  = i;
@@ -1083,6 +1232,7 @@ void ZprimeMuMuPatMiniAodNewMC::PickThehighestMass(float &vtxHighestMass,float &
     vtxHighestChi2 = Mu_vtxNormChi2->at(iflag);
   }
 }
+
 double ZprimeMuMuPatMiniAodNewMC::ThreeDangle(float pxMu1,float pyMu1,float pzMu1,float pMu1,
 					      float pxMu2,float pyMu2,float pzMu2,float pMu2)
 {
@@ -1437,7 +1587,7 @@ void ZprimeMuMuPatMiniAodNewMC::MuonPassingTightID()
 
 float ZprimeMuMuPatMiniAodNewMC::CosThetaCollinSoper(float Et1,float Eta1,float Phi1,float En1,
 						     float Et2,float Eta2,float Phi2,float En2,
-						     float ChargeEle1,float RecoMass) {
+						     float ChargeEle1, float RecoMass) {
 
   TLorentzVector Ele;
   TLorentzVector Elebar;
@@ -1471,7 +1621,6 @@ float ZprimeMuMuPatMiniAodNewMC::CosThetaCollinSoper(float Et1,float Eta1,float 
   if (RecoMass > 60.0 && RecoMass < 120.0) {
     h1_CosAngleCollinSoperCorrect60Mass120_->Fill(costheta,newweight);
   }
-
 
   if (RecoMass > 120.0 && RecoMass < 300.0) {
     h1_CosAngleCollinSoperCorrect120Mass300_->Fill(costheta,newweight);
@@ -1726,16 +1875,14 @@ void ZprimeMuMuPatMiniAodNewMC::DrawBTaggingDiscriminator(float MuonEta1,float M
     nbBTag++;
     h1_nbBTagStep1_->Fill(nbBTag,weight);
     h1_jetBTagStep1_->Fill(jet_btag_pfCSVv2IVF_discriminator->at(i));
-    if (nbBTag>1 && nbBTag<3)
-      {
-	h1_nbBTagStep2_->Fill(nbBTag,weight);
-	h1_jetBTagStep2_->Fill(jet_btag_pfCSVv2IVF_discriminator->at(i));
-      }
-    if (nbBTag>1 && nbBTag<3 && jet_btag_pfCSVv2IVF_discriminator->at(i)>0.5426)
-      {
-	h1_nbBTagStep3_->Fill(nbBTag,weight);
-	h1_jetBTagStep3_->Fill(jet_btag_pfCSVv2IVF_discriminator->at(i));
-      }
+    if (nbBTag>1 && nbBTag<3) {
+      h1_nbBTagStep2_->Fill(nbBTag,weight);
+      h1_jetBTagStep2_->Fill(jet_btag_pfCSVv2IVF_discriminator->at(i));
+    }
+    if (nbBTag>1 && nbBTag<3 && jet_btag_pfCSVv2IVF_discriminator->at(i)>0.5426) {
+      h1_nbBTagStep3_->Fill(nbBTag,weight);
+      h1_jetBTagStep3_->Fill(jet_btag_pfCSVv2IVF_discriminator->at(i));
+    }
   }
 }
 
@@ -1761,16 +1908,15 @@ void ZprimeMuMuPatMiniAodNewMC::Boson(float Px1,float Py1,float Pz1,float En1,
   //BosPt  = Bosson.Pt();
   //BosPhi = Bosson.Phi();
   //  if (Bosson.Pt()>60 && MetEt>0 && a>2.8 && (fabs(MetEt-Bosson.Pt())/Bosson.Pt())<0.4)
-  if (Bosson.Pt()>60)
-    {
-      h1_BosPt_->Fill(Bosson.Pt());
-      h1_BosPhi_->Fill(Bosson.Phi());
-      h1_DeltaPhi_->Fill(a,weight); //Fill(MetPhi-Bosson.Phi());
-      h1_DeltaPtoverPt_->Fill(fabs(MetEt-Bosson.Pt())/Bosson.Pt());
-      float Mt = sqrt(2.0*Bosson.Pt()*MetEt*(1.0-cos(a)));
-      h1_Mt_->Fill(Mt,weight);
-      h1_MissingEt_->Fill(MetEt,weight);
-    }
+  if (Bosson.Pt()>60) {
+    h1_BosPt_->Fill(Bosson.Pt());
+    h1_BosPhi_->Fill(Bosson.Phi());
+    h1_DeltaPhi_->Fill(a,weight); //Fill(MetPhi-Bosson.Phi());
+    h1_DeltaPtoverPt_->Fill(fabs(MetEt-Bosson.Pt())/Bosson.Pt());
+    float Mt = sqrt(2.0*Bosson.Pt()*MetEt*(1.0-cos(a)));
+    h1_Mt_->Fill(Mt,weight);
+    h1_MissingEt_->Fill(MetEt,weight);
+  }
 }
 
 bool ZprimeMuMuPatMiniAodNewMC::DiPFJet(float MuonEta1,float MuonPhi1,float MuonEta2,float MuonPhi2) {
