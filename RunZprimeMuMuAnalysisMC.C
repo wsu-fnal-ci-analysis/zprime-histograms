@@ -1,9 +1,11 @@
 #if !defined(__CINT__) || defined(__MAKECINT__)
+
 #include <TTree.h>
 #include <TFile.h>
 #include <TString.h>
 #include <TROOT.h>
 #include <string>
+#include <memory>
 #include <iostream>
 #include <TSystem.h>
 #include <TH2.h>
@@ -13,7 +15,8 @@
 #include "ZprimeMuMuPatMiniAodNewMC.h"
 #endif
 
-int main(int argc, char ** argv){
+int main(int argc, char ** argv)
+{
   std::cout << "This is " << argv[1] << std::endl;
   std::string sampletype=argv[1];
   std::ifstream fdata;
@@ -45,9 +48,11 @@ int main(int argc, char ** argv){
   float nskim[nlines];
   float xsection[nlines];
 
-  for(int i=0;i<nlines;i++) {
+  for (int i=0;i<nlines;++i) {
     fdata >> samples[i] >> ninput[i] >> nhlt[i] >> nskim[i] >> xsection[i];
-    std::cout << "Sample=" << samples[i] << " Ninput=" << ninput[i] << " NHLT=" << nhlt[i] << " NSkim=" << nskim[i] << " Xsection(pb)=" << xsection[i] << std::endl;
+    std::cout << "Sample=" << samples[i] << " Ninput=" << ninput[i]
+	      << " NHLT=" << nhlt[i] << " NSkim=" << nskim[i]
+	      << " Xsection(pb)=" << xsection[i] << std::endl;
   }
 
   //
@@ -59,7 +64,7 @@ int main(int argc, char ** argv){
 
   // Run on data
 
-  for(int i=0;i<nlines;i++) {
+  for(int i=0;i<nlines;++i) {
 
     std::string name;
     if (mcconf.find("Spring16") < 10)
@@ -109,29 +114,26 @@ int main(int argc, char ** argv){
       weight=0.9714*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
     if (dataconf.find("2016") < 50)
       weight=1.;
-    std::cout << "weight is " << weight << std::endl;
-    TFile *file3;
-    TTree *tree3;
 
-    //if (dataconf.find("2016") < 50) {
-    //  std::cout << "Chaining the files for data" << std::endl;
-    //  TChain* chain = new TChain("tree","");
-    //  chain->Add("/lustre/cms/store/user/defilip/ZprimeAnalysis/Data2016_ZprimeMuMu_13TeV_merged/CMSSW803_Data_2016_Run2016B-Collisions16-275125-275783-tree1.root");
-    //  chain->Add("/lustre/cms/store/user/defilip/ZprimeAnalysis/Data2016_ZprimeMuMu_13TeV_merged/CMSSW803_Data_2016_Run2016B-Collisions16-275125-275783-tree2.root");
-    //  chain->Add("/lustre/cms/store/user/defilip/ZprimeAnalysis/Data2016_ZprimeMuMu_13TeV_merged/CMSSW803_Data_2016_Run2016B-Collisions16-275125-275783-tree3.root");
-    //  tree3 = chain;
-    //}
-    //else {
-      file3 = TFile::Open(namechar);
-      std::cout << "Read file with name: " << namechar << std::endl;
-      tree3 = (TTree*)file3->Get("tree");
-      std::cout << "Read file with name: " << namechar << " " << tree3->GetEntries() << std::endl;
-    //}
+    std::cout << "weight is " << weight << std::endl;
+
+    // TFile *file3 = TFile::Open(namechar);
+    // std::shared_ptr<TFile> file3 = std::make_shared<TFile>((TFile*)TFile::Open(namechar));
+    std::shared_ptr<TFile> file3(TFile::Open(namechar));
+    std::cout << "Read file (" << std::hex << file3 << std::dec << ") with name: " << namechar << std::endl;
+
+    TTree *tree3 = (TTree*)file3->Get("tree");
+    // std::shared_ptr<TTree> tree3 = std::make_shared<TTree>((TTree*)file3->Get("tree"));
+    // std::shared_ptr<TTree> tree3((TTree*)file3->Get("tree"));
+    std::cout << "Read file with name: " << namechar << " " << tree3->GetEntries() << std::endl;
 
     ZprimeMuMuPatMiniAodNewMC b(namechar,tree3,weight,dataconf,mcconf);
-    b.Loop();
-    delete tree3;
-    file3 -> Close();
+    // ZprimeMuMuPatMiniAodNewMC b(namechar,tree3.get(),weight,dataconf,mcconf);
+    b.Loop(false);
+    // tree3 = nullptr;
+    // delete tree3;  // didn't create with new, no need to delete
+    file3->Close();
+    // file3 = nullptr;
   }
   return 0;
 }

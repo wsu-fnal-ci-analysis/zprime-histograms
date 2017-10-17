@@ -110,29 +110,17 @@ int main(int argc, char ** argv){
       weight=0.9714*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
     if (dataconf.find("2016") < 50)
       weight=1.;
-    std::cout << "weight is " << weight << std::endl;
-    TFile *file3;
-    TTree *tree3;
 
-    //if (dataconf.find("2016") < 50) {
-    //  std::cout << "Chaining the files for data" << std::endl;
-    //  TChain* chain = new TChain("tree","");
-    //  chain->Add("/lustre/cms/store/user/defilip/ZprimeAnalysis/Data2016_ZprimeMuMu_13TeV_merged/CMSSW803_Data_2016_Run2016B-Collisions16-275125-275783-tree1.root");
-    //  chain->Add("/lustre/cms/store/user/defilip/ZprimeAnalysis/Data2016_ZprimeMuMu_13TeV_merged/CMSSW803_Data_2016_Run2016B-Collisions16-275125-275783-tree2.root");
-    //  chain->Add("/lustre/cms/store/user/defilip/ZprimeAnalysis/Data2016_ZprimeMuMu_13TeV_merged/CMSSW803_Data_2016_Run2016B-Collisions16-275125-275783-tree3.root");
-    //  tree3 = chain;
-    //}
-    //else {
-      file3 = TFile::Open(namechar);
-      std::cout << "Read file with name: " << namechar << std::endl;
-      tree3 = (TTree*)file3->Get("tree");
-      std::cout << "Read file with name: " << namechar << " " << tree3->GetEntries() << std::endl;
-    //}
+    std::cout << "weight is " << weight << std::endl;
+    TFile *file3 = TFile::Open(namechar);
+    std::cout << "Read file with name: " << namechar << std::endl;
+    TTree *tree3 = (TTree*)file3->Get("tree");
+    std::cout << "Read file with name: " << namechar << " " << tree3->GetEntries() << std::endl;
 
     ZprimeMuMuPatMiniAodNewData b(namechar,tree3,weight,dataconf,mcconf);
     b.Loop();
     delete tree3;
-    file3 -> Close();
+    file3->Close();
   }
   return 0;
 }
