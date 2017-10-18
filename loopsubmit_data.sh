@@ -54,8 +54,6 @@ while [ $n -lt ${nlines} ]; do
 	  sed "s?data_input.txt?DataCards$2/data_input_${n}.txt?g" | \
 	  sed "s?s.log?s_${samplename}.log?g" > jobs/submit_ZprimeMuMuAnalysis_${samplename}.sh
   elif  [ $4 = ${SFNAL} ]; then
-      mkdir -p /eos/uscms/store/user/${USER}/ZprimeAnalysis/jobs/jobsZprimeMuMu
-      mkdir -p /eos/uscms/store/user/${USER}/ZprimeAnalysis/histos/histosZprimeMuMu
       cat submit_ZprimeMuMuAnalysis_FNAL.sh  | \
 	  sed "s?path?$PATH?g"  | \
 	  sed "s?lib?$LD_LIBRARY_PATH?g" | \
