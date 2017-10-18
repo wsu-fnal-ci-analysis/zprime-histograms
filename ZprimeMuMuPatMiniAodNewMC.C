@@ -10,6 +10,8 @@
 #include "ZprimeMuMuPatMiniAodNewMC.h"
 #include <math.h>
 #include <array>
+#include <iomanip>
+#include "TStopwatch.h"
 #include "TRandom3.h"
 #include <time.h>
 #include <algorithm>
@@ -466,15 +468,56 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 
   //==================================================================================
   if (fChain == 0) return;
-  Long64_t nentries = fChain->GetEntriesFast();
+  Long64_t nentries = fChain->GetEntries();
   if (debug)
     nentries = 1000;
+
+  // Timing information
+  int decade  = 0;
+  int century = 0;
+  TStopwatch tsw;
+  int tenpcount = 1;
+  int onepcount = 1;
+  int tenthpcount = 1;
 
   int wwto2l2nu_input(0),wwto2l2nu_fail_gen_mass(0),wwto2l2nu_fail_reco_mass(0);
   int ttto2l2nu_input(0),ttto2l2nu_fail_gen_mass(0),ttto2l2nu_fail_reco_mass(0);
 
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
+    //Timing information
+    if (jentry==0) {
+      tsw.Start();
+      std::cout << "." << std::flush;
+    }
+    if ((jentry*10)/nentries == tenpcount ) {
+      tsw.Stop();
+      Double_t time = tsw.RealTime();
+      tsw.Start(kFALSE);
+      Double_t finTime(0.);
+      Double_t frac = (jentry*1.0)/(nentries*1.0);
+      if (frac>0)
+	finTime = time / frac - time;
+      Double_t finMin = finTime / 60.;
+      std::cout << tenpcount*10 << "% done.  "
+		<< "t = "  << std::setprecision(4) << std::setw(7) << time
+		<< " projected finish =" << std::setw(7) << std::setprecision(4) << finTime << "s"
+		<< " (" << std::setw(4) << std::setprecision(2) << finMin << " min).   "
+		<< std::endl;
+      std::cout << std::flush;
+      tenpcount++;
+      // } else if ( (jentry*100)/nentries == onepcount ) {
+      //   std::cout << ".";
+      //   std::cout << std::flush;
+      //   onepcount++;
+      // }
+    } else if ( (jentry*1000)/nentries == tenthpcount ) {
+      std::cout << ".";
+      std::cout << std::flush;
+      tenthpcount++;
+    }
+    ///
+
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);
@@ -649,6 +692,9 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 	  }
       }
   }
+
+  std::cout << "100% done!" << std::endl;
+  std::cout << std::flush;
 
   if ( inputfile.Contains("TTTo2L2Nu"))
     std::cout << "===Low mass TTTo2L2Nu info====" << std::endl
@@ -2590,7 +2636,7 @@ float ZprimeMuMuPatMiniAodNewMC::FRweight(float eta, float pt)
   parEB2  = -1.17369e-03;
   parEB3  = 5.01282e-06;
   parEB4  = -1.94865e+00;
-  parEB5  = 6.59464e+03 ;
+  parEB5  = 6.59464e+03;
   parEB6  = 9.59248e+02;
   parEB7  = -1.17298e+06;
   parEB8  = 1.09544e+05;

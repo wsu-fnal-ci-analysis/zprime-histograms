@@ -9,6 +9,10 @@
 #define ZprimeMuMuPatMiniAodNewData_cxx
 #include "ZprimeMuMuPatMiniAodNewData.h"
 #include <math.h>
+#include <array>
+#include <iomanip>
+#include "TStopwatch.h"
+#include "TRandom3.h"
 #include <time.h>
 #include <algorithm>
 
@@ -327,9 +331,51 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
   output_txt  << outform << std::endl;
   //==================================================================================
   if (fChain == 0) return;
-  Long64_t nentries = fChain->GetEntriesFast();
+  Long64_t nentries = fChain->GetEntries();
+
+  // Timing information
+  int decade  = 0;
+  int century = 0;
+  TStopwatch tsw;
+  int tenpcount = 1;
+  int onepcount = 1;
+  int tenthpcount = 1;
+
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
+    //Timing information
+    if (jentry==0) {
+      tsw.Start();
+      std::cout << "." << std::flush;
+    }
+    if ((jentry*10)/nentries == tenpcount ) {
+      tsw.Stop();
+      Double_t time = tsw.RealTime();
+      tsw.Start(kFALSE);
+      Double_t finTime(0.);
+      Double_t frac = (jentry*1.0)/(nentries*1.0);
+      if (frac>0)
+	finTime = time / frac - time;
+      Double_t finMin = finTime / 60.;
+      std::cout << tenpcount*10 << "% done.  "
+		<< "t = "  << std::setprecision(4) << std::setw(7) << time
+		<< " projected finish =" << std::setw(7) << std::setprecision(4) << finTime << "s"
+		<< " (" << std::setw(4) << std::setprecision(2) << finMin << " min).   "
+		<< std::endl;
+      std::cout << std::flush;
+      tenpcount++;
+      // } else if ( (jentry*100)/nentries == onepcount ) {
+      //   std::cout << ".";
+      //   std::cout << std::flush;
+      //   onepcount++;
+      // }
+    } else if ( (jentry*1000)/nentries == tenthpcount ) {
+      std::cout << ".";
+      std::cout << std::flush;
+      tenthpcount++;
+    }
+    ///
+
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
@@ -451,6 +497,10 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
       }
     }
   }
+
+  std::cout << "100% done!" << std::endl;
+  std::cout << std::flush;
+
   ///===================================================
   fclose (pFile);
   //==================================================================================
