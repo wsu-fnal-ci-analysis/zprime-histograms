@@ -5,8 +5,6 @@ echo "Processing on " `hostname` "at " `date`
 echo "Running ZprimeMuMu Analysis with executables RunZprimeMuMuAnalysis"
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 source /cvmfs/sft.cern.ch/lcg/views/LCG_91/x86_64-slc6-gcc7-opt/setup.sh
-export LD_LIBRARY_PATH=lib:$LD_LIBRARY_PATH
-export PATH=path:$PATH
 
 echo "PATH ${PATH}"
 echo "LD_LIBRARY_PATH ${LD_LIBRARY_PATH}"
