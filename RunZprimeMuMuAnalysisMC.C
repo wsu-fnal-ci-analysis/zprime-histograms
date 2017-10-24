@@ -108,12 +108,17 @@ int main(int argc, char ** argv)
     Char_t namechar[300];
     sprintf(namechar,"%s/%s",dirInput.Data(),File.Data());
     float weight= -999.;
-    if (mcconf.find("Spring16") < 50 &&  name.find("reHLT_DYtoMuMu") < 100 )
-      weight=0.96*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
-    else if (mcconf.find("Spring16") < 50)
-      weight=0.9714*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
-    if (dataconf.find("2016") < 50)
+    if (mcconf.find("Spring16") < 50) {
+      if (name.find("reHLT_DYtoMuMu") < 100 ) {
+	weight=0.96*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
+      } else if (name.find("ZToMuMu") < 50) {
+	weight=0.9714*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
+      } else {
+	weight=lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
+      }
+    } else if (dataconf.find("2016") < 50) {
       weight=1.;
+    }
 
     std::cout << "weight is " << weight << std::endl;
 
