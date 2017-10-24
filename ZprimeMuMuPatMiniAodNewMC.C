@@ -642,32 +642,77 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 	    //  - Scaling is off...
 	    // WW sample
 	    // need to keep a running track of how many events are rejcted, and adjust the weight appropriately
-	    //if (datasetName.Contains("WWTo2L2Nu")) {
-	    if ( inputfile.Contains("WWTo2L2Nu")) {
-	      //std:cout << "Reweighting sample of WWTo2L2Nu with weight=0" << std::endl;
+	    if (inputfile.Contains("WWTo2L2Nu_13TeV")) {
 	      wwto2l2nu_input++;
-	      if (m_MassGen > 600.)
+	      if (m_MassGen > 600.) {
+		if (debug)
+		  std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
+			    << m_MassGen << ") reco("
+			    << m_vtxMassMu << ")" << std::endl;
+		newweight=0;
 		wwto2l2nu_fail_gen_mass++;
+	      }
 	      if (m_vtxMassMu > 600.) {  // WHY CUT ON THE RECO MASS???
-		// std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
-		// 	  << m_MassGen << ") reco("
-		// 	  << m_vtxMassMu << ")" << std::endl;
+		if (debug)
+		  std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
+			    << m_MassGen << ") reco("
+			    << m_vtxMassMu << ")" << std::endl;
 		// newweight=0;
 		wwto2l2nu_fail_reco_mass++;
 	      }
-	    }
-
-	    // TTTo2L2Nu sample
-	    //if (datasetName.Contains("TTTo2L2Nu")) {
-	    if ( inputfile.Contains("TTTo2L2Nu")) {
-	      //std:cout << "Reweighting sample of TTTo2L2Nu with weight=0" << std::endl;
+	    } else if (inputfile.Contains("WWTo2L2Nu_Mll")) {
+	      wwto2l2nu_input++;
+	      if (m_MassGen < 600.) {
+		if (debug)
+		  std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
+			    << m_MassGen << ") reco("
+			    << m_vtxMassMu << ")" << std::endl;
+		newweight=0;
+		wwto2l2nu_fail_gen_mass++;
+	      }
+	      if (m_vtxMassMu < 600.) {  // WHY CUT ON THE RECO MASS???
+		if (debug)
+		  std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
+			    << m_MassGen << ") reco("
+			    << m_vtxMassMu << ")" << std::endl;
+		// newweight=0;
+		wwto2l2nu_fail_reco_mass++;
+	      }
+	    } else if (inputfile.Contains("TTTo2L2Nu")) {
+	      // TTTo2L2Nu sample
+	      //if (datasetName.Contains("TTTo2L2Nu")) {
 	      ttto2l2nu_input++;
-	      if (m_MassGen > 500.)
+	      if (m_MassGen > 500.) {
+		if (debug)
+		  std::cout << "Reweighting sample of TTTo2L2Nu with weight=0: gen("
+			    << m_MassGen << ") reco("
+			    << m_vtxMassMu << ")" << std::endl;
+		newweight=0;
 		ttto2l2nu_fail_gen_mass++;
+	      }
 	      if (m_vtxMassMu > 500.) {  // WHY CUT ON THE RECO MASS???
-		// std::cout << "Reweighting sample of TTTo2L2Nu with weight=0: gen("
-		// 	  << m_MassGen << ") reco("
-		// 	  << m_vtxMassMu << ")" << std::endl;
+		if (debug)
+		  std::cout << "Reweighting sample of TTTo2L2Nu with weight=0: gen("
+			    << m_MassGen << ") reco("
+			    << m_vtxMassMu << ")" << std::endl;
+		// newweight=0;
+		ttto2l2nu_fail_reco_mass++;
+	      }
+	    } else if (inputfile.Contains("TTToLL_MLL_")) {
+	      ttto2l2nu_input++;
+	      if (m_MassGen > 500.) {
+		if (debug)
+		  std::cout << "Reweighting sample of TTToLL_MLL_ with weight=0: gen("
+			    << m_MassGen << ") reco("
+			    << m_vtxMassMu << ")" << std::endl;
+		newweight=0;
+		ttto2l2nu_fail_gen_mass++;
+	      }
+	      if (m_vtxMassMu<500.) {
+		if (debug)
+		  std::cout << "Reweighting sample of TTToLL_MLL_ with weight=0: gen("
+			    << m_MassGen << ") reco("
+			    << m_vtxMassMu << ")" << std::endl;
 		// newweight=0;
 		ttto2l2nu_fail_reco_mass++;
 	      }
@@ -696,12 +741,17 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
   std::cout << "100% done!" << std::endl;
   std::cout << std::flush;
 
-  if ( inputfile.Contains("TTTo2L2Nu"))
+  if (inputfile.Contains("TTToLL_MLL_"))
+    std::cout << "===Low mass TTToLL_MLL_ info====" << std::endl
+	      << "Total:     " << ttto2l2nu_input          << std::endl
+	      << "Fail GEN:  " << ttto2l2nu_fail_gen_mass  << std::endl
+	      << "Fail RECO: " << ttto2l2nu_fail_reco_mass << std::endl;
+  if (inputfile.Contains("TTTo2L2Nu"))
     std::cout << "===Low mass TTTo2L2Nu info====" << std::endl
 	      << "Total:     " << ttto2l2nu_input          << std::endl
 	      << "Fail GEN:  " << ttto2l2nu_fail_gen_mass  << std::endl
 	      << "Fail RECO: " << ttto2l2nu_fail_reco_mass << std::endl;
-  if ( inputfile.Contains("WWTo2L2Nu"))
+  if (inputfile.Contains("WWTo2L2Nu"))
     std::cout << "===Low mass WWTo2L2Nu info====" << std::endl
 	      << "Total:     " << wwto2l2nu_input          << std::endl
 	      << "Fail GEN:  " << wwto2l2nu_fail_gen_mass  << std::endl
