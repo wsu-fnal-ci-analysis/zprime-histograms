@@ -18,6 +18,8 @@
 
 // using namespace std;
 #define PI 3.14159265
+#define MUON_MASS 0.1056583
+#define ELEC_MASS 0.000511
 
 bool myfunction (int i,int j) { return (i < j); }
 bool picklargemass (float lhs,float rhs) { return (lhs > rhs); }
@@ -48,10 +50,11 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   float ptMin = 0.0;
   float ptMax = 400.0;
   ptEffCut = 3000.0;
-  double muon_mass = 0.1056583;
+
   // weight=1.;  // this is dumb, definitely don't want to reset the weight...
-  if (DATA_type=="2015") weight=1.;
-  TFile *output = new TFile("ZToEE_NNPDF30_13TeV-powheg_M_3500_4500_Moriond17_analysis.root","recreate");
+  if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="20157")
+    weight=1.;
+  std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToEleEle_13TeV.root","recreate");
   //==================================================================================
   //                                                                                 =
   //             Start the histograms for CollinSoper CMF                            =
@@ -61,12 +64,13 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   int NbBins   = 10;
   float MinBin = -1.0;
   float MaxBin =  1.0;
-  h1_CosAngleCollinSoperCorrect60Mass120_    = std::make_shared<TH1F>("CosAngleCollinSoperCorrect60Mass120","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect120Mass300_   = std::make_shared<TH1F>("CosAngleCollinSoperCorrect120Mass300","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect300Mass700_   = std::make_shared<TH1F>("CosAngleCollinSoperCorrect300Mass700","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect700Mass3000_  = std::make_shared<TH1F>("CosAngleCollinSoperCorrect700Mass3000","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect4900Mass5100_ = std::make_shared<TH1F>("CosAngleCollinSoperCorrect4900Mass5100","",NbBins,MinBin,MaxBin);
-  h1_absCosAngleCollinSoperCorrect4500Mass5500_ = std::make_shared<TH1F>("absCosAngleCollinSoperCorrect4500Mass5500","",5,0.0,1.0);
+  h1_ZprimeRecomass_                         = std::make_shared<TH1D>("ZprimeRecomass","",6000,0.0,6000.0);
+  h1_CosAngleCollinSoperCorrect60Mass120_    = std::make_shared<TH1D>("CosAngleCollinSoperCorrect60Mass120","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect120Mass300_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect120Mass300","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect300Mass700_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect300Mass700","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect700Mass3000_  = std::make_shared<TH1D>("CosAngleCollinSoperCorrect700Mass3000","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect4900Mass5100_ = std::make_shared<TH1D>("CosAngleCollinSoperCorrect4900Mass5100","",NbBins,MinBin,MaxBin);
+  h1_absCosAngleCollinSoperCorrect4500Mass5500_ = std::make_shared<TH1D>("absCosAngleCollinSoperCorrect4500Mass5500","",5,0.0,1.0);
 
   double etaBins[] = {-2.5,-1.566,-1.4442,0.,1.4442,1.566,2.5};
   std::array<std::string,9> etaBinLabels{"All","BB","BE","EE","BE+","BE-","E+E-","E-E-","E+E+"};
@@ -131,16 +135,17 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   float binNormNr=0.;
   for (int ibin = 0; ibin <= NMBINS; ibin++) {
     logMbins[ibin] = exp(log(MMIN) + (log(MMAX)-log(MMIN))*ibin/NMBINS);
-    std::cout << logMbins[ibin] << std::endl;
+    if (debug)
+      std::cout << logMbins[ibin] << std::endl;
   }
-  h1_ZprimeRecomassBinWidth_        = std::make_shared<TH1F>("ZprimeRecomassBinWidth","ZprimeRecomassBinWidth",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthEE_      = std::make_shared<TH1F>("ZprimeRecomassBinWidthEE","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBB_      = std::make_shared<TH1F>("ZprimeRecomassBinWidthBB","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBE_      = std::make_shared<TH1F>("ZprimeRecomassBinWidthBE","",NMBINS, logMbins);
-  h1_ZprimeRecomass60to120EE_       = std::make_shared<TH1F>("ZprimeRecomass60to120EE","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BB_       = std::make_shared<TH1F>("ZprimeRecomass60to120BB","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BE_       = std::make_shared<TH1F>("ZprimeRecomass60to120BE","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120_         = std::make_shared<TH1F>("ZprimeRecomass60to120","",60,60.0,120.0);
+  h1_ZprimeRecomassBinWidth_        = std::make_shared<TH1D>("ZprimeRecomassBinWidth","ZprimeRecomassBinWidth",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthEE_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthEE","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBB_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthBB","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBE_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthBE","",NMBINS, logMbins);
+  h1_ZprimeRecomass60to120EE_       = std::make_shared<TH1D>("ZprimeRecomass60to120EE","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BB_       = std::make_shared<TH1D>("ZprimeRecomass60to120BB","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BE_       = std::make_shared<TH1D>("ZprimeRecomass60to120BE","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120_         = std::make_shared<TH1D>("ZprimeRecomass60to120","",60,60.0,120.0);
   // Book txt file for candidate events
   Char_t txtOUT[500];
   sprintf(txtOUT,"CMSSW745-Analyse_ZprimeToEleEle_13TeV_cand.txt");
@@ -170,7 +175,7 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
       tsw.Start();
       std::cout << "." << std::flush;
     }
-    if ((jentry*10)/nentries == tenpcount ) {
+    if ((jentry*10)/nentries == tenpcount) {
       tsw.Stop();
       Double_t time = tsw.RealTime();
       tsw.Start(kFALSE);
@@ -186,12 +191,12 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
 		<< std::endl;
       std::cout << std::flush;
       tenpcount++;
-      // } else if ( (jentry*100)/nentries == onepcount ) {
+      // } else if ( (jentry*100)/nentries == onepcount) {
       //   std::cout << ".";
       //   std::cout << std::flush;
       //   onepcount++;
       // }
-    } else if ( (jentry*1000)/nentries == tenthpcount ) {
+    } else if ( (jentry*1000)/nentries == tenthpcount) {
       std::cout << ".";
       std::cout << std::flush;
       tenthpcount++;
@@ -232,9 +237,8 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
     //                                                        =
     //=========================================================
     if (firstEleFinal == 0 || secondEleFinal == 0) continue;
-    float mEl = 0.000511 ;
-    DiEleMass = Mass(Etele1,EtaTrakele1,PhiTrakele1,mEl,
-                     Etele2,EtaTrakele2,PhiTrakele2,mEl);
+    DiEleMass = Mass(Etele1,EtaTrakele1,PhiTrakele1,ELEC_MASS,
+                     Etele2,EtaTrakele2,PhiTrakele2,ELEC_MASS);
     if (DiEleMass < 60) continue;
     //=========================================================
     //        start doing matching between reco & HLT         =
@@ -456,16 +460,19 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float etaEle1,float
       h1_ZprimeRecomass60to120BB_->Fill(MassEle,weight10);
       h1_ZprimeRecomassBinWidth_->Fill(MassEle,weight10);
       h1_ZprimeRecomass60to120_->Fill(MassEle,weight10);
+      h1_ZprimeRecomass_->Fill(MassEle);
     } else if ((fabs(etaEle1) < 1.4442 && (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) ||
                (fabs(etaEle2) < 1.4442 && (fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5))) {  //BE
       h1_ZprimeRecomassBinWidthBE_->Fill(MassEle,weight10);
       h1_ZprimeRecomass60to120BE_->Fill(MassEle,weight10);
       h1_ZprimeRecomassBinWidth_->Fill(MassEle,weight10);
       h1_ZprimeRecomass60to120_->Fill(MassEle,weight10);
+      h1_ZprimeRecomass_->Fill(MassEle);
     } else if ((fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5) &&
                (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) {  //EE
       h1_ZprimeRecomassBinWidthEE_->Fill(MassEle,weight10);
       h1_ZprimeRecomass60to120EE_->Fill(MassEle,weight10);
+      h1_ZprimeRecomass_->Fill(MassEle);
     }
   }
 }

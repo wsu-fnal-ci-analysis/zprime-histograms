@@ -8,16 +8,13 @@
 //==============================================================
 #ifndef ZprimeMuMuPatMiniAodNewMC_h
 #define ZprimeMuMuPatMiniAodNewMC_h
-#include <TH2.h>
+
 #include <TStyle.h>
 #include <TCanvas.h>
 #include "TFile.h"
-/* #include <math.h> */
 #include "TF2.h"
-#include "TH1F.h"
-#include "TH2F.h"
+#include "TH1D.h"
 #include "TH2D.h"
-#include "TH3F.h"
 #include "TLorentzVector.h"
 #include <iostream>
 #include <memory>
@@ -471,81 +468,81 @@ class ZprimeMuMuPatMiniAodNewMC {
   std::ofstream output_txt;
 
   // HISTOGRAMS
-  /* std::shared_ptr<TH1F> h1_ZprimeRecomassBeforeTrigger_; */
-  std::shared_ptr<TH1F> h1_ZprimeRecomass_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomasslogscale_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomass60to120_;
-  /* std::shared_ptr<TH1F> h1_ZprimeRecomassAbove400GeV_; */
-  /* std::shared_ptr<TH1F> h1_ZprimeRecomassAbove1000GeV_; */
-  std::shared_ptr<TH1F> h1_3Dangle_;
-  /* std::shared_ptr<TH1F> h1_DxyDiff_; */
-  std::shared_ptr<TH1F> h1_ZprimeGenmass_;
-  std::shared_ptr<TH1F> h1_ZprimeGenEta1_;
-  std::shared_ptr<TH1F> h1_ZprimeGenEta2_;
-  std::shared_ptr<TH1F> h1_ZprimeGenPt1_;
-  std::shared_ptr<TH1F> h1_ZprimeGenPt2_;
-  std::shared_ptr<TH1F> h1_ZprimeGenEn1_;
-  std::shared_ptr<TH1F> h1_ZprimeGenEn2_;
-  /* std::shared_ptr<TH1F> h1_MassRecoGenDif_; */
-  std::shared_ptr<TH1F> h1_dPToverPT_;
-  /* std::shared_ptr<TH1F> h1_normalizedChi2_; */
-  std::shared_ptr<TH1F> h1_numberOftrackerLayersWithMeasurement_;
-  std::shared_ptr<TH1F> h1_numberOfValidPixelHits_;
-  std::shared_ptr<TH1F> h1_numberOfValidMuonHits_;
-  std::shared_ptr<TH1F> h1_numberOfMatchedStations_;
-  std::shared_ptr<TH1F> h1_trackiso_;
-  std::shared_ptr<TH1F> h1_absdxy_;
-  std::shared_ptr<TH1F> h1_PtEffpterror_;
-  std::shared_ptr<TH1F> h1_PtEffptnumberOftrackerLayers_;
-  std::shared_ptr<TH1F> h1_PtEffptnumberOfPixelHits_;
-  std::shared_ptr<TH1F> h1_PtEffptnumberOfMuonHits_;
-  std::shared_ptr<TH1F> h1_PtEffptnumberOfMatchedStations_;
-  std::shared_ptr<TH1F> h1_PtEffptTrackIso_;
-  std::shared_ptr<TH1F> h1_PtEffptabsdsy_;
-  /* std::shared_ptr<TH1F> h1_PtEffpfSumChargedHadron_; */
-  /* std::shared_ptr<TH1F> h1_PtEffpfSumNeutralHadron_; */
-  /* std::shared_ptr<TH1F> h1_PtEffpfPhotonIso_; */
-  /* std::shared_ptr<TH1F> h1_FracpfSumChargedHadron_; */
-  /* std::shared_ptr<TH1F> h1_FracpfSumNeutralHadron_; */
-  /* std::shared_ptr<TH1F> h1_FracpfPhotonIso_; */
-  std::shared_ptr<TH1F> h1_EtaEffpterror_;
-  std::shared_ptr<TH1F> h1_EtaEffptnumberOftrackerLayers_;
-  std::shared_ptr<TH1F> h1_EtaEffptnumberOfPixelHits_;
-  std::shared_ptr<TH1F> h1_EtaEffptnumberOfMuonHits_;
-  std::shared_ptr<TH1F> h1_EtaEffptnumberOfMatchedStations_;
-  std::shared_ptr<TH1F> h1_EtaEffptTrackIso_;
-  std::shared_ptr<TH1F> h1_EtaEffptabsdsy_;
-  std::shared_ptr<TH1F> h1_nbPVID_;
-  std::shared_ptr<TH1F> h1_PtID_;
-  std::shared_ptr<TH1F> h1_EtaID_;
-  std::shared_ptr<TH1F> h1_nbPVNewID_;
-  std::shared_ptr<TH1F> h1_PtNewID_;
-  std::shared_ptr<TH1F> h1_EtaNewID_;
-  std::shared_ptr<TH1F> h1_nbPVTightID_;
-  std::shared_ptr<TH1F> h1_PtTightID_;
-  std::shared_ptr<TH1F> h1_EtaTightID_;
+  /* std::shared_ptr<TH1D> h1_ZprimeRecomassBeforeTrigger_; */
+  std::shared_ptr<TH1D> h1_ZprimeRecomass_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomasslogscale_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomass60to120_;
+  /* std::shared_ptr<TH1D> h1_ZprimeRecomassAbove400GeV_; */
+  /* std::shared_ptr<TH1D> h1_ZprimeRecomassAbove1000GeV_; */
+  std::shared_ptr<TH1D> h1_3Dangle_;
+  /* std::shared_ptr<TH1D> h1_DxyDiff_; */
+  std::shared_ptr<TH1D> h1_ZprimeGenmass_;
+  std::shared_ptr<TH1D> h1_ZprimeGenEta1_;
+  std::shared_ptr<TH1D> h1_ZprimeGenEta2_;
+  std::shared_ptr<TH1D> h1_ZprimeGenPt1_;
+  std::shared_ptr<TH1D> h1_ZprimeGenPt2_;
+  std::shared_ptr<TH1D> h1_ZprimeGenEn1_;
+  std::shared_ptr<TH1D> h1_ZprimeGenEn2_;
+  /* std::shared_ptr<TH1D> h1_MassRecoGenDif_; */
+  std::shared_ptr<TH1D> h1_dPToverPT_;
+  /* std::shared_ptr<TH1D> h1_normalizedChi2_; */
+  std::shared_ptr<TH1D> h1_numberOftrackerLayersWithMeasurement_;
+  std::shared_ptr<TH1D> h1_numberOfValidPixelHits_;
+  std::shared_ptr<TH1D> h1_numberOfValidMuonHits_;
+  std::shared_ptr<TH1D> h1_numberOfMatchedStations_;
+  std::shared_ptr<TH1D> h1_trackiso_;
+  std::shared_ptr<TH1D> h1_absdxy_;
+  std::shared_ptr<TH1D> h1_PtEffpterror_;
+  std::shared_ptr<TH1D> h1_PtEffptnumberOftrackerLayers_;
+  std::shared_ptr<TH1D> h1_PtEffptnumberOfPixelHits_;
+  std::shared_ptr<TH1D> h1_PtEffptnumberOfMuonHits_;
+  std::shared_ptr<TH1D> h1_PtEffptnumberOfMatchedStations_;
+  std::shared_ptr<TH1D> h1_PtEffptTrackIso_;
+  std::shared_ptr<TH1D> h1_PtEffptabsdsy_;
+  /* std::shared_ptr<TH1D> h1_PtEffpfSumChargedHadron_; */
+  /* std::shared_ptr<TH1D> h1_PtEffpfSumNeutralHadron_; */
+  /* std::shared_ptr<TH1D> h1_PtEffpfPhotonIso_; */
+  /* std::shared_ptr<TH1D> h1_FracpfSumChargedHadron_; */
+  /* std::shared_ptr<TH1D> h1_FracpfSumNeutralHadron_; */
+  /* std::shared_ptr<TH1D> h1_FracpfPhotonIso_; */
+  std::shared_ptr<TH1D> h1_EtaEffpterror_;
+  std::shared_ptr<TH1D> h1_EtaEffptnumberOftrackerLayers_;
+  std::shared_ptr<TH1D> h1_EtaEffptnumberOfPixelHits_;
+  std::shared_ptr<TH1D> h1_EtaEffptnumberOfMuonHits_;
+  std::shared_ptr<TH1D> h1_EtaEffptnumberOfMatchedStations_;
+  std::shared_ptr<TH1D> h1_EtaEffptTrackIso_;
+  std::shared_ptr<TH1D> h1_EtaEffptabsdsy_;
+  std::shared_ptr<TH1D> h1_nbPVID_;
+  std::shared_ptr<TH1D> h1_PtID_;
+  std::shared_ptr<TH1D> h1_EtaID_;
+  std::shared_ptr<TH1D> h1_nbPVNewID_;
+  std::shared_ptr<TH1D> h1_PtNewID_;
+  std::shared_ptr<TH1D> h1_EtaNewID_;
+  std::shared_ptr<TH1D> h1_nbPVTightID_;
+  std::shared_ptr<TH1D> h1_PtTightID_;
+  std::shared_ptr<TH1D> h1_EtaTightID_;
 
-  std::shared_ptr<TH1F> h1_PtResolutionMBT_;
-  std::shared_ptr<TH1F> h1_PtResolutionTunePMBT_;
-  std::shared_ptr<TH1F> h1_PtResolutiontuneP_;
-  std::shared_ptr<TH1F> h1_MassResultionEBEB1_;
-  std::shared_ptr<TH1F> h1_MassResultionEBEB2_;
-  std::shared_ptr<TH1F> h1_MassResultionEBEB3_;
-  std::shared_ptr<TH1F> h1_MassResultionEBEB4_;
-  std::shared_ptr<TH1F> h1_MassResultionEBEB5_;
-  std::shared_ptr<TH1F> h1_MassResultionEBEB6_;
-  std::shared_ptr<TH1F> h1_MassResultionEBEB7_;
-  /* std::shared_ptr<TH1F> h1_MassResultionEBEB8_; */
-  /* std::shared_ptr<TH1F> h1_MassResultionEBEB9_; */
-  /* std::shared_ptr<TH1F> h1_MassResultionEBEB10_; */
-  std::shared_ptr<TH1F> h1_MassGenInAccep_;
-  std::shared_ptr<TH1F> h1_MassRecoInAccep_;
-  std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect60Mass120_;
-  std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect120Mass300_;
-  std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect300Mass700_;
-  std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect700Mass3000_;
-  std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect4900Mass5100_;
-  std::shared_ptr<TH1F> h1_absCosAngleCollinSoperCorrect4500Mass5500_;
+  std::shared_ptr<TH1D> h1_PtResolutionMBT_;
+  std::shared_ptr<TH1D> h1_PtResolutionTunePMBT_;
+  std::shared_ptr<TH1D> h1_PtResolutiontuneP_;
+  std::shared_ptr<TH1D> h1_MassResultionEBEB1_;
+  std::shared_ptr<TH1D> h1_MassResultionEBEB2_;
+  std::shared_ptr<TH1D> h1_MassResultionEBEB3_;
+  std::shared_ptr<TH1D> h1_MassResultionEBEB4_;
+  std::shared_ptr<TH1D> h1_MassResultionEBEB5_;
+  std::shared_ptr<TH1D> h1_MassResultionEBEB6_;
+  std::shared_ptr<TH1D> h1_MassResultionEBEB7_;
+  /* std::shared_ptr<TH1D> h1_MassResultionEBEB8_; */
+  /* std::shared_ptr<TH1D> h1_MassResultionEBEB9_; */
+  /* std::shared_ptr<TH1D> h1_MassResultionEBEB10_; */
+  std::shared_ptr<TH1D> h1_MassGenInAccep_;
+  std::shared_ptr<TH1D> h1_MassRecoInAccep_;
+  std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect60Mass120_;
+  std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect120Mass300_;
+  std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect300Mass700_;
+  std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect700Mass3000_;
+  std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect4900Mass5100_;
+  std::shared_ptr<TH1D> h1_absCosAngleCollinSoperCorrect4500Mass5500_;
 
   /* std::array<std::array<TH1D*,4> 3> h1_SmearedMassBinned_; */
   /* std::array<std::array<TH1D*,4> 3> h1_MassBinned_       ; */
@@ -564,100 +561,100 @@ class ZprimeMuMuPatMiniAodNewMC {
   std::shared_ptr<TH2D> h2_CSNegMassUpBinned_     ;
   std::shared_ptr<TH2D> h2_CSNegMassDownBinned_   ;
 
-  /* std::shared_ptr<TH1F> h1_ptHistoBefor_; */
-  /* std::shared_ptr<TH1F> h1_ptHistoPassingVtxChi2Mu_; */
-  /* std::shared_ptr<TH1F> h1_ptHistoPassingCosmicRejec_; */
-  /* std::shared_ptr<TH1F> h1_ptHistoPassingHLT_; */
-  /* std::shared_ptr<TH1F> h1_etaHistoBefor_; */
-  /* std::shared_ptr<TH1F> h1_etaHistoPassingVtxChi2Mu_; */
-  /* std::shared_ptr<TH1F> h1_etaHistoPassingCosmicRejec_; */
-  /* std::shared_ptr<TH1F> h1_etaHistoPassingHLT_; */
-  /* std::shared_ptr<TH1F> h1_3DangleHisto1_; */
-  /* std::shared_ptr<TH1F> h1_3DangleHisto2_; */
-  /* std::shared_ptr<TH1F> h1_Fail3DangleHistoMass_; */
-  /* std::shared_ptr<TH1F> h1_Fail3DangleHistoPhi_; */
-  /* std::shared_ptr<TH1F> h1_ptHistoFRDum_; */
-  /* std::shared_ptr<TH1F> h1_ptHistoFRNum_; */
-  std::shared_ptr<TH1F> h1_ZprimeRecomass50_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBB_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassEE_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBE_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomass20_;
+  /* std::shared_ptr<TH1D> h1_ptHistoBefor_; */
+  /* std::shared_ptr<TH1D> h1_ptHistoPassingVtxChi2Mu_; */
+  /* std::shared_ptr<TH1D> h1_ptHistoPassingCosmicRejec_; */
+  /* std::shared_ptr<TH1D> h1_ptHistoPassingHLT_; */
+  /* std::shared_ptr<TH1D> h1_etaHistoBefor_; */
+  /* std::shared_ptr<TH1D> h1_etaHistoPassingVtxChi2Mu_; */
+  /* std::shared_ptr<TH1D> h1_etaHistoPassingCosmicRejec_; */
+  /* std::shared_ptr<TH1D> h1_etaHistoPassingHLT_; */
+  /* std::shared_ptr<TH1D> h1_3DangleHisto1_; */
+  /* std::shared_ptr<TH1D> h1_3DangleHisto2_; */
+  /* std::shared_ptr<TH1D> h1_Fail3DangleHistoMass_; */
+  /* std::shared_ptr<TH1D> h1_Fail3DangleHistoPhi_; */
+  /* std::shared_ptr<TH1D> h1_ptHistoFRDum_; */
+  /* std::shared_ptr<TH1D> h1_ptHistoFRNum_; */
+  std::shared_ptr<TH1D> h1_ZprimeRecomass50_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBB_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassEE_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBE_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomass20_;
   /* std::shared_ptr<TH2F> h2_ZprimeRecomassNewbin_; */
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidth_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidth_;
 
-  /* std::shared_ptr<TH1F> h1_NbFireHLT; */
-  std::shared_ptr<TH1F> h1_ptAfterTrigger_;
-  std::shared_ptr<TH1F> h1_ptBeforeTrigger_;
-  std::shared_ptr<TH1F> h1_PtTuneP_;
-  std::shared_ptr<TH1F> h1_PFMetCorr_;
-  std::shared_ptr<TH1F> h1_CaloMet_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthBB_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthBEpos_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthBEnev_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthEE_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomass60to120BEpos_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomass60to120BEnev_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomass60to120EE_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomass60to120BB_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthAfterBtaging_;
-  /* std::shared_ptr<TH1F> h1_jetBTag_; */
-  /* std::shared_ptr<TH1F> h1_jetBTagB_; */
-  /* std::shared_ptr<TH1F> h1_jetBTagC_; */
-  /* std::shared_ptr<TH1F> h1_jetBTagUDSG_; */
-  std::shared_ptr<TH1F> h1_jetBTagStep1_;
-  std::shared_ptr<TH1F> h1_jetBTagStep2_;
-  std::shared_ptr<TH1F> h1_jetBTagStep3_;
-  std::shared_ptr<TH1F> h1_nbBTagStep1_;
-  std::shared_ptr<TH1F> h1_nbBTagStep2_;
-  std::shared_ptr<TH1F> h1_nbBTagStep3_;
-  std::shared_ptr<TH1F> h1_BosPt_;
-  std::shared_ptr<TH1F> h1_BosPhi_;
-  std::shared_ptr<TH1F> h1_DeltaPhi_;
-  std::shared_ptr<TH1F> h1_DeltaPtoverPt_;
-  std::shared_ptr<TH1F> h1_Mt_;
-  std::shared_ptr<TH1F> h1_MissingEt_;
-  std::shared_ptr<TH1F> h1_BTagMassMuMu_;
-  std::shared_ptr<TH1F> h1_BTagMassMuMu1GeVbin_;
-  std::shared_ptr<TH1F> h1_BTagMassMuMuBinWidth_;
-  std::shared_ptr<TH1F> h1_MassMuMuDijetBinWidth_;
-  std::shared_ptr<TH1F> h1_MassMuMuDijet1GeVbin_;
-  std::shared_ptr<TH1F> h1_MassMuMuDijetBinWidthMET_;
-  std::shared_ptr<TH1F> h1_MassMuMuBinWidthMET_;
-  std::shared_ptr<TH1F> h1_MassMuMuDijet1GeVbinMET_;
-  std::shared_ptr<TH1F> h1_MassMuMu1GeVbinMET_;
-  std::shared_ptr<TH1F> h1_MassMuMuDijetBinWidthMET100_;
-  std::shared_ptr<TH1F> h1_MassMuMuDijet1GeVbinMET100_;
-  std::shared_ptr<TH1F> h1_NbPFjetsAll_;
-  std::shared_ptr<TH1F> h1_NbPFjets2_;
-  std::shared_ptr<TH1F> h1_ptPFjetsAll_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthAllBE_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthAllEE_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthAll_;
-  std::shared_ptr<TH1F> h1_DijetBinWidthBB_;
-  std::shared_ptr<TH1F> h1_DijetBinWidthBE_;
-  std::shared_ptr<TH1F> h1_DijetBinWidthEE_;
-  std::shared_ptr<TH1F> h1_DijetBinWidthBBBE_;
-  std::shared_ptr<TH1F> h1_DijetEta1_;
-  std::shared_ptr<TH1F> h1_DijetEta2_;
-  std::shared_ptr<TH1F> h1_WjetsBinWidthBB_;
-  std::shared_ptr<TH1F> h1_WjetsBinWidthBE_;
-  std::shared_ptr<TH1F> h1_WjetsBinWidthEE_;
-  std::shared_ptr<TH1F> h1_WjetsBinWidthBBBE_;
-  std::shared_ptr<TH1F> h1_Dijet1GeVBB_;
-  std::shared_ptr<TH1F> h1_Dijet1GeVBEEE_;
-  std::shared_ptr<TH1F> h1_Dijet1GeVEE_;
-  std::shared_ptr<TH1F> h1_Dijet1GeVBBBEEE_;
-  std::shared_ptr<TH1F> h1_Wjets1GeVBB_;
-  std::shared_ptr<TH1F> h1_Wjets1GeVBEEE_;
-  std::shared_ptr<TH1F> h1_Wjets1GeVEE_;
-  std::shared_ptr<TH1F> h1_Wjets1GeVBBBEEE_;
-  std::shared_ptr<TH1F> h1_Dijet20GeVBB_;
-  std::shared_ptr<TH1F> h1_Dijet20GeVBEEE_;
-  std::shared_ptr<TH1F> h1_Dijet20GeVBBBEEE_;
-  std::shared_ptr<TH1F> h1_Wjets20GeVBB_;
-  std::shared_ptr<TH1F> h1_Wjets20GeVBEEE_;
-  std::shared_ptr<TH1F> h1_Wjets20GeVBBBEEE_;
+  /* std::shared_ptr<TH1D> h1_NbFireHLT; */
+  std::shared_ptr<TH1D> h1_ptAfterTrigger_;
+  std::shared_ptr<TH1D> h1_ptBeforeTrigger_;
+  std::shared_ptr<TH1D> h1_PtTuneP_;
+  std::shared_ptr<TH1D> h1_PFMetCorr_;
+  std::shared_ptr<TH1D> h1_CaloMet_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthBB_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthBEpos_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthBEnev_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthEE_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomass60to120BEpos_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomass60to120BEnev_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomass60to120EE_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomass60to120BB_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthAfterBtaging_;
+  /* std::shared_ptr<TH1D> h1_jetBTag_; */
+  /* std::shared_ptr<TH1D> h1_jetBTagB_; */
+  /* std::shared_ptr<TH1D> h1_jetBTagC_; */
+  /* std::shared_ptr<TH1D> h1_jetBTagUDSG_; */
+  std::shared_ptr<TH1D> h1_jetBTagStep1_;
+  std::shared_ptr<TH1D> h1_jetBTagStep2_;
+  std::shared_ptr<TH1D> h1_jetBTagStep3_;
+  std::shared_ptr<TH1D> h1_nbBTagStep1_;
+  std::shared_ptr<TH1D> h1_nbBTagStep2_;
+  std::shared_ptr<TH1D> h1_nbBTagStep3_;
+  std::shared_ptr<TH1D> h1_BosPt_;
+  std::shared_ptr<TH1D> h1_BosPhi_;
+  std::shared_ptr<TH1D> h1_DeltaPhi_;
+  std::shared_ptr<TH1D> h1_DeltaPtoverPt_;
+  std::shared_ptr<TH1D> h1_Mt_;
+  std::shared_ptr<TH1D> h1_MissingEt_;
+  std::shared_ptr<TH1D> h1_BTagMassMuMu_;
+  std::shared_ptr<TH1D> h1_BTagMassMuMu1GeVbin_;
+  std::shared_ptr<TH1D> h1_BTagMassMuMuBinWidth_;
+  std::shared_ptr<TH1D> h1_MassMuMuDijetBinWidth_;
+  std::shared_ptr<TH1D> h1_MassMuMuDijet1GeVbin_;
+  std::shared_ptr<TH1D> h1_MassMuMuDijetBinWidthMET_;
+  std::shared_ptr<TH1D> h1_MassMuMuBinWidthMET_;
+  std::shared_ptr<TH1D> h1_MassMuMuDijet1GeVbinMET_;
+  std::shared_ptr<TH1D> h1_MassMuMu1GeVbinMET_;
+  std::shared_ptr<TH1D> h1_MassMuMuDijetBinWidthMET100_;
+  std::shared_ptr<TH1D> h1_MassMuMuDijet1GeVbinMET100_;
+  std::shared_ptr<TH1D> h1_NbPFjetsAll_;
+  std::shared_ptr<TH1D> h1_NbPFjets2_;
+  std::shared_ptr<TH1D> h1_ptPFjetsAll_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthAllBE_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthAllEE_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthAll_;
+  std::shared_ptr<TH1D> h1_DijetBinWidthBB_;
+  std::shared_ptr<TH1D> h1_DijetBinWidthBE_;
+  std::shared_ptr<TH1D> h1_DijetBinWidthEE_;
+  std::shared_ptr<TH1D> h1_DijetBinWidthBBBE_;
+  std::shared_ptr<TH1D> h1_DijetEta1_;
+  std::shared_ptr<TH1D> h1_DijetEta2_;
+  std::shared_ptr<TH1D> h1_WjetsBinWidthBB_;
+  std::shared_ptr<TH1D> h1_WjetsBinWidthBE_;
+  std::shared_ptr<TH1D> h1_WjetsBinWidthEE_;
+  std::shared_ptr<TH1D> h1_WjetsBinWidthBBBE_;
+  std::shared_ptr<TH1D> h1_Dijet1GeVBB_;
+  std::shared_ptr<TH1D> h1_Dijet1GeVBEEE_;
+  std::shared_ptr<TH1D> h1_Dijet1GeVEE_;
+  std::shared_ptr<TH1D> h1_Dijet1GeVBBBEEE_;
+  std::shared_ptr<TH1D> h1_Wjets1GeVBB_;
+  std::shared_ptr<TH1D> h1_Wjets1GeVBEEE_;
+  std::shared_ptr<TH1D> h1_Wjets1GeVEE_;
+  std::shared_ptr<TH1D> h1_Wjets1GeVBBBEEE_;
+  std::shared_ptr<TH1D> h1_Dijet20GeVBB_;
+  std::shared_ptr<TH1D> h1_Dijet20GeVBEEE_;
+  std::shared_ptr<TH1D> h1_Dijet20GeVBBBEEE_;
+  std::shared_ptr<TH1D> h1_Wjets20GeVBB_;
+  std::shared_ptr<TH1D> h1_Wjets20GeVBEEE_;
+  std::shared_ptr<TH1D> h1_Wjets20GeVBBBEEE_;
 };
 
 #endif

@@ -17,6 +17,8 @@
 
 // using namespace std;
 #define PI 3.14159265
+#define MUON_MASS 0.1056583
+#define ELEC_MASS 0.000511
 
 bool myfunction (int i,int j) { return (i < j); }
 bool picklargemass (float lhs,float rhs) { return (lhs > rhs); }
@@ -47,10 +49,11 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   float ptMin = 0.0;
   float ptMax = 400.0;
   ptEffCut = 3000.0;
-  double muon_mass = 0.1056583;
-  weight=1.;
-  //if (DATA_type=="2015") weight=1.;
-  TFile *output = new TFile("Data_B_reminiaod_heep_analysis.root","recreate");
+
+  // weight=1.;  // this is dumb, definitely don't want to reset the weight...
+  if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="20157")
+    weight=1.;
+  std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToEleEle_13TeV.root","recreate");
   //==================================================================================
   //                                                                                 =
   //             Start the histograms for CollinSoper CMF                            =
@@ -60,14 +63,65 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   int NbBins   = 10;
   float MinBin = -1.0;
   float MaxBin =  1.0;
-  h1_ZprimeRecomass_                         = new TH1F("ZprimeRecomass","",6000,0.0,6000.0);
-  h1_CosAngleCollinSoperCorrect60Mass120_    = new TH1F("CosAngleCollinSoperCorrect60Mass120","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect120Mass300_   = new TH1F("CosAngleCollinSoperCorrect120Mass300","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect300Mass700_   = new TH1F("CosAngleCollinSoperCorrect300Mass700","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect700Mass3000_  = new TH1F("CosAngleCollinSoperCorrect700Mass3000","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect4900Mass5100_ = new TH1F("CosAngleCollinSoperCorrect4900Mass5100","",NbBins,MinBin,MaxBin);
-  h1_absCosAngleCollinSoperCorrect4500Mass5500_ = new TH1F("absCosAngleCollinSoperCorrect4500Mass5500","",5,0.0,1.0);
+  h1_ZprimeRecomass_                         = std::make_shared<TH1D>("ZprimeRecomass","",6000,0.0,6000.0);
+  h1_CosAngleCollinSoperCorrect60Mass120_    = std::make_shared<TH1D>("CosAngleCollinSoperCorrect60Mass120","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect120Mass300_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect120Mass300","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect300Mass700_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect300Mass700","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect700Mass3000_  = std::make_shared<TH1D>("CosAngleCollinSoperCorrect700Mass3000","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect4900Mass5100_ = std::make_shared<TH1D>("CosAngleCollinSoperCorrect4900Mass5100","",NbBins,MinBin,MaxBin);
+  h1_absCosAngleCollinSoperCorrect4500Mass5500_ = std::make_shared<TH1D>("absCosAngleCollinSoperCorrect4500Mass5500","",5,0.0,1.0);
+
+  double etaBins[] = {-2.4,-1.2,0.,1.2,2.4};
+  std::array<std::string,9> etaBinLabels{"All","BB","BE","EE","BE+","BE-","E+E-","E-E-","E+E+"};
+  std::array<std::string,3> csBinLabels{"","CS < 0;","CS > 0;"};
+  double massBins[] = {0., 200., 400., 500., 700., 1100., 1900., 3500., 5000.};
+  int nEtaBins  = sizeof(etaBins)/sizeof(etaBins[0]);
+  int nMassBins = sizeof(massBins)/sizeof(massBins[0]);
+
+  std::array<std::string,4> etaBin{"BB","BE","EE","Inc"};
+  std::array<std::string,3> csBin{"Pos","Neg","Inc"};
+  // int eb = 0;
+  // for (auto e: etaBin) {
+  //   int cb = 0
+  //   for (auto c: csBin) {
+  //     h1_SmearedMassBinned_[cb][eb] = std::make_shared<TH1D>("CS"+c+"SmearedMass"+e,"", 20000,0,20000);
+  //     h1_MassBinned_[cb][eb]        = std::make_shared<TH1D>("CS"+c+"Mass"+e       ,"", 20000,0,20000);
+  //     h1_MassUpBinned_[cb][eb]      = std::make_shared<TH1D>("CS"+c+"MassUp"+e     ,"", 20000,0,20000);
+  //     h1_MassDownBinned_[cb][eb]    = std::make_shared<TH1D>("CS"+c+"MassDown"+e   ,"", 20000,0,20000);
+  //     ++cb;
+  //   }
+  //   ++eb;
+  // }
+  // h2_CSSmearedMassBinned_ = std::make_shared<TH2D>("CSSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
+  h2_CSMassBinned_        = std::make_shared<TH2D>("CSMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSMassUpBinned_      = std::make_shared<TH2D>("CSMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSMassDownBinned_    = std::make_shared<TH2D>("CSMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosSmearedMassBinned_ = std::make_shared<TH2D>("CSPosSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosMassBinned_        = std::make_shared<TH2D>("CSPosMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosMassUpBinned_      = std::make_shared<TH2D>("CSPosMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosMassDownBinned_    = std::make_shared<TH2D>("CSPosMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegSmearedMassBinned_ = std::make_shared<TH2D>("CSNegSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegMassBinned_        = std::make_shared<TH2D>("CSNegMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegMassUpBinned_      = std::make_shared<TH2D>("CSNegMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegMassDownBinned_    = std::make_shared<TH2D>("CSNegMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+  for (int eb = 0; eb < etaBinLabels.size(); ++eb) {
+    for (int cb = 0; cb < csBinLabels.size(); ++cb) {
+      // h2_CSSmearedMassBinned_->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
+      h2_CSMassBinned_       ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
+      // h2_CSMassUpBinned_     ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
+      // h2_CSMassDownBinned_   ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
+      // h2_CSPosSmearedMassBinned_->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+      // h2_CSPosMassBinned_       ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+      // h2_CSPosMassUpBinned_     ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+      // h2_CSPosMassDownBinned_   ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+      // h2_CSNegSmearedMassBinned_->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+      // h2_CSNegMassBinned_       ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+      // h2_CSNegMassUpBinned_     ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+      // h2_CSNegMassDownBinned_   ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
+    }
+  }
   //==================================================================================
+
   //==================================================================================
   //                                                                                 =
   //            Start the histograms for the mass of Z                               =
@@ -80,26 +134,27 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   float binNormNr=0.;
   for (int ibin = 0; ibin <= NMBINS; ibin++) {
     logMbins[ibin] = exp(log(MMIN) + (log(MMAX)-log(MMIN))*ibin/NMBINS);
-    std::cout << logMbins[ibin] << std::endl;
+    if (debug)
+      std::cout << logMbins[ibin] << std::endl;
   }
-  h1_ZprimeRecomassBinWidth_  = new TH1F("ZprimeRecomassBinWidth","ZprimeRecomassBinWidth",NMBINS, logMbins);
-  h1_DijetBinWidthBB_         = new TH1F("DijetBinWidthBB","",NMBINS, logMbins);
-  h1_DijetBinWidthBE_         = new TH1F("DijetBinWidthBE","",NMBINS, logMbins);
-  h1_DijetBinWidthEE_         = new TH1F("DijetBinWidthEE","",NMBINS, logMbins);
-  h1_DijetBinWidthBBBE_       = new TH1F("DijetBinWidthBBBE","",NMBINS, logMbins);
-  h1_WjetsBinWidthBB_         = new TH1F("WjetsBinWidthBB","",NMBINS, logMbins);
-  h1_WjetsBinWidthBE_         = new TH1F("WjetsBinWidthBE","",NMBINS, logMbins);
-  h1_WjetsBinWidthEE_         = new TH1F("WjetsBinWidthEE","",NMBINS, logMbins);
-  h1_WjetsBinWidthBBBE_       = new TH1F("WjetsBinWidthBBBE","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthEE_      = new TH1F("ZprimeRecomassBinWidthEE","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBB_      = new TH1F("ZprimeRecomassBinWidthBB","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBE_      = new TH1F("ZprimeRecomassBinWidthBE","",NMBINS, logMbins);
-  h1_ZprimeRecomass60to120EE_       = new TH1F("ZprimeRecomass60to120EE","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BB_       = new TH1F("ZprimeRecomass60to120BB","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BE_       = new TH1F("ZprimeRecomass60to120BE","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120_         = new TH1F("ZprimeRecomass60to120","",60,60.0,120.0);
-  h1_DijetEta1_       = new TH1F("DijetEta1","",100,0.0,3.0);
-  h1_DijetEta2_       = new TH1F("DijetEta2","",100,0.0,3.0);
+  h1_ZprimeRecomassBinWidth_  = std::make_shared<TH1D>("ZprimeRecomassBinWidth","ZprimeRecomassBinWidth",NMBINS, logMbins);
+  h1_DijetBinWidthBB_         = std::make_shared<TH1D>("DijetBinWidthBB","",NMBINS, logMbins);
+  h1_DijetBinWidthBE_         = std::make_shared<TH1D>("DijetBinWidthBE","",NMBINS, logMbins);
+  h1_DijetBinWidthEE_         = std::make_shared<TH1D>("DijetBinWidthEE","",NMBINS, logMbins);
+  h1_DijetBinWidthBBBE_       = std::make_shared<TH1D>("DijetBinWidthBBBE","",NMBINS, logMbins);
+  h1_WjetsBinWidthBB_         = std::make_shared<TH1D>("WjetsBinWidthBB","",NMBINS, logMbins);
+  h1_WjetsBinWidthBE_         = std::make_shared<TH1D>("WjetsBinWidthBE","",NMBINS, logMbins);
+  h1_WjetsBinWidthEE_         = std::make_shared<TH1D>("WjetsBinWidthEE","",NMBINS, logMbins);
+  h1_WjetsBinWidthBBBE_       = std::make_shared<TH1D>("WjetsBinWidthBBBE","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthEE_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthEE","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBB_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthBB","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBE_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthBE","",NMBINS, logMbins);
+  h1_ZprimeRecomass60to120EE_       = std::make_shared<TH1D>("ZprimeRecomass60to120EE","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BB_       = std::make_shared<TH1D>("ZprimeRecomass60to120BB","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BE_       = std::make_shared<TH1D>("ZprimeRecomass60to120BE","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120_         = std::make_shared<TH1D>("ZprimeRecomass60to120","",60,60.0,120.0);
+  h1_DijetEta1_       = std::make_shared<TH1D>("DijetEta1","",100,0.0,3.0);
+  h1_DijetEta2_       = std::make_shared<TH1D>("DijetEta2","",100,0.0,3.0);
   // Book txt file for candidate events
   Char_t txtOUT[500];
   sprintf(txtOUT,"CMSSW745-Analyse_ZprimeToEleEle_13TeV_cand.txt");
@@ -129,7 +184,7 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
       tsw.Start();
       std::cout << "." << std::flush;
     }
-    if ((jentry*10)/nentries == tenpcount ) {
+    if ((jentry*10)/nentries == tenpcount) {
       tsw.Stop();
       Double_t time = tsw.RealTime();
       tsw.Start(kFALSE);
@@ -145,12 +200,12 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
 		<< std::endl;
       std::cout << std::flush;
       tenpcount++;
-      // } else if ( (jentry*100)/nentries == onepcount ) {
+      // } else if ( (jentry*100)/nentries == onepcount) {
       //   std::cout << ".";
       //   std::cout << std::flush;
       //   onepcount++;
       // }
-    } else if ( (jentry*1000)/nentries == tenthpcount ) {
+    } else if ( (jentry*1000)/nentries == tenthpcount) {
       std::cout << ".";
       std::cout << std::flush;
       tenthpcount++;
@@ -188,20 +243,19 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
     //                                                                 =
     //==================================================================
     bool firstEleFinal  = SelectFirstEle(Etele1,Enele1,EtaTrakele1,PhiTrakele1,Chargeele1,
-                                        EtaSCele1,PhiSCele1,flagel1,
-                                        m_genET1,m_genPhi1,m_genEta1,m_genEn1);
+					 EtaSCele1,PhiSCele1,flagel1,
+					 m_genET1,m_genPhi1,m_genEta1,m_genEn1);
     bool secondEleFinal = SelectSecondEle(Chargeele1,flagel1,Etele1,EtaTrakele1,PhiTrakele1,
-                                         Etele2,Enele2,EtaTrakele2,PhiTrakele2,Chargeele2,
-                                         EtaSCele2,PhiSCele2,
-                                         m_genET2,m_genPhi2,m_genEta2,m_genEn2);
+					  Etele2,Enele2,EtaTrakele2,PhiTrakele2,Chargeele2,
+					  EtaSCele2,PhiSCele2,
+					  m_genET2,m_genPhi2,m_genEta2,m_genEn2);
     //=========================================================
     //        call the method for N-1 plots                   =
     //                                                        =
     //=========================================================
     if (firstEleFinal == 0 || secondEleFinal == 0) continue;
-    float mEl = 0.000511 ;
-    DiEleMass = Mass(Etele1,EtaTrakele1,PhiTrakele1,mEl,
-                     Etele2,EtaTrakele2,PhiTrakele2,mEl);
+    DiEleMass = Mass(Etele1,EtaTrakele1,PhiTrakele1,ELEC_MASS,
+                     Etele2,EtaTrakele2,PhiTrakele2,ELEC_MASS);
     if (DiEleMass<60.0) continue;
     //=========================================================
     //        start doing matching between reco & HLT         =
@@ -245,7 +299,7 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   //========================================================================
   time (&end);
   dif = difftime (end,start);
-  printf ("It took you %.2lf minutes to run your program.\n", (dif/60.0) );
+  printf ("It took you %.2lf minutes to run your program.\n", (dif/60.0));
 }
 
 
@@ -274,8 +328,8 @@ bool ZprimeEleElePatMiniAodNewData::GenRecoMatchEle(float RecoEta1,float RecoPhi
   unsigned iflag = -10;
   for (unsigned i=0; i<iGen->size(); i++) {
     float deltaR1   = delR(RecoEta1,RecoPhi1,etaGen->at(i),phiGen->at(i));
-    if (fabs(idGen->at(i)) != 11 ) continue;
-    if (statusGen->at(i) != 1 )  continue;
+    if (fabs(idGen->at(i)) != 11) continue;
+    if (statusGen->at(i) != 1)  continue;
     if (fabs(deltaR1)>deltaRcut) continue;
     iflag  = i;
     NbHEEPele ++;
@@ -300,7 +354,7 @@ bool ZprimeEleElePatMiniAodNewData::SelectFirstEle(float &ETele1,float &Enele1,f
     if (fabs(Ele_etaSC->at(i)) < 1.4442) ET = Ele_EtFromCaloEn->at(i)*1.0012 ;
     else if (fabs(Ele_etaSC->at(i))>1.566 && fabs(Ele_etaSC->at(i)) < 2.5) ET = Ele_EtFromCaloEn->at(i)*1.0089 ;
     //Barrel
-    if (ET > 35 && fabs(Ele_etaSC->at(i)) < 1.4442 && Ele_isPassHeepID->at(i)==1 ) {
+    if (ET > 35 && fabs(Ele_etaSC->at(i)) < 1.4442 && Ele_isPassHeepID->at(i)==1) {
       if (ET>highestpt) {
 	//bool GenRecoMatch1 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i));
 	//if (GenRecoMatch1 == 0) continue;
@@ -310,7 +364,7 @@ bool ZprimeEleElePatMiniAodNewData::SelectFirstEle(float &ETele1,float &Enele1,f
       }
     }
     //endcap
-    if (ET > 35 && fabs(Ele_etaSC->at(i)) > 1.566 && fabs(Ele_etaSC->at(i)) < 2.5 && Ele_isPassHeepID->at(i)==1 ) {
+    if (ET > 35 && fabs(Ele_etaSC->at(i)) > 1.566 && fabs(Ele_etaSC->at(i)) < 2.5 && Ele_isPassHeepID->at(i)==1) {
       if (ET>highestpt) {
 	//bool GenRecoMatch1 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i));
 	//if (GenRecoMatch1 == 0) continue;
@@ -321,7 +375,7 @@ bool ZprimeEleElePatMiniAodNewData::SelectFirstEle(float &ETele1,float &Enele1,f
     }
     else continue;
   }
-  if (NbHEEPele > 0 ) {
+  if (NbHEEPele > 0) {
     FlagEle1           = iflag;
     if (fabs(Ele_etaSC->at(iflag)) < 1.4442) ETele1 = Ele_EtFromCaloEn->at(iflag)*1.0012 ;
     else if (fabs(Ele_etaSC->at(iflag))>1.566 && fabs(Ele_etaSC->at(iflag)) < 2.5) ETele1 = Ele_EtFromCaloEn->at(iflag)*1.0089 ;
@@ -354,7 +408,7 @@ bool ZprimeEleElePatMiniAodNewData::SelectSecondEle(int ChargeEle1,unsigned Flag
     if (fabs(Ele_etaSC->at(i)) < 1.4442) ET = Ele_EtFromCaloEn->at(i)*1.0012 ;
     else if (fabs(Ele_etaSC->at(i))>1.566 && fabs(Ele_etaSC->at(i)) < 2.5) ET = Ele_EtFromCaloEn->at(i)*1.0089 ;
     //Barrel
-    if (ET > 35 && fabs(Ele_etaSC->at(i)) < 1.4442 && Ele_isPassHeepID->at(i)==1 ) {
+    if (ET > 35 && fabs(Ele_etaSC->at(i)) < 1.4442 && Ele_isPassHeepID->at(i)==1) {
       if (ET>highestpt) {
 	//bool GenRecoMatch1 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i));
 	//if (GenRecoMatch1 == 0) continue;
@@ -364,7 +418,7 @@ bool ZprimeEleElePatMiniAodNewData::SelectSecondEle(int ChargeEle1,unsigned Flag
       }
     }
     //endcap
-    if (ET > 35 && fabs(Ele_etaSC->at(i)) > 1.566 && fabs(Ele_etaSC->at(i)) < 2.5 && Ele_isPassHeepID->at(i)==1 ) {
+    if (ET > 35 && fabs(Ele_etaSC->at(i)) > 1.566 && fabs(Ele_etaSC->at(i)) < 2.5 && Ele_isPassHeepID->at(i)==1) {
       if (ET>highestpt) {
 	//bool GenRecoMatch1 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i));
 	//if (GenRecoMatch1 == 0) continue;
@@ -375,7 +429,7 @@ bool ZprimeEleElePatMiniAodNewData::SelectSecondEle(int ChargeEle1,unsigned Flag
     }
     else continue;
   }
-  if (NbHEEPele > 0 ) {
+  if (NbHEEPele > 0) {
     if (fabs(Ele_etaSC->at(iflag)) < 1.4442) ETele2 = Ele_EtFromCaloEn->at(iflag)*1.0012 ;
     else if (fabs(Ele_etaSC->at(iflag))>1.566 && fabs(Ele_etaSC->at(iflag)) < 2.5) ETele2 = Ele_EtFromCaloEn->at(iflag)*1.0089 ;
     Enele2             = Ele_energySC->at(iflag);
@@ -412,7 +466,7 @@ bool ZprimeEleElePatMiniAodNewData::SelectFirstEle(float &ETele1,float &Enele1,f
 	 Ele_nbOfMissingHits->at(i) < 2 &&
 	 fabs(Ele_dxy->at(i)) < 0.02 &&
 	 Ele_dr03EcalRecHitSumEt->at(i) + Ele_dr03HcalDepth1TowerSumEt->at(i) < 2 + 0.03 * ET + 0.28 * Ele_rhoIso->at(i) &&
-	 Ele_dr03TkSumPt_corrected->at(i) < 5.0 ) {
+	 Ele_dr03TkSumPt_corrected->at(i) < 5.0) {
       if (ET>highestpt) {
 	//bool GenRecoMatch1 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i));
 	//if (GenRecoMatch1 == 0) continue;
@@ -432,7 +486,7 @@ bool ZprimeEleElePatMiniAodNewData::SelectFirstEle(float &ETele1,float &Enele1,f
 	 fabs(Ele_dxy->at(i)) < 0.05 &&
 	 (( ET < 50 && Ele_dr03EcalRecHitSumEt->at(i) + Ele_dr03HcalDepth1TowerSumEt->at(i) < 2.5 + 0.28 * Ele_rhoIso->at(i)) ||
 	  ( ET > 50 && Ele_dr03EcalRecHitSumEt->at(i) + Ele_dr03HcalDepth1TowerSumEt->at(i) < 2.5 + 0.03 * (ET-50) + 0.28 * Ele_rhoIso->at(i))) &&
-	 Ele_dr03TkSumPt_corrected->at(i) < 5.0 ) {
+	 Ele_dr03TkSumPt_corrected->at(i) < 5.0) {
       if (ET>highestpt) {
 	//bool GenRecoMatch1 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i));
 	//if (GenRecoMatch1 == 0) continue;
@@ -443,7 +497,7 @@ bool ZprimeEleElePatMiniAodNewData::SelectFirstEle(float &ETele1,float &Enele1,f
     }
     else continue;
   }
-  if (NbHEEPele > 0 ) {
+  if (NbHEEPele > 0) {
     FlagEle1           = iflag;
     if (fabs(Ele_etaSC->at(iflag)) < 1.4442) ETele1 = Ele_EtFromCaloEn->at(iflag)*1.0012 ;
     else if (fabs(Ele_etaSC->at(iflag))>1.566 && fabs(Ele_etaSC->at(iflag)) < 2.5) ETele1 = Ele_EtFromCaloEn->at(iflag)*1.0089 ;
@@ -483,7 +537,7 @@ bool ZprimeEleElePatMiniAodNewData::SelectSecondEle(int ChargeEle1,unsigned Flag
 	 Ele_nbOfMissingHits->at(i) < 2 &&
 	 fabs(Ele_dxy->at(i)) < 0.02 &&
 	 Ele_dr03EcalRecHitSumEt->at(i) + Ele_dr03HcalDepth1TowerSumEt->at(i) < 2 + 0.03 * ET + 0.28 * Ele_rhoIso->at(i) &&
-	 Ele_dr03TkSumPt_corrected->at(i) < 5.0 ) {
+	 Ele_dr03TkSumPt_corrected->at(i) < 5.0) {
       if (ET>highestpt) {
 	//bool GenRecoMatch1 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i));
 	//if (GenRecoMatch1 == 0) continue;
@@ -503,7 +557,7 @@ bool ZprimeEleElePatMiniAodNewData::SelectSecondEle(int ChargeEle1,unsigned Flag
 	 fabs(Ele_dxy->at(i)) < 0.05 &&
 	 (( ET < 50 && Ele_dr03EcalRecHitSumEt->at(i) + Ele_dr03HcalDepth1TowerSumEt->at(i) < 2.5 + 0.28 * Ele_rhoIso->at(i)) ||
 	  ( ET > 50 && Ele_dr03EcalRecHitSumEt->at(i) + Ele_dr03HcalDepth1TowerSumEt->at(i) < 2.5 + 0.03 * (ET-50) + 0.28 * Ele_rhoIso->at(i))) &&
-	 Ele_dr03TkSumPt_corrected->at(i) < 5.0 ) {
+	 Ele_dr03TkSumPt_corrected->at(i) < 5.0) {
       if (ET>highestpt) {
 	//bool GenRecoMatch1 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i));
 	//if (GenRecoMatch1 == 0) continue;
@@ -514,7 +568,7 @@ bool ZprimeEleElePatMiniAodNewData::SelectSecondEle(int ChargeEle1,unsigned Flag
     }
     else continue;
   }
-  if (NbHEEPele > 0 ) {
+  if (NbHEEPele > 0) {
     if (fabs(Ele_etaSC->at(iflag)) < 1.4442) ETele2 = Ele_EtFromCaloEn->at(iflag)*1.0012 ;
     else if (fabs(Ele_etaSC->at(iflag))>1.566 && fabs(Ele_etaSC->at(iflag)) < 2.5) ETele2 = Ele_EtFromCaloEn->at(iflag)*1.0089 ;
     Enele2             = Ele_energySC->at(iflag);
@@ -545,7 +599,7 @@ void ZprimeEleElePatMiniAodNewData::PlotRecoInfo(float MassEle,float etaEle1,flo
     }
   }
 
-  if (fabs(etaEle1) < 1.4442 && (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5) ) {
+  if (fabs(etaEle1) < 1.4442 && (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) {
     if (MassEle>900.0) {
       output_txt << event_runNo
                  << "   " << event_lumi
@@ -557,7 +611,7 @@ void ZprimeEleElePatMiniAodNewData::PlotRecoInfo(float MassEle,float etaEle1,flo
 
     }
   }
-  if (fabs(etaEle2) < 1.4442 && (fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5) ) {
+  if (fabs(etaEle2) < 1.4442 && (fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5)) {
     if (MassEle>900.0) {
       output_txt << event_runNo
                  << "   " << event_lumi
@@ -572,42 +626,26 @@ void ZprimeEleElePatMiniAodNewData::PlotRecoInfo(float MassEle,float etaEle1,flo
 
   //float weight2 = std::min(1.01696-7.73522E-5*MassEle+6.69239E-9*MassEle*MassEle,1);
   //----------------------------------------------------------
-  if (!(inputfile.Contains("WW") && MassEle>2000.) ) {
-    //BB
-    if (fabs(etaEle1) < 1.4442 && fabs(etaEle2) < 1.4442)
-      {
-	h1_ZprimeRecomassBinWidthBB_->Fill(MassEle,weight);
-	h1_ZprimeRecomass60to120BB_->Fill(MassEle,weight);
-	h1_ZprimeRecomassBinWidth_->Fill(MassEle,weight);
-	h1_ZprimeRecomass60to120_->Fill(MassEle,weight);
-        h1_ZprimeRecomass_->Fill(MassEle);
-      }
-
-    //BE
-    if (fabs(etaEle1) < 1.4442 && (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5) )
-      {
-	h1_ZprimeRecomassBinWidthBE_->Fill(MassEle,weight);
-	h1_ZprimeRecomass60to120BE_->Fill(MassEle,weight);
-	h1_ZprimeRecomassBinWidth_->Fill(MassEle,weight);
-	h1_ZprimeRecomass60to120_->Fill(MassEle,weight);
-        h1_ZprimeRecomass_->Fill(MassEle);
-      }
-    if (fabs(etaEle2) < 1.4442 && (fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5) )
-      {
-	h1_ZprimeRecomassBinWidthBE_->Fill(MassEle,weight);
-	h1_ZprimeRecomass60to120BE_->Fill(MassEle,weight);
-	h1_ZprimeRecomassBinWidth_->Fill(MassEle,weight);
-	h1_ZprimeRecomass60to120_->Fill(MassEle,weight);
-        h1_ZprimeRecomass_->Fill(MassEle);
-      }
-
-    //EE
-    if ((fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5) && (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5) )
-      {
-	h1_ZprimeRecomassBinWidthEE_->Fill(MassEle,weight);
-	h1_ZprimeRecomass60to120EE_->Fill(MassEle,weight);
-      }
-
+  if (!(inputfile.Contains("WW") && MassEle>2000.)) {
+    if (fabs(etaEle1) < 1.4442 && fabs(etaEle2) < 1.4442) {  //BB
+      h1_ZprimeRecomassBinWidthBB_->Fill(MassEle,weight);
+      h1_ZprimeRecomass60to120BB_->Fill(MassEle,weight);
+      h1_ZprimeRecomassBinWidth_->Fill(MassEle,weight);
+      h1_ZprimeRecomass60to120_->Fill(MassEle,weight);
+      h1_ZprimeRecomass_->Fill(MassEle);
+    } else if ((fabs(etaEle1) < 1.4442 && (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) ||
+	       (fabs(etaEle2) < 1.4442 && (fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5))) {  //BE
+      h1_ZprimeRecomassBinWidthBE_->Fill(MassEle,weight);
+      h1_ZprimeRecomass60to120BE_->Fill(MassEle,weight);
+      h1_ZprimeRecomassBinWidth_->Fill(MassEle,weight);
+      h1_ZprimeRecomass60to120_->Fill(MassEle,weight);
+      h1_ZprimeRecomass_->Fill(MassEle);
+    } else if ((fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5) &&
+	       (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) {  //EE
+      h1_ZprimeRecomassBinWidthEE_->Fill(MassEle,weight);
+      h1_ZprimeRecomass60to120EE_->Fill(MassEle,weight);
+      h1_ZprimeRecomass_->Fill(MassEle);
+    }
   }
 }
 
@@ -642,8 +680,8 @@ bool ZprimeEleElePatMiniAodNewData::SelectFirstGenEle(float &ETEle1,float &PhiSC
   int iflag = -10;
   ETEle1 = 0.0;
   for (unsigned i=0; i<iGen->size(); i++) {
-    if (fabs(idGen->at(i)) != 11 ) continue;
-    if (statusGen->at(i) != 1 )  continue;
+    if (fabs(idGen->at(i)) != 11) continue;
+    if (statusGen->at(i) != 1)  continue;
     if (ptGen->at(i) > ETEle1) {
       ETEle1 = ptGen->at(i);
       iflag  = i;
@@ -671,10 +709,10 @@ bool ZprimeEleElePatMiniAodNewData::SelectSecondGenEle(unsigned GenFlag1,float E
   int iflag = -10;
   ETEle2 = 0.0;
   for (unsigned i=0; i<iGen->size(); i++) {
-    if (fabs(idGen->at(i)) != 11 ) continue;
-    if (statusGen->at(i) != 1 )  continue;
+    if (fabs(idGen->at(i)) != 11) continue;
+    if (statusGen->at(i) != 1)  continue;
     if (i == GenFlag1) continue;
-    if (fabs(ptGen->at(i) - ETEle1) <0.00001 ) continue;
+    if (fabs(ptGen->at(i) - ETEle1) <0.00001) continue;
     if (ptGen->at(i) > ETEle2) {
       ETEle2 = ptGen->at(i);
       iflag  = i;
@@ -728,24 +766,24 @@ void ZprimeEleElePatMiniAodNewData::CosThetaCollinSoper(float Et1,float Eta1,flo
     (Eleplus * Elebarminus - Eleminus * Elebarplus);
   if (Q.Pz() < 0.0) costheta = -costheta;
 
-  if (RecoMass > 60.0 && RecoMass < 120.0 ) {
+  if (RecoMass > 60.0 && RecoMass < 120.0) {
     h1_CosAngleCollinSoperCorrect60Mass120_->Fill(costheta,weight);
   }
 
 
-  if (RecoMass > 120.0 && RecoMass < 300.0 ) {
+  if (RecoMass > 120.0 && RecoMass < 300.0) {
     h1_CosAngleCollinSoperCorrect120Mass300_->Fill(costheta,weight);
   }
 
-  if (RecoMass > 300.0 && RecoMass < 700.0 ) {
+  if (RecoMass > 300.0 && RecoMass < 700.0) {
     h1_CosAngleCollinSoperCorrect300Mass700_->Fill(costheta,weight);
   }
 
-  if (RecoMass > 700.0 && RecoMass < 3000.0 ) {
+  if (RecoMass > 700.0 && RecoMass < 3000.0) {
     h1_CosAngleCollinSoperCorrect700Mass3000_->Fill(costheta,weight);
   }
 
-  if (RecoMass > 4500.0 && RecoMass < 6000.0 ) {
+  if (RecoMass > 4500.0 && RecoMass < 6000.0) {
     h1_CosAngleCollinSoperCorrect4900Mass5100_->Fill(costheta,weight);
     h1_absCosAngleCollinSoperCorrect4500Mass5500_->Fill(fabs(costheta),weight);
   }
@@ -797,7 +835,7 @@ bool ZprimeEleElePatMiniAodNewData::isPassHLT1()
           HLT_name->at(i) == "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v7" ||
           HLT_name->at(i) == "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v8" ||
           HLT_name->at(i) == "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v9" ||
-          HLT_name->at(i) == "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v10") && HLT_isaccept->at(i) == 1 ) {
+          HLT_name->at(i) == "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v10") && HLT_isaccept->at(i) == 1) {
       //std::cout << "triggerName = "<<triggerName<< std::endl;
       nbMatch++;
     }
@@ -823,7 +861,7 @@ bool ZprimeEleElePatMiniAodNewData::RecoHLTEleMatching1(float RecoEta,float Reco
         HLTObj_collection->at(i) == "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v7" ||
         HLTObj_collection->at(i) == "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v8" ||
         HLTObj_collection->at(i) == "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v9" ||
-        HLTObj_collection->at(i) == "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v10" ) {
+        HLTObj_collection->at(i) == "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v10") {
       //std::cout << "[after]triggerName"<<HLTObj_collection->at(i) << std::endl;
       deltaR   = delR(HLTObj_eta->at(i),HLTObj_phi->at(i),RecoEta,RecoPhi);
       //printf ("HLT_Eta = %f  HLT_Phi = %f recoEta = %f recoPhi = %f DelR_trigger = %f\n",HLTObj_eta->at(i),HLTObj_phi->at(i),RecoEta,RecoPhi,deltaR);
@@ -848,7 +886,7 @@ bool ZprimeEleElePatMiniAodNewData::isPassHLT2()
           HLT_name->at(i) == "HLT_DoubleEle33_CaloIdL_MW_v7" ||
           HLT_name->at(i) == "HLT_DoubleEle33_CaloIdL_MW_v8" ||
           HLT_name->at(i) == "HLT_DoubleEle33_CaloIdL_MW_v9" ||
-          HLT_name->at(i) == "HLT_DoubleEle33_CaloIdL_MW_v10") && HLT_isaccept->at(i) == 1 ) {
+          HLT_name->at(i) == "HLT_DoubleEle33_CaloIdL_MW_v10") && HLT_isaccept->at(i) == 1) {
       //std::cout << "triggerName = "<<triggerName<< std::endl;
       nbMatch++;
     }
@@ -874,7 +912,7 @@ bool ZprimeEleElePatMiniAodNewData::RecoHLTEleMatching2(float RecoEta,float Reco
         HLTObj_collection->at(i) == "HLT_DoubleEle33_CaloIdL_MW_v7" ||
         HLTObj_collection->at(i) == "HLT_DoubleEle33_CaloIdL_MW_v8" ||
         HLTObj_collection->at(i) == "HLT_DoubleEle33_CaloIdL_MW_v9" ||
-        HLTObj_collection->at(i) == "HLT_DoubleEle33_CaloIdL_MW_v10" ) {
+        HLTObj_collection->at(i) == "HLT_DoubleEle33_CaloIdL_MW_v10") {
       //std::cout << "[after]triggerName"<<HLTObj_collection->at(i) << std::endl;
       deltaR   = delR(HLTObj_eta->at(i),HLTObj_phi->at(i),RecoEta,RecoPhi);
       //printf ("HLT_Eta = %f  HLT_Phi = %f recoEta = %f recoPhi = %f DelR_trigger = %f\n",HLTObj_eta->at(i),HLTObj_phi->at(i),RecoEta,RecoPhi,deltaR);
@@ -891,7 +929,7 @@ void ZprimeEleElePatMiniAodNewData::DrawDiJetMassBB()
 {
   float invmass = -10;
   for (unsigned jet1=0; jet1<Ele_nbElectrons->size(); jet1++) {
-    if (Ele_EtFromCaloEn->at(jet1) > 35 && fabs(Ele_etaSC->at(jet1)) < 1.4442 && Ele_isPassHeepID->at(jet1)==1 ) continue; //to get rid of real electrons
+    if (Ele_EtFromCaloEn->at(jet1) > 35 && fabs(Ele_etaSC->at(jet1)) < 1.4442 && Ele_isPassHeepID->at(jet1)==1) continue; //to get rid of real electrons
     if (Ele_EtFromCaloEn->at(jet1) < 35 || fabs(Ele_etaSC->at(jet1)) > 1.4442 ||
          Ele_sigmaIetaIetaFull5x5->at(jet1) > 0.013 ||
          Ele_hadronicOverEm->at(jet1) > 0.15 ||
@@ -899,15 +937,14 @@ void ZprimeEleElePatMiniAodNewData::DrawDiJetMassBB()
          fabs(Ele_dxy->at(jet1)) > 0.02) continue;
     for (unsigned jet2=0; jet2<Ele_nbElectrons->size(); jet2++) {
       if (jet2 == jet1) continue;
-      if (Ele_EtFromCaloEn->at(jet2) > 35 && fabs(Ele_etaSC->at(jet2)) < 1.4442 && Ele_isPassHeepID->at(jet2)==1 ) continue; //to get rid of real electrons
+      if (Ele_EtFromCaloEn->at(jet2) > 35 && fabs(Ele_etaSC->at(jet2)) < 1.4442 && Ele_isPassHeepID->at(jet2)==1) continue; //to get rid of real electrons
       if (Ele_EtFromCaloEn->at(jet2) < 35 || fabs(Ele_etaSC->at(jet2)) > 1.4442 ||
            Ele_sigmaIetaIetaFull5x5->at(jet2) > 0.013 ||
            Ele_hadronicOverEm->at(jet2) > 0.15 ||
            Ele_nbOfMissingHits->at(jet2) > 1 ||
            fabs(Ele_dxy->at(jet2)) > 0.02) continue;
-      float mEl = 0.000511 ;
-      float MassDiJet = Mass(Ele_EtFromCaloEn->at(jet1),Ele_etaTrack->at(jet1),Ele_phiTrack->at(jet1),mEl,
-			     Ele_EtFromCaloEn->at(jet2),Ele_etaTrack->at(jet2),Ele_phiTrack->at(jet2),mEl);
+      float MassDiJet = Mass(Ele_EtFromCaloEn->at(jet1),Ele_etaTrack->at(jet1),Ele_phiTrack->at(jet1),ELEC_MASS,
+			     Ele_EtFromCaloEn->at(jet2),Ele_etaTrack->at(jet2),Ele_phiTrack->at(jet2),ELEC_MASS);
       //pick highest mass dijet
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;
@@ -932,7 +969,7 @@ void ZprimeEleElePatMiniAodNewData::DrawDiJetMassBE()
 {
   float invmass = -10;
   for (unsigned jet1=0; jet1<Ele_nbElectrons->size(); jet1++) {
-    if (Ele_EtFromCaloEn->at(jet1) > 35 && fabs(Ele_etaSC->at(jet1)) < 1.4442 && Ele_isPassHeepID->at(jet1)==1 ) continue; //to get rid of real electrons
+    if (Ele_EtFromCaloEn->at(jet1) > 35 && fabs(Ele_etaSC->at(jet1)) < 1.4442 && Ele_isPassHeepID->at(jet1)==1) continue; //to get rid of real electrons
     if (Ele_EtFromCaloEn->at(jet1) < 35 || fabs(Ele_etaSC->at(jet1)) > 1.4442 ||
          Ele_sigmaIetaIetaFull5x5->at(jet1) > 0.013 ||
          Ele_hadronicOverEm->at(jet1) > 0.15 ||
@@ -940,16 +977,15 @@ void ZprimeEleElePatMiniAodNewData::DrawDiJetMassBE()
          fabs(Ele_dxy->at(jet1)) > 0.02) continue;
     for (unsigned jet2=0; jet2<Ele_nbElectrons->size(); jet2++) {
       if (jet2 == jet1) continue;
-      if (Ele_EtFromCaloEn->at(jet2) > 35 && fabs(Ele_etaSC->at(jet2)) > 1.566 && fabs(Ele_etaSC->at(jet2)) < 2.5 && Ele_isPassHeepID->at(jet2)==1 ) continue; //to get rid of real electrons
+      if (Ele_EtFromCaloEn->at(jet2) > 35 && fabs(Ele_etaSC->at(jet2)) > 1.566 && fabs(Ele_etaSC->at(jet2)) < 2.5 && Ele_isPassHeepID->at(jet2)==1) continue; //to get rid of real electrons
       if (Ele_EtFromCaloEn->at(jet2) < 35 ||
            fabs(Ele_etaSC->at(jet2)) < 1.566 || fabs(Ele_etaSC->at(jet2)) > 2.5 ||
            Ele_sigmaIetaIetaFull5x5->at(jet2) > 0.034 ||
            Ele_hadronicOverEm->at(jet2) > 0.10 ||
            Ele_nbOfMissingHits->at(jet2) > 1 ||
            fabs(Ele_dxy->at(jet2)) > 0.05) continue;
-      float mEl = 0.000511 ;
-      float MassDiJet = Mass(Ele_EtFromCaloEn->at(jet1),Ele_etaTrack->at(jet1),Ele_phiTrack->at(jet1),mEl,
-			     Ele_EtFromCaloEn->at(jet2),Ele_etaTrack->at(jet2),Ele_phiTrack->at(jet2),mEl);
+      float MassDiJet = Mass(Ele_EtFromCaloEn->at(jet1),Ele_etaTrack->at(jet1),Ele_phiTrack->at(jet1),ELEC_MASS,
+			     Ele_EtFromCaloEn->at(jet2),Ele_etaTrack->at(jet2),Ele_phiTrack->at(jet2),ELEC_MASS);
       //pick highest mass dijet
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;
@@ -975,7 +1011,7 @@ void ZprimeEleElePatMiniAodNewData::DrawDiJetMassEE()
 {
   float invmass = -10;
   for (unsigned jet1=0; jet1<Ele_nbElectrons->size(); jet1++) {
-    if (Ele_EtFromCaloEn->at(jet1) > 35 && fabs(Ele_etaSC->at(jet1)) > 1.566 && fabs(Ele_etaSC->at(jet1)) < 2.5 && Ele_isPassHeepID->at(jet1)==1 ) continue; //to get rid of real electrons
+    if (Ele_EtFromCaloEn->at(jet1) > 35 && fabs(Ele_etaSC->at(jet1)) > 1.566 && fabs(Ele_etaSC->at(jet1)) < 2.5 && Ele_isPassHeepID->at(jet1)==1) continue; //to get rid of real electrons
     if (Ele_EtFromCaloEn->at(jet1) < 35 ||
          fabs(Ele_etaSC->at(jet1)) < 1.566 || fabs(Ele_etaSC->at(jet1)) > 2.5 ||
          Ele_sigmaIetaIetaFull5x5->at(jet1) > 0.034 ||
@@ -984,16 +1020,15 @@ void ZprimeEleElePatMiniAodNewData::DrawDiJetMassEE()
          fabs(Ele_dxy->at(jet1)) > 0.05) continue;
     for (unsigned jet2=0; jet2<Ele_nbElectrons->size(); jet2++) {
       if (jet2 == jet1) continue;
-      if (Ele_EtFromCaloEn->at(jet2) > 35 && fabs(Ele_etaSC->at(jet2)) > 1.566 && fabs(Ele_etaSC->at(jet2)) < 2.5 && Ele_isPassHeepID->at(jet2)==1 ) continue; //to get rid of real electrons
+      if (Ele_EtFromCaloEn->at(jet2) > 35 && fabs(Ele_etaSC->at(jet2)) > 1.566 && fabs(Ele_etaSC->at(jet2)) < 2.5 && Ele_isPassHeepID->at(jet2)==1) continue; //to get rid of real electrons
       if (Ele_EtFromCaloEn->at(jet2) < 35 ||
            fabs(Ele_etaSC->at(jet2)) < 1.566 || fabs(Ele_etaSC->at(jet2)) > 2.5 ||
            Ele_sigmaIetaIetaFull5x5->at(jet2) > 0.034 ||
            Ele_hadronicOverEm->at(jet2) > 0.10 ||
            Ele_nbOfMissingHits->at(jet2) > 1 ||
            fabs(Ele_dxy->at(jet2)) > 0.05) continue;
-      float mEl = 0.000511 ;
-      float MassDiJet = Mass(Ele_EtFromCaloEn->at(jet1),Ele_etaTrack->at(jet1),Ele_phiTrack->at(jet1),mEl,
-			     Ele_EtFromCaloEn->at(jet2),Ele_etaTrack->at(jet2),Ele_phiTrack->at(jet2),mEl);
+      float MassDiJet = Mass(Ele_EtFromCaloEn->at(jet1),Ele_etaTrack->at(jet1),Ele_phiTrack->at(jet1),ELEC_MASS,
+			     Ele_EtFromCaloEn->at(jet2),Ele_etaTrack->at(jet2),Ele_phiTrack->at(jet2),ELEC_MASS);
       //pick highest mass dijet
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;
@@ -1017,19 +1052,18 @@ void ZprimeEleElePatMiniAodNewData::DrawWJetsMassBB()
   float invmass = -10;
   for (unsigned ele=0; ele<Ele_nbElectrons->size(); ele++) {
     //first ele passes HEEP ID (in Barrel)
-    if (Ele_EtFromCaloEn->at(ele) < 35 || fabs(Ele_etaSC->at(ele)) > 1.4442 || Ele_isPassHeepID->at(ele)==0 ) continue;
+    if (Ele_EtFromCaloEn->at(ele) < 35 || fabs(Ele_etaSC->at(ele)) > 1.4442 || Ele_isPassHeepID->at(ele)==0) continue;
     for (unsigned jet=0; jet<Ele_nbElectrons->size(); jet++) {
       if (jet == ele) continue;
       //second ele fail to passes HEEP ID, but passes FR selection (in Barrel)
-      if (Ele_EtFromCaloEn->at(jet) > 35 && fabs(Ele_etaSC->at(jet)) < 1.4442 && Ele_isPassHeepID->at(jet)==1 ) continue; //to get rid of real electrons
+      if (Ele_EtFromCaloEn->at(jet) > 35 && fabs(Ele_etaSC->at(jet)) < 1.4442 && Ele_isPassHeepID->at(jet)==1) continue; //to get rid of real electrons
       if (Ele_EtFromCaloEn->at(jet) < 35 || fabs(Ele_etaSC->at(jet)) > 1.4442 ||
            Ele_sigmaIetaIetaFull5x5->at(jet) > 0.013 ||
            Ele_hadronicOverEm->at(jet) > 0.15 ||
            Ele_nbOfMissingHits->at(jet) > 1 ||
            fabs(Ele_dxy->at(jet)) > 0.02) continue;
-      float mEl = 0.000511 ;
-      float MassDiJet = Mass(Ele_EtFromCaloEn->at(ele),Ele_etaTrack->at(ele),Ele_phiTrack->at(ele),mEl,
-			     Ele_EtFromCaloEn->at(jet),Ele_etaTrack->at(jet),Ele_phiTrack->at(jet),mEl);
+      float MassDiJet = Mass(Ele_EtFromCaloEn->at(ele),Ele_etaTrack->at(ele),Ele_phiTrack->at(ele),ELEC_MASS,
+			     Ele_EtFromCaloEn->at(jet),Ele_etaTrack->at(jet),Ele_phiTrack->at(jet),ELEC_MASS);
       //pick highest mass dijet
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;
@@ -1053,19 +1087,18 @@ void ZprimeEleElePatMiniAodNewData::DrawWJetsMassBE1()
   float invmass = -10;
   for (unsigned ele=0; ele<Ele_nbElectrons->size(); ele++) {
     //first ele passes HEEP ID (in Endcaps)
-    if (Ele_EtFromCaloEn->at(ele) < 35 || fabs(Ele_etaSC->at(ele)) < 1.566 || fabs(Ele_etaSC->at(ele)) > 2.5 || Ele_isPassHeepID->at(ele)==0 ) continue;
+    if (Ele_EtFromCaloEn->at(ele) < 35 || fabs(Ele_etaSC->at(ele)) < 1.566 || fabs(Ele_etaSC->at(ele)) > 2.5 || Ele_isPassHeepID->at(ele)==0) continue;
     for (unsigned jet=0; jet<Ele_nbElectrons->size(); jet++) {
       if (jet == ele) continue;
       //second ele fail to passes HEEP ID, but passes FR selection (in Barrel)
-      if (Ele_EtFromCaloEn->at(jet) > 35 && fabs(Ele_etaSC->at(jet)) < 1.4442 && Ele_isPassHeepID->at(jet)==1 ) continue; //to get rid of real electrons
+      if (Ele_EtFromCaloEn->at(jet) > 35 && fabs(Ele_etaSC->at(jet)) < 1.4442 && Ele_isPassHeepID->at(jet)==1) continue; //to get rid of real electrons
       if (Ele_EtFromCaloEn->at(jet) < 35 || fabs(Ele_etaSC->at(jet)) > 1.4442 ||
            Ele_sigmaIetaIetaFull5x5->at(jet) > 0.013 ||
            Ele_hadronicOverEm->at(jet) > 0.15 ||
            Ele_nbOfMissingHits->at(jet) > 1 ||
            fabs(Ele_dxy->at(jet)) > 0.02) continue;
-      float mEl = 0.000511 ;
-      float MassDiJet = Mass(Ele_EtFromCaloEn->at(ele),Ele_etaTrack->at(ele),Ele_phiTrack->at(ele),mEl,
-			     Ele_EtFromCaloEn->at(jet),Ele_etaTrack->at(jet),Ele_phiTrack->at(jet),mEl);
+      float MassDiJet = Mass(Ele_EtFromCaloEn->at(ele),Ele_etaTrack->at(ele),Ele_phiTrack->at(ele),ELEC_MASS,
+			     Ele_EtFromCaloEn->at(jet),Ele_etaTrack->at(jet),Ele_phiTrack->at(jet),ELEC_MASS);
       //pick highest mass dijet
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;
@@ -1088,20 +1121,19 @@ void ZprimeEleElePatMiniAodNewData::DrawWJetsMassBE2()
   float invmass = -10;
   for (unsigned ele=0; ele<Ele_nbElectrons->size(); ele++) {
     //first ele passes HEEP ID (in Barrel)
-    if (Ele_EtFromCaloEn->at(ele) < 35 || fabs(Ele_etaSC->at(ele)) > 1.4442 || Ele_isPassHeepID->at(ele)==0 ) continue;
+    if (Ele_EtFromCaloEn->at(ele) < 35 || fabs(Ele_etaSC->at(ele)) > 1.4442 || Ele_isPassHeepID->at(ele)==0) continue;
     for (unsigned jet=0; jet<Ele_nbElectrons->size(); jet++) {
       if (jet == ele) continue;
       //second ele fail to passes HEEP ID, but passes FR selection (in Endcaps)
-      if (Ele_EtFromCaloEn->at(jet) > 35 && fabs(Ele_etaSC->at(jet)) > 1.566 && fabs(Ele_etaSC->at(jet)) < 2.5 && Ele_isPassHeepID->at(jet)==1 ) continue; //to get rid of real electrons
+      if (Ele_EtFromCaloEn->at(jet) > 35 && fabs(Ele_etaSC->at(jet)) > 1.566 && fabs(Ele_etaSC->at(jet)) < 2.5 && Ele_isPassHeepID->at(jet)==1) continue; //to get rid of real electrons
       if (Ele_EtFromCaloEn->at(jet) < 35 ||
            fabs(Ele_etaSC->at(jet)) < 1.566 || fabs(Ele_etaSC->at(jet)) > 2.5 ||
            Ele_sigmaIetaIetaFull5x5->at(jet) > 0.034 ||
            Ele_hadronicOverEm->at(jet) > 0.10 ||
            Ele_nbOfMissingHits->at(jet) > 1 ||
            fabs(Ele_dxy->at(jet)) > 0.05) continue;
-      float mEl = 0.000511 ;
-      float MassDiJet = Mass(Ele_EtFromCaloEn->at(ele),Ele_etaTrack->at(ele),Ele_phiTrack->at(ele),mEl,
-			     Ele_EtFromCaloEn->at(jet),Ele_etaTrack->at(jet),Ele_phiTrack->at(jet),mEl);
+      float MassDiJet = Mass(Ele_EtFromCaloEn->at(ele),Ele_etaTrack->at(ele),Ele_phiTrack->at(ele),ELEC_MASS,
+			     Ele_EtFromCaloEn->at(jet),Ele_etaTrack->at(jet),Ele_phiTrack->at(jet),ELEC_MASS);
       //pick highest mass dijet
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;
@@ -1125,20 +1157,19 @@ void ZprimeEleElePatMiniAodNewData::DrawWJetsMassEE()
   float invmass = -10;
   for (unsigned ele=0; ele<Ele_nbElectrons->size(); ele++) {
     //first ele passes HEEP ID (in Endcap)
-    if (Ele_EtFromCaloEn->at(ele) < 35 || fabs(Ele_etaSC->at(ele)) < 1.566 || fabs(Ele_etaSC->at(ele)) > 2.5 || Ele_isPassHeepID->at(ele)==0 ) continue;
+    if (Ele_EtFromCaloEn->at(ele) < 35 || fabs(Ele_etaSC->at(ele)) < 1.566 || fabs(Ele_etaSC->at(ele)) > 2.5 || Ele_isPassHeepID->at(ele)==0) continue;
     for (unsigned jet=0; jet<Ele_nbElectrons->size(); jet++) {
       if (jet == ele) continue;
       //second ele fail to passes HEEP ID, but passes FR selection (in Endcap)
-      if (Ele_EtFromCaloEn->at(jet) > 35 && fabs(Ele_etaSC->at(jet)) > 1.566 && fabs(Ele_etaSC->at(jet)) < 2.5 && Ele_isPassHeepID->at(jet)==1 ) continue; //to get rid of real electrons
+      if (Ele_EtFromCaloEn->at(jet) > 35 && fabs(Ele_etaSC->at(jet)) > 1.566 && fabs(Ele_etaSC->at(jet)) < 2.5 && Ele_isPassHeepID->at(jet)==1) continue; //to get rid of real electrons
       if (Ele_EtFromCaloEn->at(jet) < 35 ||
            fabs(Ele_etaSC->at(jet)) < 1.566 || fabs(Ele_etaSC->at(jet)) > 2.5 ||
            Ele_sigmaIetaIetaFull5x5->at(jet) > 0.034 ||
            Ele_hadronicOverEm->at(jet) > 0.10 ||
            Ele_nbOfMissingHits->at(jet) > 1 ||
            fabs(Ele_dxy->at(jet)) > 0.05) continue;
-      float mEl = 0.000511 ;
-      float MassDiJet = Mass(Ele_EtFromCaloEn->at(ele),Ele_etaTrack->at(ele),Ele_phiTrack->at(ele),mEl,
-			     Ele_EtFromCaloEn->at(jet),Ele_etaTrack->at(jet),Ele_phiTrack->at(jet),mEl);
+      float MassDiJet = Mass(Ele_EtFromCaloEn->at(ele),Ele_etaTrack->at(ele),Ele_phiTrack->at(ele),ELEC_MASS,
+			     Ele_EtFromCaloEn->at(jet),Ele_etaTrack->at(jet),Ele_phiTrack->at(jet),ELEC_MASS);
       //pick highest mass dijet
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;

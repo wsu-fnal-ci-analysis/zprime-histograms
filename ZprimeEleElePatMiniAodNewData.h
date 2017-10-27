@@ -8,17 +8,16 @@
 //==============================================================
 #ifndef ZprimeMuMuPatMiniAodNewData_h
 #define ZprimeMuMuPatMiniAodNewData_h
-#include <TH2.h>
+
 #include <TStyle.h>
 #include <TCanvas.h>
 #include "TFile.h"
-/* #include <math.h> */
 #include "TF2.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TH3F.h"
+#include "TH1D.h"
+#include "TH2D.h"
 #include "TLorentzVector.h"
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <TROOT.h>
 #include <TChain.h>
@@ -416,7 +415,7 @@ public :
    unsigned mGenFlag1;
    float mPtGen2,mPhiGen2,mEtaGen2,mEnGen2;
    int ChargeRecMu1,ChargeRecMu2;
-   unsigned flagmu1;
+   unsigned flagel1;
    unsigned flag1;
    float PtRecTunePMuBestTrack1,EnRecMu1,EtaRecMu1,PhiRecMu1;
    float PtRecTunePMuBestTrack2,EnRecMu2,EtaRecMu2,PhiRecMu2;
@@ -437,31 +436,40 @@ public :
    int NbFireHLT;
    std::ofstream output_txt;
 
-   TH1F* h1_CosAngleCollinSoperCorrect60Mass120_;
-   TH1F* h1_CosAngleCollinSoperCorrect120Mass300_;
-   TH1F* h1_CosAngleCollinSoperCorrect300Mass700_;
-   TH1F* h1_CosAngleCollinSoperCorrect700Mass3000_;
-   TH1F* h1_CosAngleCollinSoperCorrect4900Mass5100_;
-   TH1F* h1_absCosAngleCollinSoperCorrect4500Mass5500_;
-   TH1F* h1_ZprimeRecomassBinWidth_;
-   TH1F* h1_ZprimeRecomassBinWidthBB_;
-   TH1F* h1_ZprimeRecomassBinWidthBE_;
-   TH1F* h1_ZprimeRecomassBinWidthEE_;
-   TH1F* h1_ZprimeRecomass60to120BE_;
-   TH1F* h1_ZprimeRecomass60to120EE_;
-   TH1F* h1_ZprimeRecomass60to120BB_;
-   TH1F* h1_ZprimeRecomass60to120_;
-   TH1F* h1_DijetBinWidthBB_;
-   TH1F* h1_DijetBinWidthBE_;
-   TH1F* h1_DijetBinWidthEE_;
-   TH1F* h1_DijetBinWidthBBBE_;
-   TH1F* h1_DijetEta1_;
-   TH1F* h1_DijetEta2_;
-   TH1F* h1_WjetsBinWidthBB_;
-   TH1F* h1_WjetsBinWidthBE_;
-   TH1F* h1_WjetsBinWidthEE_;
-   TH1F* h1_WjetsBinWidthBBBE_;
-   TH1F* h1_ZprimeRecomass_;
+   std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect60Mass120_;
+   std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect120Mass300_;
+   std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect300Mass700_;
+   std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect700Mass3000_;
+   std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect4900Mass5100_;
+   std::shared_ptr<TH1D> h1_absCosAngleCollinSoperCorrect4500Mass5500_;
+
+   /* std::array<std::array<TH1D*,4> 3> h1_SmearedMassBinned_; */
+   /* std::array<std::array<TH1D*,4> 3> h1_MassBinned_       ; */
+   /* std::array<std::array<TH1D*,4> 3> h1_MassUpBinned_     ; */
+   /* std::array<std::array<TH1D*,4> 3> h1_MassDownBinned_   ; */
+   std::shared_ptr<TH2D> h2_CSMassBinned_       ;
+   std::shared_ptr<TH2D> h2_CSPosMassBinned_       ;
+   std::shared_ptr<TH2D> h2_CSNegMassBinned_       ;
+
+   std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidth_;
+   std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthBB_;
+   std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthBE_;
+   std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthEE_;
+   std::shared_ptr<TH1D> h1_ZprimeRecomass60to120BE_;
+   std::shared_ptr<TH1D> h1_ZprimeRecomass60to120EE_;
+   std::shared_ptr<TH1D> h1_ZprimeRecomass60to120BB_;
+   std::shared_ptr<TH1D> h1_ZprimeRecomass60to120_;
+   std::shared_ptr<TH1D> h1_DijetBinWidthBB_;
+   std::shared_ptr<TH1D> h1_DijetBinWidthBE_;
+   std::shared_ptr<TH1D> h1_DijetBinWidthEE_;
+   std::shared_ptr<TH1D> h1_DijetBinWidthBBBE_;
+   std::shared_ptr<TH1D> h1_DijetEta1_;
+   std::shared_ptr<TH1D> h1_DijetEta2_;
+   std::shared_ptr<TH1D> h1_WjetsBinWidthBB_;
+   std::shared_ptr<TH1D> h1_WjetsBinWidthBE_;
+   std::shared_ptr<TH1D> h1_WjetsBinWidthEE_;
+   std::shared_ptr<TH1D> h1_WjetsBinWidthBBBE_;
+   std::shared_ptr<TH1D> h1_ZprimeRecomass_;
 };
 
 #endif

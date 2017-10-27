@@ -8,18 +8,16 @@
 //==============================================================
 #ifndef ZprimeEleElePatMiniAodNewMC_h
 #define ZprimeEleElePatMiniAodNewMC_h
-#include <TH2.h>
+
 #include <TStyle.h>
 #include <TCanvas.h>
 #include "TFile.h"
-/* #include <math.h> */
 #include "TF2.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TH3F.h"
+#include "TH1D.h"
+#include "TH2D.h"
 #include "TLorentzVector.h"
-#include <time.h>
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <TROOT.h>
 #include <TChain.h>
@@ -436,12 +434,12 @@ class ZprimeEleElePatMiniAodNewMC {
   int NbFireHLT;
   std::ofstream output_txt;
 
-  std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect60Mass120_;
-  std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect120Mass300_;
-  std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect300Mass700_;
-  std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect700Mass3000_;
-  std::shared_ptr<TH1F> h1_CosAngleCollinSoperCorrect4900Mass5100_;
-  std::shared_ptr<TH1F> h1_absCosAngleCollinSoperCorrect4500Mass5500_;
+  std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect60Mass120_;
+  std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect120Mass300_;
+  std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect300Mass700_;
+  std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect700Mass3000_;
+  std::shared_ptr<TH1D> h1_CosAngleCollinSoperCorrect4900Mass5100_;
+  std::shared_ptr<TH1D> h1_absCosAngleCollinSoperCorrect4500Mass5500_;
 
   /* std::array<std::array<TH1D*,4> 3> h1_SmearedMassBinned_; */
   /* std::array<std::array<TH1D*,4> 3> h1_MassBinned_       ; */
@@ -460,14 +458,15 @@ class ZprimeEleElePatMiniAodNewMC {
   std::shared_ptr<TH2D> h2_CSNegMassUpBinned_     ;
   std::shared_ptr<TH2D> h2_CSNegMassDownBinned_   ;
 
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidth_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthBB_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthBE_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomassBinWidthEE_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomass60to120BE_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomass60to120EE_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomass60to120BB_;
-  std::shared_ptr<TH1F> h1_ZprimeRecomass60to120_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidth_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthBB_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthBE_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthEE_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomass60to120BE_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomass60to120EE_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomass60to120BB_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomass60to120_;
+  std::shared_ptr<TH1D> h1_ZprimeRecomass_;
 };
 
 #endif
