@@ -1,10 +1,10 @@
 //==============================================================
-//          Analysis code for Z' boson to Mu Mu analysis       =  
-//          In this code we select the high pt di-muons events = 
-//          To run over MINIAOD MC with fixed trigger          = 
-//                  Author:  Sherif Elgammal                   = 
-//                                                             = 
-//                       13/05/2017                            = 
+//          Analysis code for Z' boson to Mu Mu analysis       =
+//          In this code we select the high pt di-muons events =
+//          To run over MINIAOD MC with fixed trigger          =
+//                  Author:  Sherif Elgammal                   =
+//                                                             =
+//                       13/05/2017                            =
 //==============================================================
 #ifndef ZprimeMuMuPatMiniAodNewData_h
 #define ZprimeMuMuPatMiniAodNewData_h
@@ -315,16 +315,17 @@ public :
    TBranch        *b_Rho;   //!
    TBranch        *b_MC_weighting;   //!
 
-   ZprimeMuMuPatMiniAodNewData(Char_t namechar_[300],TTree *tree=0,Double_t weight_=1.,std::string DATA_type_="DATA",std::string MC_type_="MC");
+   ZprimeMuMuPatMiniAodNewData(Char_t namechar_[300], TTree *tree=0, Double_t weight_=1.,
+                               std::string DATA_type_="DATA", std::string MC_type_="MC");
    virtual ~ZprimeMuMuPatMiniAodNewData();
    Double_t weight;
    Char_t name[300];
-   std::string DATA_type,MC_type;   
+   std::string DATA_type,MC_type;
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop();
+   virtual void     Loop(bool debug=false);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
    bool DiPFJet(float MuonEta1,float MuonPhi1,float MuonEta2,float MuonPhi2);
@@ -357,7 +358,7 @@ public :
                          float &EtaMu1,float &EnMu1,
                          int &IDele1,int &Statele1,
                          unsigned &GenFlag1);
-   
+
    bool SelectSecondGenMu(unsigned GenFlag1,float ETMu1,float &ETMu2,float &PhiMu2,
                           float &EtaMu2,float &EnMu2,int &IDele2,int &Statele2);
    /*
@@ -375,7 +376,7 @@ public :
    */
    void PlotGenInfo(float ZprimeGenMass,float EtaGenMu1,float EtaGenMu2,float PtGenMu1,
 		    float PtGenMu2,float EnGenMu1,float EnGenMu2);
-   
+
    bool RecoHLTMuonMatching(float RecoEta,float RecoPhi);
    //bool RecoHLTMuonMatching(float hltEta,float hltPhi,float RecoEta,float RecoPhi);
    bool isPassHLT();
@@ -412,6 +413,7 @@ public :
    void DrawWJetsMassBE2();
    void DrawWJetsMassEE();
    float FRweight(float eta, float pt);
+
    //================================================================================
    float FR_Ptcut;
    float parEB1,parEB2,parEB3,parEB4,parEB5,parEB6,parEB7,parEB8,parEB9,parEB10;
@@ -446,9 +448,11 @@ public :
    float MassCutMin,MassCutMax;
    float MassResolution;
    float EtaCut;
+   std::ofstream output_txt;
+
    TH1F* h1_ZprimeRecomassBeforeTrigger_;
    TH1F* h1_ZprimeRecomass_;
-   TH1F* h1_ZprimeRecomasslogscale_;                                                              
+   TH1F* h1_ZprimeRecomasslogscale_;
    TH1F* h1_ZprimeRecomass60to120_;
    TH1F* h1_ZprimeRecomassAbove400GeV_;
    TH1F* h1_ZprimeRecomassAbove1000GeV_;
@@ -499,7 +503,6 @@ public :
    TH1F* h1_nbPVTightID_;
    TH1F* h1_PtTightID_;
    TH1F* h1_EtaTightID_;
-   std::ofstream output_txt; 
    TH1F* h1_PtResolutionMBT_;
    TH1F* h1_PtResolutionTunePMBT_;
    TH1F* h1_PtResolutiontuneP_;
@@ -512,7 +515,7 @@ public :
    TH1F* h1_MassResultionEBEB7_;
    TH1F* h1_MassResultionEBEB8_;
    TH1F* h1_MassResultionEBEB9_;
-   TH1F* h1_MassResultionEBEB10_; 
+   TH1F* h1_MassResultionEBEB10_;
    TH1F* h1_MassGenInAccep_;
    TH1F* h1_MassRecoInAccep_;
    TH1F* h1_CosAngleCollinSoperCorrect60Mass120_;
@@ -546,7 +549,7 @@ public :
    TH1F* h1_ZprimeRecomassBB_;
    TH1F* h1_ZprimeRecomassEE_;
    TH1F* h1_ZprimeRecomassBE_;
-   TH1F* h1_ZprimeRecomass20_;      
+   TH1F* h1_ZprimeRecomass20_;
    TH2F* h2_ZprimeRecomassNewbin_;
    TH1F *h1_ZprimeRecomassBinWidth_;
    int NbFireHLT;
@@ -566,8 +569,8 @@ public :
    TH1F* h1_ZprimeRecomass60to120BB_;
    TH1F* h1_ZprimeRecomassBinWidthAfterBtaging_;
    TH1F* h1_jetBTag_;
-   TH1F* h1_jetBTagB_;   
-   TH1F* h1_jetBTagC_;   
+   TH1F* h1_jetBTagB_;
+   TH1F* h1_jetBTagC_;
    TH1F* h1_jetBTagUDSG_;
    TH1F* h1_jetBTagStep1_;
    TH1F* h1_jetBTagStep2_;
@@ -593,7 +596,7 @@ public :
    TH1F* h1_MassMuMuDijetBinWidthMET100_;
    TH1F* h1_MassMuMuDijet1GeVbinMET100_;
    TH1F* h1_NbPFjetsAll_;
-   TH1F* h1_NbPFjets2_; 
+   TH1F* h1_NbPFjets2_;
    TH1F* h1_ptPFjetsAll_;
    TH1F* h1_ZprimeRecomassBinWidthAllBE_;
    TH1F* h1_ZprimeRecomassBinWidthAllEE_;
@@ -603,7 +606,7 @@ public :
    TH1F* h1_DijetBinWidthEE_;
    TH1F* h1_DijetBinWidthBBBE_;
    TH1F* h1_DijetEta1_;
-   TH1F* h1_DijetEta2_; 
+   TH1F* h1_DijetEta2_;
    TH1F* h1_WjetsBinWidthBB_;
    TH1F* h1_WjetsBinWidthBE_;
    TH1F* h1_WjetsBinWidthEE_;
@@ -621,20 +624,21 @@ public :
    TH1F* h1_Dijet20GeVBBBEEE_;
    TH1F* h1_Wjets20GeVBB_;
    TH1F* h1_Wjets20GeVBEEE_;
-   TH1F* h1_Wjets20GeVBBBEEE_; 
+   TH1F* h1_Wjets20GeVBBBEEE_;
 };
 
 #endif
 
 #ifdef ZprimeMuMuPatMiniAodNewData_cxx
-ZprimeMuMuPatMiniAodNewData::ZprimeMuMuPatMiniAodNewData(Char_t namechar_[300], TTree *tree,Double_t weight_,std::string DATA_type_,std::string MC_type_) : fChain(0) 
+ZprimeMuMuPatMiniAodNewData::ZprimeMuMuPatMiniAodNewData(Char_t namechar_[300], TTree *tree, Double_t weight_,
+                                                         std::string DATA_type_, std::string MC_type_) : fChain(0)
 {
   sprintf(name,"%s",namechar_);
   weight = weight_;
   std::cout << "Name is= " << name << " and weight is=" << weight << std::endl;
   DATA_type = DATA_type_;
   MC_type = MC_type_;
-  
+
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {

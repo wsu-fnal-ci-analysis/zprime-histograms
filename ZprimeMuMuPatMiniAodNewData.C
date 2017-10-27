@@ -23,7 +23,7 @@ bool myfunction (int i,int j) { return (i<j); }
 bool picklargemass (float lhs,float rhs) { return (lhs > rhs); }
 TString inputfile;
 
-void ZprimeMuMuPatMiniAodNewData::Loop()
+void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
 {
   time_t start,end;
   double dif;
@@ -332,6 +332,8 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
   //==================================================================================
   if (fChain == 0) return;
   Long64_t nentries = fChain->GetEntries();
+  if (debug)
+    nentries = 1000;
 
   // Timing information
   int decade  = 0;

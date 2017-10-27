@@ -140,9 +140,9 @@ void ZprimeMuMuPatMiniAodNewMC::initMemberVariables()
   m_genID2 = -1;
   m_genStat2 = -1;
 
-  m_MassGen = -99999.;
+  m_genMass = -99999.;
   // seems not used...
-  m_RecoMass = -99999.;
+  m_recoMass = -99999.;
 
   nbTP = 0;
   nbTT = 0;
@@ -576,11 +576,11 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 					  PtRecTunePMu2,PtRecMuBestTrack2,
 					  m_genET2, m_genEta2, m_genPhi2, m_genEn2);
 
-    m_MassGen = GenMass(m_genET1, m_genEta1, m_genPhi1, m_genEn1,
+    m_genMass = GenMass(m_genET1, m_genEta1, m_genPhi1, m_genEn1,
 			m_genET2, m_genEta2, m_genPhi2, m_genEn2);
     PickThehighestMass(m_vtxMassMu,m_vtxChi2Mu,event_evtNo);
 
-    m_vtxMassSmearedMu = smearedMass(EtaRecMu1, EtaRecMu2, m_vtxMassMu, m_MassGen, m_scaleUnc);
+    m_vtxMassSmearedMu = smearedMass(EtaRecMu1, EtaRecMu2, m_vtxMassMu, m_genMass, m_scaleUnc);
 
     double CosmicRejec = ThreeDangle(pxRecMu1,pyRecMu1,pzRecMu1,pRecMu1,
 				     pxRecMu2,pyRecMu2,pzRecMu2,pRecMu2);
@@ -601,141 +601,139 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
     if (fireHLT2 == 0) continue;
     bool RecoMuon1MatchingWithHLT1 = RecoHLTMuonMatching(EtaRecMu1,PhiRecMu1);
     bool RecoMuon2MatchingWithHLT2 = RecoHLTMuonMatching(EtaRecMu2,PhiRecMu2);
-    if (RecoMuon1MatchingWithHLT1==1 || RecoMuon2MatchingWithHLT2==1)
-      {
-	plotAllHighPtMuonsID();
-	//PrintEventInformation(256843,465,665539990,m_vtxChi2Mu,m_vtxMassMu,CosmicRejec);
-	if (m_vtxChi2Mu<20.0 && CosmicRejec>-0.9998)
-	  {
-	    DrawBTaggingDiscriminator(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
-	    if (PFMet_et_cor > 50.0) {
-	      h1_PFMetCorr_->Fill(PFMet_et_cor,weight);
-	      h1_CaloMet_->Fill(CaloMet_pt,weight);
-	      h1_MassMuMuBinWidthMET_->Fill(m_vtxMassMu,weight);
-	      h1_MassMuMu1GeVbinMET_->Fill(m_vtxMassMu,weight);
-	    }
-	    bool passDijet = DiPFJet(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
-	    if (passDijet==1) {
-	      h1_MassMuMuDijetBinWidth_->Fill(m_vtxMassMu,weight);
-	      h1_MassMuMuDijet1GeVbin_->Fill(m_vtxMassMu,weight);
-	    }
+    if (RecoMuon1MatchingWithHLT1==1 || RecoMuon2MatchingWithHLT2==1) {
+      plotAllHighPtMuonsID();
+      //PrintEventInformation(256843,465,665539990,m_vtxChi2Mu,m_vtxMassMu,CosmicRejec);
+      if (m_vtxChi2Mu<20.0 && CosmicRejec>-0.9998) {
+        DrawBTaggingDiscriminator(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
+        if (PFMet_et_cor > 50.0) {
+          h1_PFMetCorr_->Fill(PFMet_et_cor,weight);
+          h1_CaloMet_->Fill(CaloMet_pt,weight);
+          h1_MassMuMuBinWidthMET_->Fill(m_vtxMassMu,weight);
+          h1_MassMuMu1GeVbinMET_->Fill(m_vtxMassMu,weight);
+        }
+        bool passDijet = DiPFJet(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
+        if (passDijet==1) {
+          h1_MassMuMuDijetBinWidth_->Fill(m_vtxMassMu,weight);
+          h1_MassMuMuDijet1GeVbin_->Fill(m_vtxMassMu,weight);
+        }
 
-	    bool passDijetcuts = DiPFJetCut(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
-	    if (passDijetcuts==1 && PFMet_et_cor > 50.0) {
-	      h1_MassMuMuDijetBinWidthMET_->Fill(m_vtxMassMu,weight);
-	      h1_MassMuMuDijet1GeVbinMET_->Fill(m_vtxMassMu,weight);
-	    }
-	    if (passDijetcuts==1 && PFMet_et_cor > 100.0) {
-	      h1_MassMuMuDijetBinWidthMET100_->Fill(m_vtxMassMu,weight);
-	      h1_MassMuMuDijet1GeVbinMET100_->Fill(m_vtxMassMu,weight);
-	    }
-	    bool passBTaggingDiscriminator2 = BTaggingDiscriminator2(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
-	    if (passBTaggingDiscriminator2==1) {
-	      h1_BTagMassMuMu_->Fill(m_vtxMassMu,weight);
-	    }
-	    bool passBTaggingDiscriminator3 = BTaggingDiscriminator3(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
-	    if (passBTaggingDiscriminator3==1) {
-	      h1_BTagMassMuMu_->Fill(m_vtxMassMu,weight);
-	    }
+        bool passDijetcuts = DiPFJetCut(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
+        if (passDijetcuts==1 && PFMet_et_cor > 50.0) {
+          h1_MassMuMuDijetBinWidthMET_->Fill(m_vtxMassMu,weight);
+          h1_MassMuMuDijet1GeVbinMET_->Fill(m_vtxMassMu,weight);
+        }
+        if (passDijetcuts==1 && PFMet_et_cor > 100.0) {
+          h1_MassMuMuDijetBinWidthMET100_->Fill(m_vtxMassMu,weight);
+          h1_MassMuMuDijet1GeVbinMET100_->Fill(m_vtxMassMu,weight);
+        }
+        bool passBTaggingDiscriminator2 = BTaggingDiscriminator2(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
+        if (passBTaggingDiscriminator2==1) {
+          h1_BTagMassMuMu_->Fill(m_vtxMassMu,weight);
+        }
+        bool passBTaggingDiscriminator3 = BTaggingDiscriminator3(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
+        if (passBTaggingDiscriminator3==1) {
+          h1_BTagMassMuMu_->Fill(m_vtxMassMu,weight);
+        }
 
-	    // Special inclusively binned samples, used only in the low mass region?
-	    //  - Scaling is off...
-	    // WW sample
-	    // need to keep a running track of how many events are rejcted, and adjust the weight appropriately
-	    if (inputfile.Contains("WWTo2L2Nu_13TeV")) {
-	      wwto2l2nu_input++;
-	      if (m_MassGen > 600.) {
-		if (debug)
-		  std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
-			    << m_MassGen << ") reco("
-			    << m_vtxMassMu << ")" << std::endl;
-		newweight=0;
-		wwto2l2nu_fail_gen_mass++;
-	      }
-	      if (m_vtxMassMu > 600.) {  // WHY CUT ON THE RECO MASS???
-		if (debug)
-		  std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
-			    << m_MassGen << ") reco("
-			    << m_vtxMassMu << ")" << std::endl;
-		// newweight=0;
-		wwto2l2nu_fail_reco_mass++;
-	      }
-	    } else if (inputfile.Contains("WWTo2L2Nu_Mll")) {
-	      wwto2l2nu_input++;
-	      if (m_MassGen < 600.) {
-		if (debug)
-		  std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
-			    << m_MassGen << ") reco("
-			    << m_vtxMassMu << ")" << std::endl;
-		newweight=0;
-		wwto2l2nu_fail_gen_mass++;
-	      }
-	      if (m_vtxMassMu < 600.) {  // WHY CUT ON THE RECO MASS???
-		if (debug)
-		  std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
-			    << m_MassGen << ") reco("
-			    << m_vtxMassMu << ")" << std::endl;
-		// newweight=0;
-		wwto2l2nu_fail_reco_mass++;
-	      }
-	    } else if (inputfile.Contains("TTTo2L2Nu")) {
-	      // TTTo2L2Nu sample
-	      //if (datasetName.Contains("TTTo2L2Nu")) {
-	      ttto2l2nu_input++;
-	      if (m_MassGen > 500.) {
-		if (debug)
-		  std::cout << "Reweighting sample of TTTo2L2Nu with weight=0: gen("
-			    << m_MassGen << ") reco("
-			    << m_vtxMassMu << ")" << std::endl;
-		newweight=0;
-		ttto2l2nu_fail_gen_mass++;
-	      }
-	      if (m_vtxMassMu > 500.) {  // WHY CUT ON THE RECO MASS???
-		if (debug)
-		  std::cout << "Reweighting sample of TTTo2L2Nu with weight=0: gen("
-			    << m_MassGen << ") reco("
-			    << m_vtxMassMu << ")" << std::endl;
-		// newweight=0;
-		ttto2l2nu_fail_reco_mass++;
-	      }
-	    } else if (inputfile.Contains("TTToLL_MLL_")) {
-	      ttto2l2nu_input++;
-	      if (m_MassGen > 500.) {
-		if (debug)
-		  std::cout << "Reweighting sample of TTToLL_MLL_ with weight=0: gen("
-			    << m_MassGen << ") reco("
-			    << m_vtxMassMu << ")" << std::endl;
-		newweight=0;
-		ttto2l2nu_fail_gen_mass++;
-	      }
-	      if (m_vtxMassMu<500.) {
-		if (debug)
-		  std::cout << "Reweighting sample of TTToLL_MLL_ with weight=0: gen("
-			    << m_MassGen << ") reco("
-			    << m_vtxMassMu << ")" << std::endl;
-		// newweight=0;
-		ttto2l2nu_fail_reco_mass++;
-	      }
-	    }
+        // Special inclusively binned samples, used only in the low mass region?
+        //  - Scaling is off...
+        // WW sample
+        // need to keep a running track of how many events are rejcted, and adjust the weight appropriately
+        if (inputfile.Contains("WWTo2L2Nu_13TeV")) {
+          wwto2l2nu_input++;
+          if (m_genMass > 600.) {
+            if (debug)
+              std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
+                        << m_genMass << ") reco("
+                        << m_vtxMassMu << ")" << std::endl;
+            newweight=0;
+            wwto2l2nu_fail_gen_mass++;
+          }
+          if (m_vtxMassMu > 600.) {  // WHY CUT ON THE RECO MASS???
+            if (debug)
+              std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
+                        << m_genMass << ") reco("
+                        << m_vtxMassMu << ")" << std::endl;
+            // newweight=0;
+            wwto2l2nu_fail_reco_mass++;
+          }
+        } else if (inputfile.Contains("WWTo2L2Nu_Mll")) {
+          wwto2l2nu_input++;
+          if (m_genMass < 600.) {
+            if (debug)
+              std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
+                        << m_genMass << ") reco("
+                        << m_vtxMassMu << ")" << std::endl;
+            newweight=0;
+            wwto2l2nu_fail_gen_mass++;
+          }
+          if (m_vtxMassMu < 600.) {  // WHY CUT ON THE RECO MASS???
+            if (debug)
+              std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
+                        << m_genMass << ") reco("
+                        << m_vtxMassMu << ")" << std::endl;
+            // newweight=0;
+            wwto2l2nu_fail_reco_mass++;
+          }
+        } else if (inputfile.Contains("TTTo2L2Nu")) {
+          // TTTo2L2Nu sample
+          //if (datasetName.Contains("TTTo2L2Nu")) {
+          ttto2l2nu_input++;
+          if (m_genMass > 500.) {
+            if (debug)
+              std::cout << "Reweighting sample of TTTo2L2Nu with weight=0: gen("
+                        << m_genMass << ") reco("
+                        << m_vtxMassMu << ")" << std::endl;
+            newweight=0;
+            ttto2l2nu_fail_gen_mass++;
+          }
+          if (m_vtxMassMu > 500.) {  // WHY CUT ON THE RECO MASS???
+            if (debug)
+              std::cout << "Reweighting sample of TTTo2L2Nu with weight=0: gen("
+                        << m_genMass << ") reco("
+                        << m_vtxMassMu << ")" << std::endl;
+            // newweight=0;
+            ttto2l2nu_fail_reco_mass++;
+          }
+        } else if (inputfile.Contains("TTToLL_MLL_")) {
+          ttto2l2nu_input++;
+          if (m_genMass > 500.) {
+            if (debug)
+              std::cout << "Reweighting sample of TTToLL_MLL_ with weight=0: gen("
+                        << m_genMass << ") reco("
+                        << m_vtxMassMu << ")" << std::endl;
+            newweight=0;
+            ttto2l2nu_fail_gen_mass++;
+          }
+          if (m_vtxMassMu<500.) {
+            if (debug)
+              std::cout << "Reweighting sample of TTToLL_MLL_ with weight=0: gen("
+                        << m_genMass << ") reco("
+                        << m_vtxMassMu << ")" << std::endl;
+            // newweight=0;
+            ttto2l2nu_fail_reco_mass++;
+          }
+        }
 
-	    PlotRecoInfo(CosmicRejec,m_vtxMassMu,m_MassGen,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,m_ptGen1,EtaRecMu1,
-			 PtRecTunePMuBestTrack2,PtRecTunePMu2,PtRecMuBestTrack2,m_ptGen2,EtaRecMu2);
-	    PlotGenInfo(m_MassGen,m_genEta1,m_genEta2,m_genET1,m_genET2,m_genEn1,m_genEn2);
-	    m_csAngle = CosThetaCollinSoper(PtRecTunePMuBestTrack1,EtaRecMu1,PhiRecMu1,EnRecMu1,
-					    PtRecTunePMuBestTrack2,EtaRecMu2,PhiRecMu2,EnRecMu2,
-					    ChargeRecMu1,m_vtxMassMu);
-	    Boson(pxRecMu1,pyRecMu1,pzRecMu1,EnRecMu1,pxRecMu2,pyRecMu2,pzRecMu2,EnRecMu2,
-		  ChargeRecMu1,PFMet_et_cor,PFMet_px_cor,PFMet_py_cor,PFMet_pz_cor,PFMet_en_cor);
-	    bool passBTaggingDiscriminator = BTaggingDiscriminator(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
-	    if (passBTaggingDiscriminator==1) {
-	      h1_BTagMassMuMuBinWidth_->Fill(m_vtxMassMu,weight);
-	      h1_BTagMassMuMu1GeVbin_->Fill(m_vtxMassMu,weight);
-	    }
-	    if (passBTaggingDiscriminator==0) {
-	      h1_ZprimeRecomassBinWidthAfterBtaging_->Fill(m_vtxMassMu,weight);
-	    }
-	  }
+        PlotRecoInfo(CosmicRejec,m_vtxMassMu,m_genMass,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,m_ptGen1,EtaRecMu1,
+                     PtRecTunePMuBestTrack2,PtRecTunePMu2,PtRecMuBestTrack2,m_ptGen2,EtaRecMu2);
+        PlotGenInfo(m_genMass,m_genEta1,m_genEta2,m_genET1,m_genET2,m_genEn1,m_genEn2);
+        m_csAngle = CosThetaCollinSoper(PtRecTunePMuBestTrack1,EtaRecMu1,PhiRecMu1,EnRecMu1,
+                                        PtRecTunePMuBestTrack2,EtaRecMu2,PhiRecMu2,EnRecMu2,
+                                        ChargeRecMu1,m_vtxMassMu);
+        Boson(pxRecMu1,pyRecMu1,pzRecMu1,EnRecMu1,pxRecMu2,pyRecMu2,pzRecMu2,EnRecMu2,
+              ChargeRecMu1,PFMet_et_cor,PFMet_px_cor,PFMet_py_cor,PFMet_pz_cor,PFMet_en_cor);
+        bool passBTaggingDiscriminator = BTaggingDiscriminator(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
+        if (passBTaggingDiscriminator==1) {
+          h1_BTagMassMuMuBinWidth_->Fill(m_vtxMassMu,weight);
+          h1_BTagMassMuMu1GeVbin_->Fill(m_vtxMassMu,weight);
+        }
+        if (passBTaggingDiscriminator==0) {
+          h1_ZprimeRecomassBinWidthAfterBtaging_->Fill(m_vtxMassMu,weight);
+        }
       }
+    }
   }
 
   std::cout << "100% done!" << std::endl;
