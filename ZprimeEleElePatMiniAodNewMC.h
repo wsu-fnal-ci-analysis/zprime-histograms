@@ -497,6 +497,8 @@ ZprimeEleElePatMiniAodNewMC::ZprimeEleElePatMiniAodNewMC(Char_t namechar_[300], 
 ZprimeEleElePatMiniAodNewMC::~ZprimeEleElePatMiniAodNewMC()
 {
   if (!fChain) return;
+  std::cout << std::hex << fChain << std::endl;
+  std::cout << std::hex << fChain->GetCurrentFile() << std::endl;
   delete fChain->GetCurrentFile();
 }
 
