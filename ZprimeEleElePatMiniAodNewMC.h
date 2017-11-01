@@ -393,9 +393,9 @@ class ZprimeEleElePatMiniAodNewMC {
                        float &ptGele,float &etaGele,float &phiGele,float &enGele);
   bool RecoHLTEleMatching(float RecoEta,float RecoPhi);
   bool isPassHLT();
-  void CosThetaCollinSoper(float Et1,float Eta1,float Phi1,float En1,
-                           float Et2,float Eta2,float Phi2,float En2,
-                           float ChargeEle1,float RecoMass);
+  float CosThetaCollinSoper(float Et1,float Eta1,float Phi1,float En1,
+			    float Et2,float Eta2,float Phi2,float En2,
+			    float ChargeEle1,float RecoMass);
   float delR(float eta1,float phi1,float eta2,float phi2);
 
   //================================================================================
@@ -423,7 +423,7 @@ class ZprimeEleElePatMiniAodNewMC {
   int m_genID1,m_genStat1;
   float m_genET2,m_genPhi2,m_genEta2,m_genEn2;
   int m_genID2,m_genStat2;
-  float m_genMass,m_recoMass;
+  float m_genMass,m_recoMass,m_csAngle;
   int NbGen,NbReco;
   int nbTP,nbTT,nbTF;
   float TagProbeEtaCut;
