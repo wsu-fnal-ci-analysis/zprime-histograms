@@ -104,8 +104,8 @@ while [ $n -lt ${nlines} ]; do
 	  sed "s?output?output_${samplename}?g" | \
 	  sed "s?sig_input.txt?sig_input_${n}.txt?g" | \
 	  sed "s?s.log?s_${samplename}.log?g" > jobs/submit_Zprime${lflav}${lflav}Analysis_${samplename}.sh
-      cat condor_template.cfg  | \
-	  sed "s?submit_Zprime${lflav}${lflav}Analysis_BARI?submit_Zprime${lflav}${lflav}Analysis_${samplename}?g" | \
+      cat condor_templateMC.cfg  | \
+	  sed "s?submit_ZprimeAnalysis_BARI?submit_Zprime${lflav}${lflav}Analysis_${samplename}?g" | \
 	  sed "s?ZprimeAnalysis?Zprime${lflav}${lflav}Analysis?g" | \
 	  sed "s?ZprimePat?Zprime${lflav}${lflav}Pat?g" | \
 	  sed "s?sig_input_h150.txt?SigCards${simu}/sig_input_${n}.txt?g" | \
