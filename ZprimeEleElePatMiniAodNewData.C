@@ -157,7 +157,7 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   h1_DijetEta2_       = std::make_shared<TH1D>("DijetEta2","",100,0.0,3.0);
   // Book txt file for candidate events
   Char_t txtOUT[500];
-  sprintf(txtOUT,"CMSSW745-Analyse_ZprimeToEleEle_13TeV_cand.txt");
+  sprintf(txtOUT,"ZprimeToEleEle_13TeV_cand.txt");
   output_txt.open(txtOUT);
   output_txt << "CANDIDATES Events:" << std::endl;
   Char_t outform[20000];
@@ -197,7 +197,7 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
 		<< "t = "  << std::setprecision(4) << std::setw(7) << time
 		<< " projected finish =" << std::setw(7) << std::setprecision(4) << finTime << "s"
 		<< " (" << std::setw(4) << std::setprecision(2) << finMin << " min).   "
-		<< std::endl;
+		<< std::resetiosflags << std::endl;
       std::cout << std::flush;
       tenpcount++;
       // } else if ( (jentry*100)/nentries == onepcount) {

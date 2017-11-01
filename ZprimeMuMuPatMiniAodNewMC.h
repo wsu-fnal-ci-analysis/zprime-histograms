@@ -688,7 +688,8 @@ ZprimeMuMuPatMiniAodNewMC::~ZprimeMuMuPatMiniAodNewMC()
   if (!fChain) return;
   std::cout << std::hex << fChain << std::endl;
   std::cout << std::hex << fChain->GetCurrentFile() << std::endl;
-  delete fChain->GetCurrentFile();
+  if (fChain->GetCurrentFile())
+    delete fChain->GetCurrentFile();
 }
 
 Int_t ZprimeMuMuPatMiniAodNewMC::GetEntry(Long64_t entry)

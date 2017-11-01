@@ -367,7 +367,7 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
 		<< "t = "  << std::setprecision(4) << std::setw(7) << time
 		<< " projected finish =" << std::setw(7) << std::setprecision(4) << finTime << "s"
 		<< " (" << std::setw(4) << std::setprecision(2) << finMin << " min).   "
-		<< std::endl;
+		<< std::resetiosflags << std::endl;
       std::cout << std::flush;
       tenpcount++;
       // } else if ( (jentry*100)/nentries == onepcount ) {
