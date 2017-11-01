@@ -76,6 +76,8 @@ while [ $n -lt ${nlines} ]; do
 	  sed "s?sMC.log?s_${samplename}.log?g" > jobs/submit_Zprime${lflav}${lflav}Analysis_${samplename}.sh
       cat condor_templateMC.cfg  | \
 	  sed "s?submit_Zprime${lflav}${lflav}Analysis_FNAL?submit_Zprime${lflav}${lflav}Analysis_${samplename}?g" | \
+	  sed "s?ZprimeAnalysis?Zprime${lflav}${lflav}Analysis?g" | \
+	  sed "s?ZprimePat?Zprime${lflav}${lflav}Pat?g" | \
 	  sed "s?sig_input_h150.txt?BkgCards${simu}/bkg_input_${n}.txt?g" | \
 	  sed "s?mail?`whoami`?g" > jobs/condor_Zprime${lflav}${lflav}Analysis_${samplename}.cfg
   elif  [ ${site} = ${SDESY} ]; then
@@ -104,6 +106,8 @@ while [ $n -lt ${nlines} ]; do
 	  sed "s?s.log?s_${samplename}.log?g" > jobs/submit_Zprime${lflav}${lflav}Analysis_${samplename}.sh
       cat condor_template.cfg  | \
 	  sed "s?submit_Zprime${lflav}${lflav}Analysis_BARI?submit_Zprime${lflav}${lflav}Analysis_${samplename}?g" | \
+	  sed "s?ZprimeAnalysis?Zprime${lflav}${lflav}Analysis?g" | \
+	  sed "s?ZprimePat?Zprime${lflav}${lflav}Pat?g" | \
 	  sed "s?sig_input_h150.txt?BkgCards${simu}/bkg_input_${n}.txt?g" | \
 	  sed "s?mail?`whoami`?g" > jobs/condor_Zprime${lflav}${lflav}Analysis_${samplename}.cfg
   else
