@@ -91,7 +91,7 @@ int main(int argc, char ** argv)
     } else if (dataconf.find("2016") < 50) {
       //dirInput="/lustre/cms/store/user/selgammal/ZprimeEE/2016Data/";
       //dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Data2016_ZprimeEE_13TeV_merged_HLT";
-      dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/Keep_Moriond17_reMINIAOD_GiovanniFilter_Data_muon";
+      dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/Keep_Moriond17_reMINIAOD_Data_ele_final";
     }
 
     TString File = name;
