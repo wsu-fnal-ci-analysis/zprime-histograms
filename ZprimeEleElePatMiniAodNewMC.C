@@ -52,7 +52,7 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   ptEffCut = 3000.0;
 
   // weight=1.;  // this is dumb, definitely don't want to reset the weight...
-  if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="20157")
+  if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="2017")
     weight=1.;
   std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToEleEle_13TeV.root","recreate");
   //==================================================================================
@@ -212,8 +212,11 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
       // have to choose which cut to use
       // if (!passMInvCut)
       // 	 continue;
-      if (!passPreFSRMInvCut)
+      if (!passPreFSRMInvCut) {
+	if (debug)
+	  std::cout << "failed CI gen cut" << std::endl;
 	continue;
+      }
     }
     /*std::cout <<"=======> jentry = "<<jentry<<
       "=======> Evt = "<<event_evtNo<<
@@ -236,17 +239,28 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
     //        call the method for N-1 plots                   =
     //                                                        =
     //=========================================================
-    if (firstEleFinal == 0 || secondEleFinal == 0) continue;
+    if (firstEleFinal == 0 || secondEleFinal == 0) {
+      if (debug)
+	std::cout << "failed el selection" << std::endl;
+      continue;
+    }
     DiEleMass = Mass(Etele1,EtaTrakele1,PhiTrakele1,ELEC_MASS,
                      Etele2,EtaTrakele2,PhiTrakele2,ELEC_MASS);
-    if (DiEleMass < 60) continue;
+    if (DiEleMass < 60) {
+      if (debug)
+	std::cout << "failed DiEleMass" << std::endl;
+      continue;
+    }
     //=========================================================
     //        start doing matching between reco & HLT         =
     //                                                        =
     //=========================================================
     bool fireHLT2 = isPassHLT();
-    if (fireHLT2 == 0)
+    if (fireHLT2 == 0) {
+      if (debug)
+	std::cout << "failed HLT" << std::endl;
       continue;
+    }
     bool RecoEle1MatchingWithHLT1 = RecoHLTEleMatching(EtaSCele1,PhiSCele1);
     bool RecoEle2MatchingWithHLT2 = RecoHLTEleMatching(EtaSCele2,PhiSCele2);
     if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
@@ -741,8 +755,9 @@ bool ZprimeEleElePatMiniAodNewMC::isPassHLT()
   }
   if (nbMatch>0) {
     return true;
+  } else {
+    return false;
   }
-  else return false;
 }
 
 bool ZprimeEleElePatMiniAodNewMC::RecoHLTEleMatching(float RecoEta,float RecoPhi)
@@ -774,12 +789,16 @@ bool ZprimeEleElePatMiniAodNewMC::RecoHLTEleMatching(float RecoEta,float RecoPhi
       //std::cout <<"[after]triggerName"<<HLTObj_collection->at(i) << std::endl;
       deltaR   = delR(HLTObj_eta->at(i),HLTObj_phi->at(i),RecoEta,RecoPhi);
       //printf("HLT_Eta = %f  HLT_Phi = %f recoEta = %f recoPhi = %f DelR_trigger = %f\n",HLTObj_eta->at(i),HLTObj_phi->at(i),RecoEta,RecoPhi,deltaR);
-      if (fabs(deltaR)>RecoHLTMatchingDeltaRcut) continue;
+      if (fabs(deltaR)>RecoHLTMatchingDeltaRcut)
+	continue;
       nbMatch++;
     }
   }
-  if (nbMatch>0) return true;
-  else return false;
+  if (nbMatch>0) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 

@@ -206,6 +206,12 @@ class ZprimeEleElePatMiniAodNewMC {
   TBranch        *b_event_evtNo;   //!
   TBranch        *b_event_lumi;   //!
   TBranch        *b_event_bunch;   //!
+
+  // special for CI smaples
+  TBranch        *b_xsWeight;
+  TBranch        *b_passPreFSRMInvCut;
+  TBranch        *b_passMInvCut;
+
   TBranch        *b_Ele_nbElectrons;   //!
   TBranch        *b_Ele_isEcalDrivenSeed;   //!
   TBranch        *b_Ele_isPassConversionVeto;   //!
@@ -675,6 +681,16 @@ void ZprimeEleElePatMiniAodNewMC::Init(TTree *tree)
   fChain->SetBranchAddress("event_evtNo", &event_evtNo, &b_event_evtNo);
   fChain->SetBranchAddress("event_lumi", &event_lumi, &b_event_lumi);
   fChain->SetBranchAddress("event_bunch", &event_bunch, &b_event_bunch);
+
+  // special for CI smaples (will fail if not present... need to robustify
+  isCISample = false;
+  if (std::string(name).find("CI") != std::string::npos) {
+    isCISample = true;
+    fChain->SetBranchAddress("xsWeight",          &xsWeight,          &b_xsWeight);
+    fChain->SetBranchAddress("passPreFSRMInvCut", &passPreFSRMInvCut, &b_passPreFSRMInvCut);
+    fChain->SetBranchAddress("passMInvCut",       &passMInvCut,       &b_passMInvCut);
+  }
+
   fChain->SetBranchAddress("Ele_nbElectrons", &Ele_nbElectrons, &b_Ele_nbElectrons);
   fChain->SetBranchAddress("Ele_isEcalDrivenSeed", &Ele_isEcalDrivenSeed, &b_Ele_isEcalDrivenSeed);
   fChain->SetBranchAddress("Ele_isPassConversionVeto", &Ele_isPassConversionVeto, &b_Ele_isPassConversionVeto);

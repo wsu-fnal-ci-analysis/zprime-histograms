@@ -53,7 +53,7 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
   FR_Ptcut = 53.0; //53.0;
 
   // weight=1.;  // this is dumb, definitely don't want to reset the weight...
-  if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="20157")
+  if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="2017")
     weight=1.;
   std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToMuMu_13TeV.root","recreate");
   // Enable Sumw2 for histograms as we'll be normalizing them
