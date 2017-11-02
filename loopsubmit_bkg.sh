@@ -43,10 +43,35 @@ while [ $n -lt ${nlines} ]; do
   cat bkg_input.txt | head -1 > BkgCards${simu}/bkg_input_${n}.txt
   samplename=`cat BkgCards${simu}/bkg_input_${n}.txt | awk '{print $1}'`
   echo $samplename
+
+  skip=0
+  if [ ${lflav} = "Ele" ]
+  then
+      res=$(echo ${samplename} | fgrep "MuMu")
+      if [ $res ]
+      then
+	  echo "skipping ${samplename} for di-electron analysis"
+	  skip=1
+      fi
+  elif [ ${lflav} = "Mu" ]
+  then
+      res=$(echo ${samplename} | fgrep "EE")
+      if [ $res ]
+      then
+	  echo "skipping ${samplename} for di-muon analysis"
+	  skip=1
+      fi
+  fi
+
   cat bkg_input.txt | tail -n $m >  bkg_input_tmp.txt
   mv  bkg_input_tmp.txt bkg_input.txt
   rm -f jobs/submit_Zprime${lflav}${lflav}Analysis_${samplename}.sh
   rm -f jobs/condor_template.cfg
+
+  if [ ${skip} ]
+  then
+      continue
+  fi
   
   if [ ${site} = ${SCERN} ]; then
       cat submit_Zprime${lflav}${lflav}Analysis_CERN.sh | \

@@ -43,10 +43,35 @@ while [ $n -lt ${nlines} ]; do
   cat data_input.txt | head -1 > DataCards${data}/data_input_${n}.txt
   samplename=`cat DataCards${data}/data_input_${n}.txt | awk '{print $1}'`
   echo $samplename
+
+  skip=0
+  if [ ${lflav} = "Ele" ]
+  then
+      res=$(echo ${samplename} | fgrep "SingleMuon")
+      if [ $res ]
+      then
+	  echo "skipping ${samplename} for di-electron analysis"
+	  skip=1
+      fi
+  elif [ ${lflav} = "Mu" ]
+  then
+      res=$(echo ${samplename} | fgrep "DoubleEG")
+      if [ $res ]
+      then
+	  echo "skipping ${samplename} for di-muon analysis"
+	  skip=1
+      fi
+  fi
+
   cat data_input.txt | tail -n $m >  data_input_tmp.txt
   mv  data_input_tmp.txt data_input.txt
   rm -f jobs/submit_Zprime${lflav}${lflav}Analysis_${samplename}.sh
   rm -f jobs/condor_template.cfg
+
+  if [ ${skip} ]
+  then
+      continue
+  fi
 
   if [ ${site} = ${SCERN} ]; then
       cat submit_Zprime${lflav}${lflav}Analysis_CERN.sh | \
