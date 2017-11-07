@@ -61,6 +61,9 @@ int main(int argc, char ** argv)
 
   // Run on data
   for (int i = 0; i < nlines; ++i) {
+    if (samples[i].find("#") < 1)
+      continue;
+
     std::string name;
     if (mcconf.find("Spring16") < 10)
       name = samples[i]+".root";
@@ -84,14 +87,19 @@ int main(int argc, char ** argv)
       dirInput="root://cmseos.fnal.gov///store/user/cmsdas/2016/LONG_EXERCISES/ZprimeDiLeptons/Data2015_ZprimeMuMu_13TeV_merged";
     } else if (mcconf.find("Spring16") < 50) {
       dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/MonteCarlo_Moriond";
-      if (name.find("reHLT_DYtoMuMu") < 100) dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Spring16_ZprimeMuMu_13TeV_merged_HLT";
-      if (name.find("CMSSW803_MC_DYtoMuMu") < 100) dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Spring16_merged";
-      //  dirInput="/lustre/cms/store/user/aqamesh/ZprimeAnalysis_QCD_Tree";
-      //dirInput="/lustre/cms/store/user/selgammal/ZprimeMuMu/MCs";
+      if (name.find("CITo2Mu") < 100)
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples";
+      else if (name.find("CITo2E") < 100)
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples";
+      else if (name.find("reHLT_DYtoMuMu") < 100)
+	dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Spring16_ZprimeMuMu_13TeV_merged_HLT";
+      else if (name.find("CMSSW803_MC_DYtoMuMu") < 100)
+	dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Spring16_merged";
     } else if (dataconf.find("2016") < 50) {
-      //dirInput="/lustre/cms/store/user/selgammal/ZprimeMuMu/2016Data/";
-      //dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Data2016_ZprimeMuMu_13TeV_merged_HLT";
-      dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/Keep_Moriond17_reMINIAOD_GiovanniFilter_Data_muon";
+      if (name.find("SingleMuon") < 100)
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/Keep_Moriond17_reMINIAOD_GiovanniFilter_Data_muon";
+      else if (name.find("DoubleEG") < 100)
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/Keep_Moriond17_reMINIAOD_Data_ele_final";
     }
 
     TString File=name;

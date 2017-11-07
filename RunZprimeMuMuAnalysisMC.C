@@ -54,13 +54,16 @@ int main(int argc, char ** argv)
   //
   float lumifb = 0.;
   if (mcconf.find("Spring16") < 5)
-    lumifb=36.3 ; // 2016
+    lumifb = 36.3 ; // 2016, double check for muons
 
   std::string site=argv[8];
   std::cout << "Site is " << site.c_str() << " MC conf.= " << mcconf.c_str() << " data conf.= " << dataconf.c_str() << std::endl;
 
   // Run on data
   for (int i = 0; i < nlines; ++i) {
+    if (samples[i].find("#") < 1)
+      continue;
+
     std::string name;
     if (mcconf.find("Spring16") < 10)
       name = samples[i]+".root";
@@ -76,7 +79,8 @@ int main(int argc, char ** argv)
       }
       if (mcconf.find("Spring16") < 50) {
         dirInput="/nfs/dust2/cms/group/DAS2016/ZprimeDiLepton//Spring16_ZprimeMuMu_13TeV_merged";
-        if (name.find("reHLT_DYtoMuMu") < 100) dirInput="/nfs/dust2/cms/group/DAS2016/ZprimeDiLepton/Spring16_ZprimeMuMu_13TeV_merged_HLT";
+        if (name.find("reHLT_DYtoMuMu") < 100)
+	  dirInput="/nfs/dust2/cms/group/DAS2016/ZprimeDiLepton/Spring16_ZprimeMuMu_13TeV_merged_HLT";
       }
     } else if (site.find("FNAL") < 5 && mcconf.find("Spring15_combined") < 5) {
       dirInput="root://cmseos.fnal.gov///store/user/cmsdas/2016/LONG_EXERCISES/ZprimeDiLeptons/Spring15_25ns_merged";
@@ -84,14 +88,25 @@ int main(int argc, char ** argv)
       dirInput="root://cmseos.fnal.gov///store/user/cmsdas/2016/LONG_EXERCISES/ZprimeDiLeptons/Data2015_ZprimeMuMu_13TeV_merged";
     } else if (mcconf.find("Spring16") < 50) {
       dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/MonteCarlo_Moriond";
-      if (name.find("reHLT_DYtoMuMu") < 100) dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Spring16_ZprimeMuMu_13TeV_merged_HLT";
-      if (name.find("CMSSW803_MC_DYtoMuMu") < 100) dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Spring16_merged";
-      //  dirInput="/lustre/cms/store/user/aqamesh/ZprimeAnalysis_QCD_Tree";
-      //dirInput="/lustre/cms/store/user/selgammal/ZprimeMuMu/MCs";
+      if (name.find("CITo2Mu") < 100)
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples";
+      else if (name.find("CITo2E") < 100)
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples";
+      else if (name.find("ZToEE") < 100)
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/Keep_Moriond17_MC_for_ele_analysis";
+      else if (name.find("reHLT_DYtoMuMu") < 100)
+	dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Spring16_ZprimeMuMu_13TeV_merged_HLT";
+      else if (name.find("CMSSW803_MC_DYtoMuMu") < 100)
+	dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Spring16_merged";
+      else if (name.find("reHLT_DYtoEE") < 100)
+	dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Spring16_ZprimeEE_13TeV_merged_HLT";
+      else if (name.find("CMSSW803_MC_DYtoEE") < 100)
+	dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Spring16_merged";
     } else if (dataconf.find("2016") < 50) {
-      //dirInput="/lustre/cms/store/user/selgammal/ZprimeMuMu/2016Data/";
-      //dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Data2016_ZprimeMuMu_13TeV_merged_HLT";
-      dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/Keep_Moriond17_reMINIAOD_GiovanniFilter_Data_muon";
+      if (name.find("SingleMuon") < 100)
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/Keep_Moriond17_reMINIAOD_GiovanniFilter_Data_muon";
+      else if (name.find("DoubleEG") < 100)
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/Keep_Moriond17_reMINIAOD_Data_ele_final";
     }
 
     TString File = name;
@@ -123,6 +138,7 @@ int main(int argc, char ** argv)
     std::cout << "Read file with name: " << namechar << " " << tree3->GetEntries() << std::endl;
 
     ZprimeMuMuPatMiniAodNewMC b(namechar,tree3,weight,dataconf,mcconf);
+    // ZprimeMuMuPatMiniAodNewMC b(namechar,tree3.get(),weight,dataconf,mcconf);
     b.Loop(false);
     // tree3 = nullptr;
     // delete tree3;  // didn't create with new, no need to delete
