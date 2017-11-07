@@ -29,10 +29,22 @@ mkdir -p jobs;
 n=0;
 m=0;
 
-echo "Reading data_input_${data}_AN.txt file"
+subflav=
+if [ "${lflav}"="Ele" ]
+then
+    subflav="ee"
+elif [ "${lflav}"="Mu" ]
+then
+    subflav="mumu"
+else
+    echo "Invalid lepton flavour specified: ${lflav} is not one of 'Mu' or 'Ele'"
+    exit 1
+fi
 
-cp -f data_input_${data}_AN.txt data_input.txt
-nlines=`wc -l data_input_${data}_AN.txt | awk '{print $1}'`;
+echo "Reading data_input_${data}_${subflav}_AN.txt file"
+
+cp -f data_input_${data}_${subflav}_AN.txt data_input.txt
+nlines=`wc -l data_input_${data}_${subflav}_AN.txt | awk '{print $1}'`;
 
 while [ $n -lt ${nlines} ]; do
   (( n = n + 1 ))
@@ -68,7 +80,7 @@ while [ $n -lt ${nlines} ]; do
   rm -f jobs/submit_Zprime${lflav}${lflav}Analysis_${samplename}.sh
   rm -f jobs/condor_template.cfg
 
-  if [ ${skip} ]
+  if [ "${skip}" = "1" ]
   then
       continue
   fi
