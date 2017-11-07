@@ -354,7 +354,7 @@ class ZprimeEleElePatMiniAodNewData {
   ZprimeEleElePatMiniAodNewData(Char_t namechar_[300], TTree *tree=0, Double_t weight_=1.,
                                 std::string DATA_type_="DATA", std::string MC_type_="MC");
   virtual ~ZprimeEleElePatMiniAodNewData();
-  Double_t weight;
+  Double_t m_weight;
   Char_t name[300];
   std::string DATA_type,MC_type;
   virtual Int_t    Cut(Long64_t entry);
@@ -402,7 +402,7 @@ class ZprimeEleElePatMiniAodNewData {
 
   //================================================================================
   float HLT_pt,HLT_eta,HLT_phi;
-  /* int weight; */
+  /* int m_weight; */
   float Etele1,Enele1,EtaTrakele1,PhiTrakele1,EtaSCele1,PhiSCele1;
   int Chargeele1;
   float Etele2,Enele2,EtaTrakele2,PhiTrakele2,EtaSCele2,PhiSCele2;
@@ -479,8 +479,8 @@ ZprimeEleElePatMiniAodNewData::ZprimeEleElePatMiniAodNewData(Char_t namechar_[30
                                                              std::string DATA_type_, std::string MC_type_) : fChain(0)
 {
   sprintf(name,"%s",namechar_);
-  weight = weight_;
-  std::cout << "Name is= " << name << " and weight is=" << weight << std::endl;
+  m_weight = weight_;
+  std::cout << "Name is= " << name << " and weight is=" << m_weight << std::endl;
   DATA_type = DATA_type_;
   MC_type = MC_type_;
 

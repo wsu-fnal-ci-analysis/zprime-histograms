@@ -316,7 +316,7 @@ class ZprimeMuMuPatMiniAodNewData {
   ZprimeMuMuPatMiniAodNewData(Char_t namechar_[300], TTree *tree=0, Double_t weight_=1.,
 			      std::string DATA_type_="DATA", std::string MC_type_="MC");
   virtual ~ZprimeMuMuPatMiniAodNewData();
-  Double_t weight;
+  Double_t m_weight;
   Char_t name[300];
   std::string DATA_type,MC_type;
   virtual Int_t    Cut(Long64_t entry);
@@ -419,7 +419,7 @@ class ZprimeMuMuPatMiniAodNewData {
   float parEB11,parEB22,parEB33;
   float parEE11,parEE22,parEE33;
   float HLT_pt,HLT_eta,HLT_phi;
-  //int weight;
+  //int m_weight;
   float ptEffCut;
   float PtDYTRecMu1,PtDYTRecMu2,PtRecTunePMu1,PtRecTunePMu2,PtRecMuBestTrack1,PtRecMuBestTrack2;
   float RecoHLTMatchingDeltaRcut,deltaRcut,minMassCut,maxMassCut;
@@ -632,8 +632,8 @@ ZprimeMuMuPatMiniAodNewData::ZprimeMuMuPatMiniAodNewData(Char_t namechar_[300], 
                                                          std::string DATA_type_, std::string MC_type_) : fChain(0)
 {
   sprintf(name,"%s",namechar_);
-  weight = weight_;
-  std::cout << "Name is= " << name << " and weight is=" << weight << std::endl;
+  m_weight = weight_;
+  std::cout << "Name is= " << name << " and weight is=" << m_weight << std::endl;
   DATA_type = DATA_type_;
   MC_type = MC_type_;
 

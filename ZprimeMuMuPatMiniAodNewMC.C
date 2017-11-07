@@ -184,9 +184,9 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
   ptEffCut = 3000.0;
   FR_Ptcut = 53.0; //53.0;
 
-  // m_weight=1.;  // this is dumb, definitely don't want to reset the weight...
+  // m_weight = 1.;  // this is dumb, definitely don't want to reset the weight...
   if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="2017")
-    m_weight=1.;
+    m_weight = 1.;
   std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToMuMu_13TeV.root","recreate");
   // Enable Sumw2 for histograms as we'll be normalizing them
   TH1::SetDefaultSumw2(true);
@@ -537,7 +537,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
     }
     // if (inputfile.Contains("amcatnlo") && !(inputfile.Contains("DYJetsToTauTau"))) {
     //   std::cout << "Reweighting sample of amcatnlo with weight= " << MC_weighting->at(0)<< std::endl;
-    //   m_weight=weight*MC_weighting->at(0);
+    //   m_weight = m_weight*MC_weighting->at(0);
     // }
     // if (event_runNo==251249) continue;
     /*std<<cout << "=======> jentry = " << jentry
@@ -999,11 +999,12 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
   std::cout << std::endl;
   if (fabs(h2_CSMassBinned_->ProjectionX("tmp",1,1)->GetEntries()-h1_ZprimeRecomass_->GetEntries()) > 0.01)
     std::cout << "Mass values different"
-	      << "  h2_CSMassBinned_->ProjectionX(\"tmp\",1,1)->GetEntries(): " << h2_CSMassBinned_->ProjectionX("tmp",1,1)->GetEntries()
+	      << "  h2_CSMassBinned_->ProjectionX(\"tmp\",1,1)->GetEntries(): "
+	      << h2_CSMassBinned_->ProjectionX("tmp",1,1)->GetEntries()
 	      << "  h1_ZprimeRecomass_->GetEntries(): " << h1_ZprimeRecomass_->GetEntries()
 	      << std::endl;
-  if (fabs(weight-newweight) > 0)
-    std::cout << "Mass values different"
+  if (fabs(m_weight-newweight) > 0)
+    std::cout << "Weights different"
 	      << "  weight: " << m_weight
 	      << "  newweight: " << newweight
 	      << std::endl;
@@ -1858,8 +1859,7 @@ bool ZprimeMuMuPatMiniAodNewMC::isPassHLT()
   }
   if (nbMatch>0) {
     return true;
-  }
-  else return false;
+  } else return false;
 }
 
 bool ZprimeMuMuPatMiniAodNewMC::RecoHLTMuonMatching(float RecoEta,float RecoPhi) {
@@ -2554,73 +2554,57 @@ void ZprimeMuMuPatMiniAodNewMC::DrawWJetsMassEE()
 /*
 //================= Method to select first high pt muon ==============
 float ZprimeMuMuPatMiniAodNewMC::FRweight(float eta, float pt) {
-float FR = 0.0;
-parEB1 = 4.39759e-01;
-parEB2 = -6.62025e+02;
-parEB3 = 1.61874e+03;
-parEB4 = 0.1733;
-parEE1 = 6.62323e-01;
-parEE2 = -4.90668e+02;
-parEE3 = 7.96427e+02;
-parEE4 = 0.3570;
-if (fabs(eta)<1.2 && pt>50.0 && pt<700.0)
-{
-FR = parEB1 + parEB2 / (parEB3 + pt );
-}
-else if (fabs(eta)<1.2 && pt>700.0)
-{
-FR = parEB4;
-}
-else if (fabs(eta)>1.2 && pt>50.0 && pt<700.0)
-{
-FR = parEE1 + parEE2 / (parEE3 + pt );
-}
-else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>700.0)
-{
-FR = parEE4;
-}
-else {
-std::cout<<"out of FR range" << std::endl;
-}
-return (FR/(1-FR));
+  float FR = 0.0;
+  parEB1 = 4.39759e-01;
+  parEB2 = -6.62025e+02;
+  parEB3 = 1.61874e+03;
+  parEB4 = 0.1733;
+  parEE1 = 6.62323e-01;
+  parEE2 = -4.90668e+02;
+  parEE3 = 7.96427e+02;
+  parEE4 = 0.3570;
+  if (fabs(eta)<1.2 && pt>50.0 && pt<700.0) {
+    FR = parEB1 + parEB2 / (parEB3 + pt );
+  } else if (fabs(eta)<1.2 && pt>700.0) {
+    FR = parEB4;
+  } else if (fabs(eta)>1.2 && pt>50.0 && pt<700.0) {
+    FR = parEE1 + parEE2 / (parEE3 + pt );
+  } else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>700.0) {
+    FR = parEE4;
+  } else {
+    std::cout<<"out of FR range" << std::endl;
+  }
+  return (FR/(1-FR));
 }
 */
- /*
- //================= Method to select first high pt muon ==============
- float ZprimeMuMuPatMiniAodNewMC::FRweight(float eta, float pt) {
- float FR = 0.0;
- parEB1 = 1.39489e-01;
- parEB2 = -1.97664e-03;
- parEB3 = 1.08015e-05;
- parEB4 = -1.23318e-08;
- parEB5 = 4.81540e-01;
- parEE1 = 2.12117e-01;
- parEE2 = -3.08913e-03;
- parEE3 = 2.00294e-05;
- parEE4 = -2.51248e-08;
- parEE5 = 2.40380e-01;
- if (fabs(eta)<1.2 && pt>FR_Ptcut && pt<=600.0)
- {
- FR = parEB1 + parEB2*pow(pt,1) + parEB3*pow(pt,2) + parEB4*pow(pt,3);
- }
- else if (fabs(eta)<1.2 && pt>600.0)
- {
- FR = parEB5;
- }
- else if (fabs(eta)>1.2  && fabs(eta)<2.4 && pt>FR_Ptcut && pt<=600.0)
- {
- FR = parEE1 + parEE2*pow(pt,1) + parEE3*pow(pt,2) + parEE4*pow(pt,3);
- }
- else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>600.0)
- {
- FR = parEE5;
- }
- else {
- std::cout<<"out of FR range" << std::endl;
- }
- return (FR/(1-FR));
- }
- */
+/*
+//================= Method to select first high pt muon ==============
+float ZprimeMuMuPatMiniAodNewMC::FRweight(float eta, float pt) {
+  float FR = 0.0;
+  parEB1 = 1.39489e-01;
+  parEB2 = -1.97664e-03;
+  parEB3 = 1.08015e-05;
+  parEB4 = -1.23318e-08;
+  parEB5 = 4.81540e-01;
+  parEE1 = 2.12117e-01;
+  parEE2 = -3.08913e-03;
+  parEE3 = 2.00294e-05;
+  parEE4 = -2.51248e-08;
+  parEE5 = 2.40380e-01;
+  if (fabs(eta)<1.2 && pt>FR_Ptcut && pt<=600.0) {
+    FR = parEB1 + parEB2*pow(pt,1) + parEB3*pow(pt,2) + parEB4*pow(pt,3);
+  } else if (fabs(eta)<1.2 && pt>600.0) {
+    FR = parEB5;
+  } else if (fabs(eta)>1.2  && fabs(eta)<2.4 && pt>FR_Ptcut && pt<=600.0) {
+    FR = parEE1 + parEE2*pow(pt,1) + parEE3*pow(pt,2) + parEE4*pow(pt,3);
+  } else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>600.0) {
+    FR = parEE5;
+  } else {
+    std::cout<<"out of FR range" << std::endl;
+  }
+  return (FR/(1-FR));
+}
+*/
 
 
  //================= Method to select first high pt muon ==============
@@ -2654,27 +2638,17 @@ float ZprimeMuMuPatMiniAodNewMC::FRweight(float eta, float pt) {
   parEE3 = 5.64918e-06;
   parEE4 = 2.38683e-01;
 
-  if (fabs(eta)<1.2 && pt>FR_Ptcut && pt<=200.0)
-    {
+  if (fabs(eta)<1.2 && pt>FR_Ptcut && pt<=200.0) {
       FR = parEB1 + parEB2*pow(pt,1) + parEB3*pow(pt,2);
-    }
-  else if (fabs(eta)<1.2 && pt>200 && pt<=800.0)
-    {
+    } else if (fabs(eta)<1.2 && pt>200 && pt<=800.0) {
       FR = parEB4 + parEB5 / (parEB6 + pt );
-    }
-  else if (fabs(eta)<1.2 && pt>800.0)
-    {
+    } else if (fabs(eta)<1.2 && pt>800.0) {
       FR = parEB7;
-    }
-  else if (fabs(eta)>1.2  && fabs(eta)<2.4 && pt>FR_Ptcut && pt<=250.0)
-    {
+    } else if (fabs(eta)>1.2  && fabs(eta)<2.4 && pt>FR_Ptcut && pt<=250.0) {
       FR = parEE1 + parEE2*pow(pt,1) + parEE3*pow(pt,2);
-    }
-  else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>250.0)
-    {
+    } else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>250.0) {
       FR = parEE4;
-    }
-  else {
+    } else {
     std::cout<<"out of FR range" << std::endl;
   }
   return (FR/(1-FR));
@@ -2706,23 +2680,15 @@ float ZprimeMuMuPatMiniAodNewMC::FRweight(float eta, float pt)
   parEE9  = -2.15325e+07;
   parEE10 = 2.63281e+06;
 
-  if (fabs(eta)<1.2 && pt>FR_Ptcut && pt<=250.0)
-    {
-      FR = parEB1 + parEB2*pow(pt,1) + parEB3*pow(pt,2);
-    }
-  else if (fabs(eta)<1.2 && pt>250)
-    {
-      FR = parEB4+(parEB5/(pt+parEB6))+(parEB7/(pt*pt+parEB8))+(parEB9/(pt*pt*pt+parEB10));
-    }
-  else if (fabs(eta)>1.2  && fabs(eta)<2.4 && pt>FR_Ptcut && pt<=250.0)
-    {
-      FR = parEE1 + parEE2*pow(pt,1) + parEE3*pow(pt,2);
-    }
-  else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>250.0)
-    {
-      FR = parEE4+(parEE5/(pt+parEE6))+(parEE7/(pt*pt+parEE8))+(parEE9/(pt*pt*pt+parEE10));
-    }
-  else {
+  if (fabs(eta)<1.2 && pt>FR_Ptcut && pt<=250.0) {
+    FR = parEB1 + parEB2*pow(pt,1) + parEB3*pow(pt,2);
+  } else if (fabs(eta)<1.2 && pt>250) {
+    FR = parEB4+(parEB5/(pt+parEB6))+(parEB7/(pt*pt+parEB8))+(parEB9/(pt*pt*pt+parEB10));
+  } else if (fabs(eta)>1.2  && fabs(eta)<2.4 && pt>FR_Ptcut && pt<=250.0) {
+    FR = parEE1 + parEE2*pow(pt,1) + parEE3*pow(pt,2);
+  } else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>250.0) {
+    FR = parEE4+(parEE5/(pt+parEE6))+(parEE7/(pt*pt+parEE8))+(parEE9/(pt*pt*pt+parEE10));
+  } else {
     std::cout<<"out of FR range" << std::endl;
   }
   return (FR/(1-FR));

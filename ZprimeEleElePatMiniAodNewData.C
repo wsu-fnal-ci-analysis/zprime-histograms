@@ -50,9 +50,9 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   float ptMax = 400.0;
   ptEffCut = 3000.0;
 
-  // weight=1.;  // this is dumb, definitely don't want to reset the weight...
+  // m_weight = 1.;  // this is dumb, definitely don't want to reset the weight...
   if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="2017")
-    weight=1.;
+    m_weight = 1.;
   std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToEleEle_13TeV.root","recreate");
   //==================================================================================
   //                                                                                 =
@@ -654,84 +654,84 @@ void ZprimeEleElePatMiniAodNewData::PlotRecoInfo(float MassEle,float etaEle1,flo
 
   //----------------------------------------------------------
   if (!(inputfile.Contains("WW") && MassEle>2000.)) {
-    // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        0.,weight);
-    h2_CSMassBinned_       ->Fill(MassEle,               0.,weight);
-    // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),0.,weight);
-    // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),0.,weight);
+    // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        0.,m_weight);
+    h2_CSMassBinned_       ->Fill(MassEle,               0.,m_weight);
+    // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),0.,m_weight);
+    // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),0.,m_weight);
     if (m_csAngle > 0) {
-      // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        2.,weight);
-      h2_CSMassBinned_       ->Fill(MassEle,               2.,weight);
-      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),2.,weight);
-      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),2.,weight);
+      // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        2.,m_weight);
+      h2_CSMassBinned_       ->Fill(MassEle,               2.,m_weight);
+      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),2.,m_weight);
+      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),2.,m_weight);
     } else {
-      // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        1.,weight);
-      h2_CSMassBinned_       ->Fill(MassEle,               1.,weight);
-      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),1.,weight);
-      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),1.,weight);
+      // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        1.,m_weight);
+      h2_CSMassBinned_       ->Fill(MassEle,               1.,m_weight);
+      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),1.,m_weight);
+      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),1.,m_weight);
     }
 
     int priEtaBin = -1;
     int secEtaBin = -1;
 
     if (fabs(etaEle1) < 1.4442 && fabs(etaEle2) < 1.4442) {  //BB
-      h1_ZprimeRecomassBinWidthBB_->Fill(MassEle,weight);
-      h1_ZprimeRecomass60to120BB_->Fill(MassEle,weight);
-      h1_ZprimeRecomassBinWidth_->Fill(MassEle,weight);
-      h1_ZprimeRecomass60to120_->Fill(MassEle,weight);
+      h1_ZprimeRecomassBinWidthBB_->Fill(MassEle,m_weight);
+      h1_ZprimeRecomass60to120BB_->Fill(MassEle,m_weight);
+      h1_ZprimeRecomassBinWidth_->Fill(MassEle,m_weight);
+      h1_ZprimeRecomass60to120_->Fill(MassEle,m_weight);
       h1_ZprimeRecomass_->Fill(MassEle);
       priEtaBin = 1;
     } else if ((fabs(etaEle1) < 1.4442 && (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) ||
 	       (fabs(etaEle2) < 1.4442 && (fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5))) {  //BE
-      h1_ZprimeRecomassBinWidthBE_->Fill(MassEle,weight);
-      h1_ZprimeRecomass60to120BE_->Fill(MassEle,weight);
-      h1_ZprimeRecomassBinWidth_->Fill(MassEle,weight);
-      h1_ZprimeRecomass60to120_->Fill(MassEle,weight);
+      h1_ZprimeRecomassBinWidthBE_->Fill(MassEle,m_weight);
+      h1_ZprimeRecomass60to120BE_->Fill(MassEle,m_weight);
+      h1_ZprimeRecomassBinWidth_->Fill(MassEle,m_weight);
+      h1_ZprimeRecomass60to120_->Fill(MassEle,m_weight);
       h1_ZprimeRecomass_->Fill(MassEle);
       priEtaBin = 2;
     } else if ((fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5) &&
 	       (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) {  //EE
-      h1_ZprimeRecomassBinWidthEE_->Fill(MassEle,weight);
-      h1_ZprimeRecomass60to120EE_->Fill(MassEle,weight);
+      h1_ZprimeRecomassBinWidthEE_->Fill(MassEle,m_weight);
+      h1_ZprimeRecomass60to120EE_->Fill(MassEle,m_weight);
       h1_ZprimeRecomass_->Fill(MassEle);
       priEtaBin = 3;
     }
 
-    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+0,weight);
-    h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+0,weight);
-    // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+0,weight);
-    // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+0,weight);
+    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+0,m_weight);
+    h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+0,m_weight);
+    // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+0,m_weight);
+    // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+0,m_weight);
     if (secEtaBin > 0) {
       // std::cout << "secondary bin (" << secEtaBin << "*3)+0(" << (secEtaBin*3)+0 << ")" << std::endl;
-      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+0,weight);
-      h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+0,weight);
-      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+0,weight);
-      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+0,weight);
+      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+0,m_weight);
+      h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+0,m_weight);
+      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+0,m_weight);
+      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+0,m_weight);
     }
     if (m_csAngle > 0) {
       // std::cout << "primary bin (" << priEtaBin << "*3)+2(" << (priEtaBin*3)+2 << ")" << std::endl;
-      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+2,weight);
-      h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+2,weight);
-      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+2,weight);
-      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+2,weight);
+      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+2,m_weight);
+      h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+2,m_weight);
+      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+2,m_weight);
+      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+2,m_weight);
       if (secEtaBin > 0) {
 	// std::cout << "secondary bin (" << secEtaBin << "*3)+2(" << (secEtaBin*3)+2 << ")" << std::endl;
-	// h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+2,weight);
-	h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+2,weight);
-	// h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+2,weight);
-	// h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+2,weight);
+	// h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+2,m_weight);
+	h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+2,m_weight);
+	// h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+2,m_weight);
+	// h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+2,m_weight);
       }
     } else {
       // std::cout << "primary bin (" << priEtaBin << "*3)+1(" << (priEtaBin*3)+1 << ")" << std::endl;
-      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+1,weight);
-      h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+1,weight);
-      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+1,weight);
-      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+1,weight);
+      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+1,m_weight);
+      h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+1,m_weight);
+      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+1,m_weight);
+      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+1,m_weight);
       if (secEtaBin > 0) {
 	// std::cout << "secondary bin (" << secEtaBin << "*3)+1(" << (secEtaBin*3)+1 << ")" << std::endl;
-	// h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+1,weight);
-	h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+1,weight);
-	// h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+1,weight);
-	// h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+1,weight);
+	// h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+1,m_weight);
+	h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+1,m_weight);
+	// h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+1,m_weight);
+	// h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+1,m_weight);
       }
     }
   }
@@ -864,25 +864,25 @@ float ZprimeEleElePatMiniAodNewData::CosThetaCollinSoper(float Et1,float Eta1,fl
   if (Q.Pz() < 0.0) costheta = -costheta;
 
   if (RecoMass > 60.0 && RecoMass < 120.0) {
-    h1_CosAngleCollinSoperCorrect60Mass120_->Fill(costheta,weight);
+    h1_CosAngleCollinSoperCorrect60Mass120_->Fill(costheta,m_weight);
   }
 
 
   if (RecoMass > 120.0 && RecoMass < 300.0) {
-    h1_CosAngleCollinSoperCorrect120Mass300_->Fill(costheta,weight);
+    h1_CosAngleCollinSoperCorrect120Mass300_->Fill(costheta,m_weight);
   }
 
   if (RecoMass > 300.0 && RecoMass < 700.0) {
-    h1_CosAngleCollinSoperCorrect300Mass700_->Fill(costheta,weight);
+    h1_CosAngleCollinSoperCorrect300Mass700_->Fill(costheta,m_weight);
   }
 
   if (RecoMass > 700.0 && RecoMass < 3000.0) {
-    h1_CosAngleCollinSoperCorrect700Mass3000_->Fill(costheta,weight);
+    h1_CosAngleCollinSoperCorrect700Mass3000_->Fill(costheta,m_weight);
   }
 
   if (RecoMass > 4500.0 && RecoMass < 6000.0) {
-    h1_CosAngleCollinSoperCorrect4900Mass5100_->Fill(costheta,weight);
-    h1_absCosAngleCollinSoperCorrect4500Mass5500_->Fill(fabs(costheta),weight);
+    h1_CosAngleCollinSoperCorrect4900Mass5100_->Fill(costheta,m_weight);
+    h1_absCosAngleCollinSoperCorrect4500Mass5500_->Fill(fabs(costheta),m_weight);
   }
 
   /************************************************************************
@@ -902,7 +902,7 @@ float ZprimeEleElePatMiniAodNewData::CosThetaCollinSoper(float Et1,float Eta1,fl
   TVector3 Dt = D.Vect(); Dt.SetZ(0);
   double tanphi = sqrt(pow(Q.Mag(), 2) + pow(Q.Perp(), 2)) / Q.Mag() * Dt.Dot(Runit) / Dt.Dot(Qtunit);
   if (Q.Pz() < 0.0) tanphi = -tanphi;
-  //h1_TanPhiCollinSoperCorrect_->Fill(tanphi,weight);
+  //h1_TanPhiCollinSoperCorrect_->Fill(tanphi,m_weight);
   /************************************************************************
    *
    * 3) sin2(theta) = Q^-2 Dt^2 - Q^-2 (Q^2 + Qt^2)^-1 * (Dt dot Qt)^2
@@ -911,7 +911,7 @@ float ZprimeEleElePatMiniAodNewData::CosThetaCollinSoper(float Et1,float Eta1,fl
   //double dt_qt = D.X()*Q.X() + D.Y()*Q.Y();
   //double sin2theta = pow(D.Pt()/Q.Mag(), 2)
   //- 1.0/pow(Q.Mag(), 2)/(pow(Q.Mag(), 2) + pow(Q.Pt(), 2))*pow(dt_qt, 2);
-  //h1_Sin2AngleCollinSoperCorrect_->Fill(sin2theta,weight);
+  //h1_Sin2AngleCollinSoperCorrect_->Fill(sin2theta,m_weight);
 
   return costheta;
 }
