@@ -18,12 +18,14 @@
 
 // using namespace std;
 #define PI 3.14159265358979
+#define MUON_MASS 0.1056583
+#define ELEC_MASS 0.000511
 
 bool myfunction (int i,int j) { return (i<j); }
 bool picklargemass (float lhs,float rhs) { return (lhs > rhs); }
 TString inputfile;
 
-void ZprimeMuMuPatMiniAodNewData::Loop()
+void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
 {
   time_t start,end;
   double dif;
@@ -49,10 +51,11 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
   float ptMax = 400.0;
   ptEffCut = 3000.0;
   FR_Ptcut = 53.0; //53.0;
-  double muon_mass = 0.1056583;
-  weight=1.;
-  if (DATA_type=="2016") weight=1.;
-  TFile *output = new TFile("ZprimeToMuMu_13TeV.root","recreate");
+
+  // m_weight = 1.;  // this is dumb, definitely don't want to reset the weight...
+  if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="2017")
+    m_weight = 1.;
+  std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToMuMu_13TeV.root","recreate");
   // Enable Sumw2 for histograms as we'll be normalizing them
   TH1::SetDefaultSumw2();
   //==================================================================================
@@ -60,8 +63,8 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
   //             Start the histograms for CollinSoper CMF                            =
   //                                                                                 =
   //==================================================================================
-  h1_DijetEta1_       = new TH1F("DijetEta1","",100,0.0,3.0);
-  h1_DijetEta2_       = new TH1F("DijetEta2","",100,0.0,3.0);
+  h1_DijetEta1_       = std::make_shared<TH1D>("DijetEta1","",100,0.0,3.0);
+  h1_DijetEta2_       = std::make_shared<TH1D>("DijetEta2","",100,0.0,3.0);
   // Build the histo with constant log bin width
   const int NMBINS2 = 27;
   const double MMIN2 = 60., MMAX2 = 2000.;
@@ -69,53 +72,54 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
   float binNormNr2=0.;
   for (int ibin = 0; ibin <= NMBINS2; ibin++) {
     logMbins2[ibin] = exp(log(MMIN2) + (log(MMAX2)-log(MMIN2))*ibin/NMBINS2);
-    //cout << logMbins2[ibin] << std::endl;
+    if (debug)
+      std::cout << logMbins2[ibin] << std::endl;
   }
-  h1_BTagMassMuMuBinWidth_        = new TH1F("BTagMassMuMuBinWidth","BTagMassMuMuBinWidth",NMBINS2, logMbins2);
-  h1_MassMuMuDijetBinWidth_       = new TH1F("MassMuMuDijetBinWidth","MassMuMuDijetBinWidth",NMBINS2, logMbins2);
-  h1_MassMuMuDijetBinWidthMET_    = new TH1F("MassMuMuDijetBinWidthMET","MassMuMuDijetBinWidthMET",NMBINS2, logMbins2);
-  h1_MassMuMuBinWidthMET_         = new TH1F("MassMuMuBinWidthMET","MassMuMuBinWidthMET",NMBINS2, logMbins2);
-  h1_MassMuMuDijet1GeVbin_        = new TH1F("MassMuMuDijet1GeVbin","",3000,0.0,3000.0);
-  h1_MassMuMuDijet1GeVbinMET_     = new TH1F("MassMuMuDijet1GeVbinMET","",3000,0.0,3000.0);
-  h1_MassMuMu1GeVbinMET_          = new TH1F("MassMuMu1GeVbinMET","",3000,0.0,3000.0);
-  h1_MassMuMuDijetBinWidthMET100_ = new TH1F("MassMuMuDijetBinWidthMET100","MassMuMuDijetBinWidthMET100",NMBINS2, logMbins2);
-  h1_MassMuMuDijet1GeVbinMET100_  = new TH1F("MassMuMuDijet1GeVbinMET100","",3000,0.0,3000.0);
+  h1_BTagMassMuMuBinWidth_        = std::make_shared<TH1D>("BTagMassMuMuBinWidth","BTagMassMuMuBinWidth",NMBINS2, logMbins2);
+  h1_MassMuMuDijetBinWidth_       = std::make_shared<TH1D>("MassMuMuDijetBinWidth","MassMuMuDijetBinWidth",NMBINS2, logMbins2);
+  h1_MassMuMuDijetBinWidthMET_    = std::make_shared<TH1D>("MassMuMuDijetBinWidthMET","MassMuMuDijetBinWidthMET",NMBINS2, logMbins2);
+  h1_MassMuMuBinWidthMET_         = std::make_shared<TH1D>("MassMuMuBinWidthMET","MassMuMuBinWidthMET",NMBINS2, logMbins2);
+  h1_MassMuMuDijet1GeVbin_        = std::make_shared<TH1D>("MassMuMuDijet1GeVbin","",3000,0.0,3000.0);
+  h1_MassMuMuDijet1GeVbinMET_     = std::make_shared<TH1D>("MassMuMuDijet1GeVbinMET","",3000,0.0,3000.0);
+  h1_MassMuMu1GeVbinMET_          = std::make_shared<TH1D>("MassMuMu1GeVbinMET","",3000,0.0,3000.0);
+  h1_MassMuMuDijetBinWidthMET100_ = std::make_shared<TH1D>("MassMuMuDijetBinWidthMET100","MassMuMuDijetBinWidthMET100",NMBINS2, logMbins2);
+  h1_MassMuMuDijet1GeVbinMET100_  = std::make_shared<TH1D>("MassMuMuDijet1GeVbinMET100","",3000,0.0,3000.0);
 
   NbFireHLT = 0;
   int NbBins   = 10;
   float MinBin = -1.0;
   float MaxBin =  1.0;
-  h1_ptPFjetsAll_ = new TH1F("ptPFjetsAll","",100,0.0,2000.0);
-  h1_NbPFjetsAll_ = new TH1F("NbPFjetsAll","",5,0.0,5.0);
-  h1_NbPFjets2_   = new TH1F("NbPFjets2","",5,0.0,5.0);
-  h1_BTagMassMuMu_       = new TH1F("BTagMassMuMu","",100,0.0,3000.0);
-  h1_BTagMassMuMu1GeVbin_= new TH1F("BTagMassMuMu1GeVbin","",3000,0.0,3000.0);
-  h1_nbBTagStep1_   = new TH1F("nbBTagStep1","",5,0.0,5.0);
-  h1_jetBTagStep1_  = new TH1F("jetBTagStep1","",50,0.0,1.0);
-  h1_nbBTagStep2_   = new TH1F("nbBTagStep2","",5,0.0,5.0);
-  h1_jetBTagStep2_  = new TH1F("jetBTagStep2","",50,0.0,1.0);
-  h1_nbBTagStep3_   = new TH1F("nbBTagStep3","",5,0.0,5.0);
-  h1_jetBTagStep3_  = new TH1F("jetBTagStep3","",50,0.0,1.0);
-  h1_MissingEt_     = new TH1F("MissingEt","",100,0.0,2000.0);
-  h1_Mt_            = new TH1F("Mt","",100,0.0,2000.0);
-  h1_DeltaPtoverPt_ = new TH1F("DeltaPtoverPt","",100,0.0,1.0);
-  h1_DeltaPhi_      = new TH1F("DeltaPhi","",50,-4.0,4.0);
-  h1_BosPt_         = new TH1F("BosPt","",40,0.0,200.0);
-  h1_BosPhi_        = new TH1F("BosPhi","",50,-4.0,4.0);
-  h1_jetBTagB_      = new TH1F("jetBTagB","",50,0.0,1.0);
-  h1_jetBTagC_      = new TH1F("jetBTagC","",50,0.0,1.0);
-  h1_jetBTagUDSG_   = new TH1F("jetBTagUDSG","",50,0.0,1.0);
-  h1_PFMetCorr_ = new TH1F("PFMetCorr","",100,0.0,2000.0);
-  h1_CaloMet_   = new TH1F("CaloMet","",100,0.0,2000.0);
-  h_NbFireHLT   = new TH1F("NbFireHLT", "NbFireHLT", 30 , 0. , 30. );
-  h1_ptBeforeTrigger_  = new TH1F("ptBeforeTrigger","",50,0.0,2000.0);
-  h1_ptAfterTrigger_   = new TH1F("ptAfterTrigger","",50,0.0,2000.0);
-  h1_CosAngleCollinSoperCorrect60Mass120_    = new TH1F("CosAngleCollinSoperCorrect60Mass120","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect120Mass300_   = new TH1F("CosAngleCollinSoperCorrect120Mass300","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect300Mass700_   = new TH1F("CosAngleCollinSoperCorrect300Mass700","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect700Mass3000_  = new TH1F("CosAngleCollinSoperCorrect700Mass3000","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect4900Mass5100_ = new TH1F("CosAngleCollinSoperCorrect4900Mass5100","",NbBins,MinBin,MaxBin);
-  h1_absCosAngleCollinSoperCorrect4500Mass5500_ = new TH1F("absCosAngleCollinSoperCorrect4500Mass5500","",5,0.0,1.0);
+  h1_ptPFjetsAll_ = std::make_shared<TH1D>("ptPFjetsAll","",100,0.0,2000.0);
+  h1_NbPFjetsAll_ = std::make_shared<TH1D>("NbPFjetsAll","",5,0.0,5.0);
+  h1_NbPFjets2_   = std::make_shared<TH1D>("NbPFjets2","",5,0.0,5.0);
+  h1_BTagMassMuMu_       = std::make_shared<TH1D>("BTagMassMuMu","",100,0.0,3000.0);
+  h1_BTagMassMuMu1GeVbin_= std::make_shared<TH1D>("BTagMassMuMu1GeVbin","",3000,0.0,3000.0);
+  h1_nbBTagStep1_   = std::make_shared<TH1D>("nbBTagStep1","",5,0.0,5.0);
+  h1_jetBTagStep1_  = std::make_shared<TH1D>("jetBTagStep1","",50,0.0,1.0);
+  h1_nbBTagStep2_   = std::make_shared<TH1D>("nbBTagStep2","",5,0.0,5.0);
+  h1_jetBTagStep2_  = std::make_shared<TH1D>("jetBTagStep2","",50,0.0,1.0);
+  h1_nbBTagStep3_   = std::make_shared<TH1D>("nbBTagStep3","",5,0.0,5.0);
+  h1_jetBTagStep3_  = std::make_shared<TH1D>("jetBTagStep3","",50,0.0,1.0);
+  h1_MissingEt_     = std::make_shared<TH1D>("MissingEt","",100,0.0,2000.0);
+  h1_Mt_            = std::make_shared<TH1D>("Mt","",100,0.0,2000.0);
+  h1_DeltaPtoverPt_ = std::make_shared<TH1D>("DeltaPtoverPt","",100,0.0,1.0);
+  h1_DeltaPhi_      = std::make_shared<TH1D>("DeltaPhi","",50,-4.0,4.0);
+  h1_BosPt_         = std::make_shared<TH1D>("BosPt","",40,0.0,200.0);
+  h1_BosPhi_        = std::make_shared<TH1D>("BosPhi","",50,-4.0,4.0);
+  h1_jetBTagB_      = std::make_shared<TH1D>("jetBTagB","",50,0.0,1.0);
+  h1_jetBTagC_      = std::make_shared<TH1D>("jetBTagC","",50,0.0,1.0);
+  h1_jetBTagUDSG_   = std::make_shared<TH1D>("jetBTagUDSG","",50,0.0,1.0);
+  h1_PFMetCorr_ = std::make_shared<TH1D>("PFMetCorr","",100,0.0,2000.0);
+  h1_CaloMet_   = std::make_shared<TH1D>("CaloMet","",100,0.0,2000.0);
+  h_NbFireHLT   = std::make_shared<TH1D>("NbFireHLT", "NbFireHLT", 30 , 0. , 30. );
+  h1_ptBeforeTrigger_  = std::make_shared<TH1D>("ptBeforeTrigger","",50,0.0,2000.0);
+  h1_ptAfterTrigger_   = std::make_shared<TH1D>("ptAfterTrigger","",50,0.0,2000.0);
+  h1_CosAngleCollinSoperCorrect60Mass120_    = std::make_shared<TH1D>("CosAngleCollinSoperCorrect60Mass120","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect120Mass300_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect120Mass300","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect300Mass700_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect300Mass700","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect700Mass3000_  = std::make_shared<TH1D>("CosAngleCollinSoperCorrect700Mass3000","",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect4900Mass5100_ = std::make_shared<TH1D>("CosAngleCollinSoperCorrect4900Mass5100","",NbBins,MinBin,MaxBin);
+  h1_absCosAngleCollinSoperCorrect4500Mass5500_ = std::make_shared<TH1D>("absCosAngleCollinSoperCorrect4500Mass5500","",5,0.0,1.0);
 
   double etaBins[] = {-2.4,-1.2,0.,1.2,2.4};
   std::array<std::string,9> etaBinLabels{"All","BB","BE","EE","BE+","BE-","E+E-","E-E-","E+E+"};
@@ -130,26 +134,26 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
   // for (auto e: etaBin) {
   //   int cb = 0
   //   for (auto c: csBin) {
-  //     h1_SmearedMassBinned_[cb][eb] = new TH1D("CS"+c+"SmearedMass"+e,"", 20000,0,20000);
-  //     h1_MassBinned_[cb][eb]        = new TH1D("CS"+c+"Mass"+e       ,"", 20000,0,20000);
-  //     h1_MassUpBinned_[cb][eb]      = new TH1D("CS"+c+"MassUp"+e     ,"", 20000,0,20000);
-  //     h1_MassDownBinned_[cb][eb]    = new TH1D("CS"+c+"MassDown"+e   ,"", 20000,0,20000);
+  //     h1_SmearedMassBinned_[cb][eb] = std::make_shared<TH1D>("CS"+c+"SmearedMass"+e,"", 20000,0,20000);
+  //     h1_MassBinned_[cb][eb]        = std::make_shared<TH1D>("CS"+c+"Mass"+e       ,"", 20000,0,20000);
+  //     h1_MassUpBinned_[cb][eb]      = std::make_shared<TH1D>("CS"+c+"MassUp"+e     ,"", 20000,0,20000);
+  //     h1_MassDownBinned_[cb][eb]    = std::make_shared<TH1D>("CS"+c+"MassDown"+e   ,"", 20000,0,20000);
   //     ++cb;
   //   }
   //   ++eb;
   // }
-  // h2_CSSmearedMassBinned_ = new TH2D("CSSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
-  h2_CSMassBinned_        = new TH2D("CSMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSMassUpBinned_      = new TH2D("CSMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSMassDownBinned_    = new TH2D("CSMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSPosSmearedMassBinned_ = new TH2D("CSPosSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSPosMassBinned_        = new TH2D("CSPosMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSPosMassUpBinned_      = new TH2D("CSPosMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSPosMassDownBinned_    = new TH2D("CSPosMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSNegSmearedMassBinned_ = new TH2D("CSNegSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSNegMassBinned_        = new TH2D("CSNegMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSNegMassUpBinned_      = new TH2D("CSNegMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSNegMassDownBinned_    = new TH2D("CSNegMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSSmearedMassBinned_ = std::make_shared<TH2D>("CSSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
+  h2_CSMassBinned_        = std::make_shared<TH2D>("CSMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSMassUpBinned_      = std::make_shared<TH2D>("CSMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSMassDownBinned_    = std::make_shared<TH2D>("CSMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosSmearedMassBinned_ = std::make_shared<TH2D>("CSPosSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosMassBinned_        = std::make_shared<TH2D>("CSPosMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosMassUpBinned_      = std::make_shared<TH2D>("CSPosMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSPosMassDownBinned_    = std::make_shared<TH2D>("CSPosMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegSmearedMassBinned_ = std::make_shared<TH2D>("CSNegSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegMassBinned_        = std::make_shared<TH2D>("CSNegMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegMassUpBinned_      = std::make_shared<TH2D>("CSNegMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
+  // h2_CSNegMassDownBinned_    = std::make_shared<TH2D>("CSNegMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
   for (int eb = 0; eb < etaBinLabels.size(); ++eb) {
     for (int cb = 0; cb < csBinLabels.size(); ++cb) {
       // h2_CSSmearedMassBinned_->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
@@ -167,109 +171,109 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
     }
   }
   //==================================================================================
-  h1_ptHistoBefor_              = new TH1F("ptHistoBefor","",ptBins,ptMin,ptMax);
-  h1_ptHistoPassingVtxChi2Mu_   = new TH1F("ptHistoPassingVtxChi2Mu","",ptBins,ptMin,ptMax);
-  h1_ptHistoPassingCosmicRejec_ = new TH1F("ptHistoPassingCosmicRejec","",ptBins,ptMin,ptMax);
-  h1_ptHistoPassingHLT_         = new TH1F("ptHistoPassingHLT","",ptBins,ptMin,ptMax);
-  h1_etaHistoBefor_              = new TH1F("etaHistoBefor","",30,0.0,3.0);
-  h1_etaHistoPassingVtxChi2Mu_   = new TH1F("etaHistoPassingVtxChi2Mu","",30,0.0,3.0);
-  h1_etaHistoPassingCosmicRejec_ = new TH1F("etaHistoPassingCosmicRejec","",30,0.0,3.0);
-  h1_etaHistoPassingHLT_         = new TH1F("etaHistoPassingHLT","",30,0.0,3.0);
+  h1_ptHistoBefor_              = std::make_shared<TH1D>("ptHistoBefor","",ptBins,ptMin,ptMax);
+  h1_ptHistoPassingVtxChi2Mu_   = std::make_shared<TH1D>("ptHistoPassingVtxChi2Mu","",ptBins,ptMin,ptMax);
+  h1_ptHistoPassingCosmicRejec_ = std::make_shared<TH1D>("ptHistoPassingCosmicRejec","",ptBins,ptMin,ptMax);
+  h1_ptHistoPassingHLT_         = std::make_shared<TH1D>("ptHistoPassingHLT","",ptBins,ptMin,ptMax);
+  h1_etaHistoBefor_              = std::make_shared<TH1D>("etaHistoBefor","",30,0.0,3.0);
+  h1_etaHistoPassingVtxChi2Mu_   = std::make_shared<TH1D>("etaHistoPassingVtxChi2Mu","",30,0.0,3.0);
+  h1_etaHistoPassingCosmicRejec_ = std::make_shared<TH1D>("etaHistoPassingCosmicRejec","",30,0.0,3.0);
+  h1_etaHistoPassingHLT_         = std::make_shared<TH1D>("etaHistoPassingHLT","",30,0.0,3.0);
   //==================================================================================
   //                                                                                 =
   //            Start a histograms for Mass resolution                               =
   //                                                                                 =
   //==================================================================================
-  h1_MassResultionEBEB1_      = new TH1F("MassResultionEBEB1","",100,-0.5,0.5);
-  h1_MassResultionEBEB2_      = new TH1F("MassResultionEBEB2","",100,-0.5,0.5);
-  h1_MassResultionEBEB3_      = new TH1F("MassResultionEBEB3","",100,-0.5,0.5);
-  h1_MassResultionEBEB4_      = new TH1F("MassResultionEBEB4","",100,-0.5,0.5);
-  h1_MassResultionEBEB5_      = new TH1F("MassResultionEBEB5","",100,-0.5,0.5);
-  h1_MassResultionEBEB6_      = new TH1F("MassResultionEBEB6","",100,-0.5,0.5);
-  h1_MassResultionEBEB7_      = new TH1F("MassResultionEBEB7","",100,-0.5,0.5);
-  h1_MassResultionEBEB8_      = new TH1F("MassResultionEBEB8","",100,-0.5,0.5);
-  h1_MassResultionEBEB9_      = new TH1F("MassResultionEBEB9","",100,-0.5,0.5);
-  h1_MassResultionEBEB10_     = new TH1F("MassResultionEBEB10","",100,-0.5,0.5);
+  h1_MassResultionEBEB1_      = std::make_shared<TH1D>("MassResultionEBEB1","",100,-0.5,0.5);
+  h1_MassResultionEBEB2_      = std::make_shared<TH1D>("MassResultionEBEB2","",100,-0.5,0.5);
+  h1_MassResultionEBEB3_      = std::make_shared<TH1D>("MassResultionEBEB3","",100,-0.5,0.5);
+  h1_MassResultionEBEB4_      = std::make_shared<TH1D>("MassResultionEBEB4","",100,-0.5,0.5);
+  h1_MassResultionEBEB5_      = std::make_shared<TH1D>("MassResultionEBEB5","",100,-0.5,0.5);
+  h1_MassResultionEBEB6_      = std::make_shared<TH1D>("MassResultionEBEB6","",100,-0.5,0.5);
+  h1_MassResultionEBEB7_      = std::make_shared<TH1D>("MassResultionEBEB7","",100,-0.5,0.5);
+  h1_MassResultionEBEB8_      = std::make_shared<TH1D>("MassResultionEBEB8","",100,-0.5,0.5);
+  h1_MassResultionEBEB9_      = std::make_shared<TH1D>("MassResultionEBEB9","",100,-0.5,0.5);
+  h1_MassResultionEBEB10_     = std::make_shared<TH1D>("MassResultionEBEB10","",100,-0.5,0.5);
   //==================================================================================
   //                                                                                 =
   //            Start the histograms for the mass of Z                               =
   //                                                                                 =
   //==================================================================================
-  h1_ZprimeRecomasslogscale_     = new TH1F("ZprimeRecomasslogscale","",42,log10(60.0),log10(1200.0));
-  h2_ZprimeRecomassNewbin_       = new TH2F("ZprimeRecomassNewbin","ZprimeRecomassNewbin",80,50.,1000.,500,0.001,1000.);
-  h1_MassGenInAccep_             = new TH1F("MassGenInAccep","",58,0.0,5000.0);
-  h1_MassRecoInAccep_            = new TH1F("MassRecoInAccep","",58,0.0,5000.0);
-  h1_ZprimeRecomass_             = new TH1F("ZprimeRecomass","",binMass,minMass,maxMass);
-  h1_ZprimeRecomass20_           = new TH1F("ZprimeRecomass20","",300,0.0,6000.0);
-  h1_ZprimeRecomassBB_           = new TH1F("ZprimeRecomassBB","",binMass,minMass,maxMass);
-  h1_ZprimeRecomassEE_           = new TH1F("ZprimeRecomassEE","",binMass,minMass,maxMass);
-  h1_ZprimeRecomassBE_           = new TH1F("ZprimeRecomassBE","",binMass,minMass,maxMass);
-  h1_ZprimeRecomass50_           = new TH1F("ZprimeRecomass50","",120,0.0,6000.0);
-  //h1_ZprimeRecomass60to120_    = new TH1F("ZprimeRecomass60to120","",binMass,minMass,maxMass);
-  h1_ZprimeRecomassAbove1000GeV_ = new TH1F("ZprimeRecomassAbove1000GeV","",binMass,minMass,maxMass);
-  h1_ZprimeGenmass_              = new TH1F("ZprimeGenmass","",binMass,minMass,maxMass);
-  h1_ZprimeGenEta1_              = new TH1F("ZprimeGenEta1","",100,-8.0,8.0);
-  h1_ZprimeGenEta2_              = new TH1F("ZprimeGenEta2","",100,-8.0,8.0);
-  h1_ZprimeGenPt1_               = new TH1F("ZprimeGenPt1","",100,0.0,2000.0);
-  h1_ZprimeGenPt2_               = new TH1F("ZprimeGenPt2","",100,0.0,2000.0);
-  h1_ZprimeGenEn1_               = new TH1F("ZprimeGenEn1","",100,0.0,2000.0);
-  h1_ZprimeGenEn2_               = new TH1F("ZprimeGenEn2","",100,0.0,2000.0);
-  h1_3Dangle_                    = new TH1F("3Dangle","",100,-2.0,2.0);
-  h1_DxyDiff_                    = new TH1F("DxyDiff","",100,10.0,10.0);
-  h1_MassRecoGenDif_             = new TH1F("MassRecoGenDif","",100,-0.5,0.5);
-  h1_PtResolutionTunePMBT_       =  new TH1F("PtResolutionTunePMBT","",100,-0.5,0.5);
-  h1_PtResolutiontuneP_          =  new TH1F("PtResolutiontuneP","",100,-0.5,0.5);
-  h1_PtResolutionMBT_            =  new TH1F("PtResolutionMBT","",100,-0.5,0.5);
+  h1_ZprimeRecomasslogscale_     = std::make_shared<TH1D>("ZprimeRecomasslogscale","",42,log10(60.0),log10(1200.0));
+  h2_ZprimeRecomassNewbin_       = std::make_shared<TH2D>("ZprimeRecomassNewbin","ZprimeRecomassNewbin",80,50.,1000.,500,0.001,1000.);
+  h1_MassGenInAccep_             = std::make_shared<TH1D>("MassGenInAccep","",58,0.0,5000.0);
+  h1_MassRecoInAccep_            = std::make_shared<TH1D>("MassRecoInAccep","",58,0.0,5000.0);
+  h1_ZprimeRecomass_             = std::make_shared<TH1D>("ZprimeRecomass","",binMass,minMass,maxMass);
+  h1_ZprimeRecomass20_           = std::make_shared<TH1D>("ZprimeRecomass20","",300,0.0,6000.0);
+  h1_ZprimeRecomassBB_           = std::make_shared<TH1D>("ZprimeRecomassBB","",binMass,minMass,maxMass);
+  h1_ZprimeRecomassEE_           = std::make_shared<TH1D>("ZprimeRecomassEE","",binMass,minMass,maxMass);
+  h1_ZprimeRecomassBE_           = std::make_shared<TH1D>("ZprimeRecomassBE","",binMass,minMass,maxMass);
+  h1_ZprimeRecomass50_           = std::make_shared<TH1D>("ZprimeRecomass50","",120,0.0,6000.0);
+  //h1_ZprimeRecomass60to120_    = std::make_shared<TH1D>("ZprimeRecomass60to120","",binMass,minMass,maxMass);
+  h1_ZprimeRecomassAbove1000GeV_ = std::make_shared<TH1D>("ZprimeRecomassAbove1000GeV","",binMass,minMass,maxMass);
+  h1_ZprimeGenmass_              = std::make_shared<TH1D>("ZprimeGenmass","",binMass,minMass,maxMass);
+  h1_ZprimeGenEta1_              = std::make_shared<TH1D>("ZprimeGenEta1","",100,-8.0,8.0);
+  h1_ZprimeGenEta2_              = std::make_shared<TH1D>("ZprimeGenEta2","",100,-8.0,8.0);
+  h1_ZprimeGenPt1_               = std::make_shared<TH1D>("ZprimeGenPt1","",100,0.0,2000.0);
+  h1_ZprimeGenPt2_               = std::make_shared<TH1D>("ZprimeGenPt2","",100,0.0,2000.0);
+  h1_ZprimeGenEn1_               = std::make_shared<TH1D>("ZprimeGenEn1","",100,0.0,2000.0);
+  h1_ZprimeGenEn2_               = std::make_shared<TH1D>("ZprimeGenEn2","",100,0.0,2000.0);
+  h1_3Dangle_                    = std::make_shared<TH1D>("3Dangle","",100,-2.0,2.0);
+  h1_DxyDiff_                    = std::make_shared<TH1D>("DxyDiff","",100,10.0,10.0);
+  h1_MassRecoGenDif_             = std::make_shared<TH1D>("MassRecoGenDif","",100,-0.5,0.5);
+  h1_PtResolutionTunePMBT_       =  std::make_shared<TH1D>("PtResolutionTunePMBT","",100,-0.5,0.5);
+  h1_PtResolutiontuneP_          =  std::make_shared<TH1D>("PtResolutiontuneP","",100,-0.5,0.5);
+  h1_PtResolutionMBT_            =  std::make_shared<TH1D>("PtResolutionMBT","",100,-0.5,0.5);
   //==================================================================================
   //                                                                                 =
   //                 Start the histograms for N-1 dist                               =
   //                                                                                 =
   //==================================================================================
-  h1_dPToverPT_                            = new TH1F("dPToverPT","",100,0.0,0.5);
-  h1_normalizedChi2_                       = new TH1F("normalizedChi2","",100,0.0,20.0);
-  h1_numberOftrackerLayersWithMeasurement_ = new TH1F("numberOftrackerLayersWithMeasurement","",20,0.0,20.0);
-  h1_numberOfValidPixelHits_               = new TH1F("numberOfValidPixelHits","",10,0.0,10.0);
-  h1_numberOfValidMuonHits_                = new TH1F("numberOfValidMuonHits","",60,0.0,60.0);
-  h1_numberOfMatchedStations_              = new TH1F("numberOfMatchedStations","",10,0.0,10.0);
-  h1_trackiso_                             = new TH1F("trackiso","",50,0.0,0.3);
-  h1_absdxy_                               = new TH1F("absdxy","",100,0.0,0.3);
-  h1_PtEffpterror_                   = new TH1F("PtEffpterror","",ptBins,ptMin,ptMax);
-  h1_PtEffptnumberOftrackerLayers_   = new TH1F("PtEffptnumberOftrackerLayers","",ptBins,ptMin,ptMax);
-  h1_PtEffptnumberOfPixelHits_       = new TH1F("PtEffptnumberOfPixelHits","",ptBins,ptMin,ptMax);
-  h1_PtEffptnumberOfMuonHits_        = new TH1F("PtEffptnumberOfMuonHits","",ptBins,ptMin,ptMax);
-  h1_PtEffptnumberOfMatchedStations_ = new TH1F("PtEffptnumberOfMatchedStations","",ptBins,ptMin,ptMax);
-  h1_PtEffptTrackIso_                = new TH1F("PtEffptTrackIso","",ptBins,ptMin,ptMax);
-  h1_PtEffptabsdsy_                  = new TH1F("PtEffptabsdsy","",ptBins,ptMin,ptMax);
-  h1_PtEffpfSumChargedHadron_        = new TH1F("PtEffpfSumChargedHadron","",ptBins,ptMin,ptMax);
-  h1_PtEffpfSumNeutralHadron_        = new TH1F("PtEffpfSumNeutralHadron","",ptBins,ptMin,ptMax);
-  h1_PtEffpfPhotonIso_               = new TH1F("PtEffpfPhotonIso","",ptBins,ptMin,ptMax);
-  h1_EtaEffpterror_                  = new TH1F("EtaEffpterror","",30,0.0,3.0);
-  h1_EtaEffptnumberOftrackerLayers_  = new TH1F("EtaEffptnumberOftrackerLayers","",30,0.0,3.0);
-  h1_EtaEffptnumberOfPixelHits_      = new TH1F("EtaEffptnumberOfPixelHits","",30,0.0,3.0);
-  h1_EtaEffptnumberOfMuonHits_       = new TH1F("EtaEffptnumberOfMuonHits","",30,0.0,3.0);
-  h1_EtaEffptnumberOfMatchedStations_= new TH1F("EtaEffptnumberOfMatchedStations","",30,0.0,3.0);
-  h1_EtaEffptTrackIso_               = new TH1F("EtaEffptTrackIso","",30,0.0,3.0);
-  h1_EtaEffptabsdsy_                 = new TH1F("EtaEffptabsdsy","",30,0.0,3.0);
-  h1_nbPVID_               = new TH1F("nbPVID","",50,0.0,50.0);
-  h1_PtID_                 = new TH1F("PtID","",ptBins,ptMin,ptMax);
-  h1_EtaID_                = new TH1F("EtaID","",30,0.0,3.0);
-  h1_nbPVNewID_            = new TH1F("nbPVNewID","",50,0.0,50.0);
-  h1_PtNewID_              = new TH1F("PtNewID","",ptBins,ptMin,ptMax);
-  h1_EtaNewID_             = new TH1F("EtaNewID","",30,0.0,3.0);
-  h1_nbPVTightID_          = new TH1F("nbPVTightID","",50,0.0,50.0);
-  h1_PtTightID_            = new TH1F("PtTightID","",ptBins,ptMin,ptMax);
-  h1_EtaTightID_           = new TH1F("EtaTightID","",30,0.0,3.0);
-  //h1_3DangleHisto1_        = new TH1F("3DangleHisto1","",50,0.00001,0.1);
-  //h1_3DangleHisto2_        = new TH1F("3DangleHisto2","",100,0.00001,10.0);  //100,0.1,10.0);
+  h1_dPToverPT_                            = std::make_shared<TH1D>("dPToverPT","",100,0.0,0.5);
+  h1_normalizedChi2_                       = std::make_shared<TH1D>("normalizedChi2","",100,0.0,20.0);
+  h1_numberOftrackerLayersWithMeasurement_ = std::make_shared<TH1D>("numberOftrackerLayersWithMeasurement","",20,0.0,20.0);
+  h1_numberOfValidPixelHits_               = std::make_shared<TH1D>("numberOfValidPixelHits","",10,0.0,10.0);
+  h1_numberOfValidMuonHits_                = std::make_shared<TH1D>("numberOfValidMuonHits","",60,0.0,60.0);
+  h1_numberOfMatchedStations_              = std::make_shared<TH1D>("numberOfMatchedStations","",10,0.0,10.0);
+  h1_trackiso_                             = std::make_shared<TH1D>("trackiso","",50,0.0,0.3);
+  h1_absdxy_                               = std::make_shared<TH1D>("absdxy","",100,0.0,0.3);
+  h1_PtEffpterror_                   = std::make_shared<TH1D>("PtEffpterror","",ptBins,ptMin,ptMax);
+  h1_PtEffptnumberOftrackerLayers_   = std::make_shared<TH1D>("PtEffptnumberOftrackerLayers","",ptBins,ptMin,ptMax);
+  h1_PtEffptnumberOfPixelHits_       = std::make_shared<TH1D>("PtEffptnumberOfPixelHits","",ptBins,ptMin,ptMax);
+  h1_PtEffptnumberOfMuonHits_        = std::make_shared<TH1D>("PtEffptnumberOfMuonHits","",ptBins,ptMin,ptMax);
+  h1_PtEffptnumberOfMatchedStations_ = std::make_shared<TH1D>("PtEffptnumberOfMatchedStations","",ptBins,ptMin,ptMax);
+  h1_PtEffptTrackIso_                = std::make_shared<TH1D>("PtEffptTrackIso","",ptBins,ptMin,ptMax);
+  h1_PtEffptabsdsy_                  = std::make_shared<TH1D>("PtEffptabsdsy","",ptBins,ptMin,ptMax);
+  h1_PtEffpfSumChargedHadron_        = std::make_shared<TH1D>("PtEffpfSumChargedHadron","",ptBins,ptMin,ptMax);
+  h1_PtEffpfSumNeutralHadron_        = std::make_shared<TH1D>("PtEffpfSumNeutralHadron","",ptBins,ptMin,ptMax);
+  h1_PtEffpfPhotonIso_               = std::make_shared<TH1D>("PtEffpfPhotonIso","",ptBins,ptMin,ptMax);
+  h1_EtaEffpterror_                  = std::make_shared<TH1D>("EtaEffpterror","",30,0.0,3.0);
+  h1_EtaEffptnumberOftrackerLayers_  = std::make_shared<TH1D>("EtaEffptnumberOftrackerLayers","",30,0.0,3.0);
+  h1_EtaEffptnumberOfPixelHits_      = std::make_shared<TH1D>("EtaEffptnumberOfPixelHits","",30,0.0,3.0);
+  h1_EtaEffptnumberOfMuonHits_       = std::make_shared<TH1D>("EtaEffptnumberOfMuonHits","",30,0.0,3.0);
+  h1_EtaEffptnumberOfMatchedStations_= std::make_shared<TH1D>("EtaEffptnumberOfMatchedStations","",30,0.0,3.0);
+  h1_EtaEffptTrackIso_               = std::make_shared<TH1D>("EtaEffptTrackIso","",30,0.0,3.0);
+  h1_EtaEffptabsdsy_                 = std::make_shared<TH1D>("EtaEffptabsdsy","",30,0.0,3.0);
+  h1_nbPVID_               = std::make_shared<TH1D>("nbPVID","",50,0.0,50.0);
+  h1_PtID_                 = std::make_shared<TH1D>("PtID","",ptBins,ptMin,ptMax);
+  h1_EtaID_                = std::make_shared<TH1D>("EtaID","",30,0.0,3.0);
+  h1_nbPVNewID_            = std::make_shared<TH1D>("nbPVNewID","",50,0.0,50.0);
+  h1_PtNewID_              = std::make_shared<TH1D>("PtNewID","",ptBins,ptMin,ptMax);
+  h1_EtaNewID_             = std::make_shared<TH1D>("EtaNewID","",30,0.0,3.0);
+  h1_nbPVTightID_          = std::make_shared<TH1D>("nbPVTightID","",50,0.0,50.0);
+  h1_PtTightID_            = std::make_shared<TH1D>("PtTightID","",ptBins,ptMin,ptMax);
+  h1_EtaTightID_           = std::make_shared<TH1D>("EtaTightID","",30,0.0,3.0);
+  //h1_3DangleHisto1_        = std::make_shared<TH1D>("3DangleHisto1","",50,0.00001,0.1);
+  //h1_3DangleHisto2_        = std::make_shared<TH1D>("3DangleHisto2","",100,0.00001,10.0);  //100,0.1,10.0);
   //
-  h1_3DangleHisto1_        = new TH1F("3DangleHisto1","",1000,0.00001,1.0);
-  h1_3DangleHisto2_        = new TH1F("3DangleHisto2","",1000,0.00001,10.0);
-  h1_Fail3DangleHistoMass_ = new TH1F("Fail3DangleHistoMass","",100,100.0,12000.0);
-  h1_Fail3DangleHistoPhi_  = new TH1F("Fail3DangleHistoPhi","",100,-4.0,4.0);
+  h1_3DangleHisto1_        = std::make_shared<TH1D>("3DangleHisto1","",1000,0.00001,1.0);
+  h1_3DangleHisto2_        = std::make_shared<TH1D>("3DangleHisto2","",1000,0.00001,10.0);
+  h1_Fail3DangleHistoMass_ = std::make_shared<TH1D>("Fail3DangleHistoMass","",100,100.0,12000.0);
+  h1_Fail3DangleHistoPhi_  = std::make_shared<TH1D>("Fail3DangleHistoPhi","",100,-4.0,4.0);
   //-----------------------------------------------------------------------------------
-  h_ptHistoFRDum_ = new TH1F("ptHistoFRDum","",ptBins,ptMin,ptMax);
-  h_ptHistoFRNum_ = new TH1F("ptHistoFRNum","",ptBins,ptMin,ptMax);
-  h1_PtTuneP_     = new TH1F("PtTuneP","",200,0.0,10000.0);
+  h_ptHistoFRDum_ = std::make_shared<TH1D>("ptHistoFRDum","",ptBins,ptMin,ptMax);
+  h_ptHistoFRNum_ = std::make_shared<TH1D>("ptHistoFRNum","",ptBins,ptMin,ptMax);
+  h1_PtTuneP_     = std::make_shared<TH1D>("PtTuneP","",200,0.0,10000.0);
   //----------------------------------------------------------------------------------------------
 
   // Build the histo with constant log bin width
@@ -282,44 +286,44 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
     logMbins[ibin] = exp(log(MMIN) + (log(MMAX)-log(MMIN))*ibin/NMBINS);
     //cout << logMbins[ibin] << std::endl;
   }
-  h1_ZprimeRecomassBinWidthAll_     = new TH1F("ZprimeRecomassBinWidthAll","ZprimeRecomassBinWidthAll",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidth_        = new TH1F("ZprimeRecomassBinWidth","ZprimeRecomassBinWidth",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthAllBE_   = new TH1F("ZprimeRecomassBinWidthAllBE","ZprimeRecomassBinWidthAllBE",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthAllEE_   = new TH1F("ZprimeRecomassBinWidthAllEE","ZprimeRecomassBinWidthAllEE",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthEE_      = new TH1F("ZprimeRecomassBinWidthEE","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBB_      = new TH1F("ZprimeRecomassBinWidthBB","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBEpos_   = new TH1F("ZprimeRecomassBinWidthBEpos","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBEnev_   = new TH1F("ZprimeRecomassBinWidthBEnev","",NMBINS, logMbins);
-  h1_ZprimeRecomass60to120BEpos_    = new TH1F("ZprimeRecomass60to120BEpos","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BEnev_    = new TH1F("ZprimeRecomass60to120BEnev","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120EE_       = new TH1F("ZprimeRecomass60to120EE","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BB_       = new TH1F("ZprimeRecomass60to120BB","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120_         = new TH1F("ZprimeRecomass60to120","",60,60.0,120.0);
-  h1_ZprimeRecomassBinWidthAfterBtaging_ = new TH1F("ZprimeRecomassBinWidthAfterBtaging","ZprimeRecomassBinWidthAfterBtaging",NMBINS, logMbins);
-  h1_DijetBinWidthBB_         = new TH1F("DijetBinWidthBB","",NMBINS, logMbins);
-  h1_DijetBinWidthBE_         = new TH1F("DijetBinWidthBE","",NMBINS, logMbins);
-  h1_DijetBinWidthEE_         = new TH1F("DijetBinWidthEE","",NMBINS, logMbins);
-  h1_DijetBinWidthBBBE_       = new TH1F("DijetBinWidthBBBE","",NMBINS, logMbins);
-  h1_WjetsBinWidthBB_         = new TH1F("WjetsBinWidthBB","",NMBINS, logMbins);
-  h1_WjetsBinWidthBE_         = new TH1F("WjetsBinWidthBE","",NMBINS, logMbins);
-  h1_WjetsBinWidthEE_         = new TH1F("WjetsBinWidthEE","",NMBINS, logMbins);
-  h1_WjetsBinWidthBBBE_       = new TH1F("WjetsBinWidthBBBE","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthAll_     = std::make_shared<TH1D>("ZprimeRecomassBinWidthAll","ZprimeRecomassBinWidthAll",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidth_        = std::make_shared<TH1D>("ZprimeRecomassBinWidth","ZprimeRecomassBinWidth",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthAllBE_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthAllBE","ZprimeRecomassBinWidthAllBE",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthAllEE_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthAllEE","ZprimeRecomassBinWidthAllEE",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthEE_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthEE","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBB_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthBB","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBEpos_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthBEpos","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBEnev_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthBEnev","",NMBINS, logMbins);
+  h1_ZprimeRecomass60to120BEpos_    = std::make_shared<TH1D>("ZprimeRecomass60to120BEpos","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BEnev_    = std::make_shared<TH1D>("ZprimeRecomass60to120BEnev","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120EE_       = std::make_shared<TH1D>("ZprimeRecomass60to120EE","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BB_       = std::make_shared<TH1D>("ZprimeRecomass60to120BB","",60,60.0,120.0);
+  h1_ZprimeRecomass60to120_         = std::make_shared<TH1D>("ZprimeRecomass60to120","",60,60.0,120.0);
+  h1_ZprimeRecomassBinWidthAfterBtaging_ = std::make_shared<TH1D>("ZprimeRecomassBinWidthAfterBtaging","ZprimeRecomassBinWidthAfterBtaging",NMBINS, logMbins);
+  h1_DijetBinWidthBB_         = std::make_shared<TH1D>("DijetBinWidthBB","",NMBINS, logMbins);
+  h1_DijetBinWidthBE_         = std::make_shared<TH1D>("DijetBinWidthBE","",NMBINS, logMbins);
+  h1_DijetBinWidthEE_         = std::make_shared<TH1D>("DijetBinWidthEE","",NMBINS, logMbins);
+  h1_DijetBinWidthBBBE_       = std::make_shared<TH1D>("DijetBinWidthBBBE","",NMBINS, logMbins);
+  h1_WjetsBinWidthBB_         = std::make_shared<TH1D>("WjetsBinWidthBB","",NMBINS, logMbins);
+  h1_WjetsBinWidthBE_         = std::make_shared<TH1D>("WjetsBinWidthBE","",NMBINS, logMbins);
+  h1_WjetsBinWidthEE_         = std::make_shared<TH1D>("WjetsBinWidthEE","",NMBINS, logMbins);
+  h1_WjetsBinWidthBBBE_       = std::make_shared<TH1D>("WjetsBinWidthBBBE","",NMBINS, logMbins);
 
-  h1_Dijet1GeVBB_     = new TH1F("Dijet1GeVBB","",3000,0.0,3000.0);
-  h1_Dijet1GeVBEEE_   = new TH1F("Dijet1GeVBEEE","",3000,0.0,3000.0);
-  h1_Dijet1GeVEE_     = new TH1F("Dijet1GeVEE","",3000,0.0,3000.0);
-  h1_Dijet1GeVBBBEEE_ = new TH1F("Dijet1GeVBBBEEE","",3000,0.0,3000.0);
-  h1_Wjets1GeVBB_     = new TH1F("Wjets1GeVBB","",3000,0.0,3000.0);
-  h1_Wjets1GeVBEEE_   = new TH1F("Wjets1GeVBEEE","",3000,0.0,3000.0);
-  h1_Wjets1GeVEE_     = new TH1F("Wjets1GeVEE","",3000,0.0,3000.0);
-  h1_Wjets1GeVBBBEEE_ = new TH1F("Wjets1GeVBBBEEE","",3000,0.0,3000.0);
+  h1_Dijet1GeVBB_     = std::make_shared<TH1D>("Dijet1GeVBB","",3000,0.0,3000.0);
+  h1_Dijet1GeVBEEE_   = std::make_shared<TH1D>("Dijet1GeVBEEE","",3000,0.0,3000.0);
+  h1_Dijet1GeVEE_     = std::make_shared<TH1D>("Dijet1GeVEE","",3000,0.0,3000.0);
+  h1_Dijet1GeVBBBEEE_ = std::make_shared<TH1D>("Dijet1GeVBBBEEE","",3000,0.0,3000.0);
+  h1_Wjets1GeVBB_     = std::make_shared<TH1D>("Wjets1GeVBB","",3000,0.0,3000.0);
+  h1_Wjets1GeVBEEE_   = std::make_shared<TH1D>("Wjets1GeVBEEE","",3000,0.0,3000.0);
+  h1_Wjets1GeVEE_     = std::make_shared<TH1D>("Wjets1GeVEE","",3000,0.0,3000.0);
+  h1_Wjets1GeVBBBEEE_ = std::make_shared<TH1D>("Wjets1GeVBBBEEE","",3000,0.0,3000.0);
 
-  h1_Dijet20GeVBB_     = new TH1F("Dijet20GeVBB","",300,0.0,6000.0);
-  h1_Dijet20GeVBEEE_   = new TH1F("Dijet20GeVBEEE","",300,0.0,6000.0);
-  h1_Dijet20GeVBBBEEE_ = new TH1F("Dijet20GeVBBBEEE","",300,0.0,6000.0);
-  h1_Wjets20GeVBB_     = new TH1F("Wjet20GeVBB","",300,0.0,6000.0);
-  h1_Wjets20GeVBEEE_   = new TH1F("Wjets20GeVBEEE","",300,0.0,6000.0);
-  h1_Wjets20GeVBBBEEE_ = new TH1F("Wjets20GeVBBBEEE","",300,0.0,6000.0);
+  h1_Dijet20GeVBB_     = std::make_shared<TH1D>("Dijet20GeVBB","",300,0.0,6000.0);
+  h1_Dijet20GeVBEEE_   = std::make_shared<TH1D>("Dijet20GeVBEEE","",300,0.0,6000.0);
+  h1_Dijet20GeVBBBEEE_ = std::make_shared<TH1D>("Dijet20GeVBBBEEE","",300,0.0,6000.0);
+  h1_Wjets20GeVBB_     = std::make_shared<TH1D>("Wjet20GeVBB","",300,0.0,6000.0);
+  h1_Wjets20GeVBEEE_   = std::make_shared<TH1D>("Wjets20GeVBEEE","",300,0.0,6000.0);
+  h1_Wjets20GeVBBBEEE_ = std::make_shared<TH1D>("Wjets20GeVBBBEEE","",300,0.0,6000.0);
 
   // Book txt file for candidate events
   Char_t txtOUT[500];
@@ -332,6 +336,8 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
   //==================================================================================
   if (fChain == 0) return;
   Long64_t nentries = fChain->GetEntries();
+  if (debug)
+    nentries = 1000;
 
   // Timing information
   int decade  = 0;
@@ -361,7 +367,7 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
 		<< "t = "  << std::setprecision(4) << std::setw(7) << time
 		<< " projected finish =" << std::setw(7) << std::setprecision(4) << finTime << "s"
 		<< " (" << std::setw(4) << std::setprecision(2) << finMin << " min).   "
-		<< std::endl;
+		<< std::resetiosflags << std::endl;
       std::cout << std::flush;
       tenpcount++;
       // } else if ( (jentry*100)/nentries == onepcount ) {
@@ -379,11 +385,11 @@ void ZprimeMuMuPatMiniAodNewData::Loop()
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
-    //if (inputfile.Contains("amcatnlo") && !(inputfile.Contains("DYJetsToTauTau"))) {
-    //cout << "Reweighting sample of amcatnlo with weight= " << MC_weighting->at(0)<< std::endl;
-    //weight=weight*MC_weighting->at(0);
-    //}
-    //if (event_runNo==251249) continue;
+    // if (inputfile.Contains("amcatnlo") && !(inputfile.Contains("DYJetsToTauTau"))) {
+    //   std::cout << "Reweighting sample of amcatnlo with weight= " << MC_weighting->at(0)<< std::endl;
+    //   m_weight = m_weight*MC_weighting->at(0);
+    // }
+    // if (event_runNo==251249) continue;
     /*std::cout << "=======> jentry = "<<jentry<<
       "=======> Evt = "<<event_evtNo<<
       "=======> Run = "<<event_runNo<<
@@ -619,7 +625,7 @@ bool ZprimeMuMuPatMiniAodNewData::SelectFirstMuon(float &pTmuon1,float &Enmuon1,
     dxymuon1            = Mu_absdxyTunePMuonBestTrack->at(iflag);
     pTmuon1tuneP        = Mu_ptTunePMuonBestTrack->at(iflag);
     pTmuonBestTrack1    = Mu_ptTunePMuonBestTrack->at(iflag);
-    //std:cout << "First Muon ChargeMu1= " << ChargeMu1 << " Pt1= " << pTmuonBestTrack1 << std::endl;
+    //std::cout << "First Muon ChargeMu1= " << ChargeMu1 << " Pt1= " << pTmuonBestTrack1 << std::endl;
     return true;
   } else {
     return false;
@@ -642,7 +648,7 @@ bool ZprimeMuMuPatMiniAodNewData::SelectSecondMuon(int ChargeMu1,unsigned FlagMu
     if (Mu_ptTunePMuonBestTrack->at(i) == pTmuon1) continue;
     if (Mu_etaTunePMuonBestTrack->at(i) == Etamuon1) continue;
     if (Mu_phiTunePMuonBestTrack->at(i) == Phimuon1) continue;
-    //std:cout << "Charge=" << ChargeMu1 << " " << Mu_chargeTunePMuonBestTrack->at(i) << " pT= " <<  Mu_ptTunePMuonBestTrack->at(i) <<  std::endl;
+    //std::cout << "Charge=" << ChargeMu1 << " " << Mu_chargeTunePMuonBestTrack->at(i) << " pT= " <<  Mu_ptTunePMuonBestTrack->at(i) <<  std::endl;
     if (ChargeMu1*Mu_chargeTunePMuonBestTrack->at(i)>0) continue;
     //if (ChargeMu1*Mu_chargeTunePMuonBestTrack->at(i)<0) continue;
     //    if (Mu_isMuonsCleaned->at(i) != Mu_isPF->at(i)) continue;
@@ -664,7 +670,7 @@ bool ZprimeMuMuPatMiniAodNewData::SelectSecondMuon(int ChargeMu1,unsigned FlagMu
 	//if (GenRecoMatch2 == 0) continue;
 	*/
 	highestpt=Mu_ptTunePMuonBestTrack->at(i);
-	//std:cout << "Highest PT second lepton has pt= " << highestpt << std::endl;
+	//std::cout << "Highest PT second lepton has pt= " << highestpt << std::endl;
 	iflag  = i;
 	NbHighPtmu ++;
       }
@@ -685,7 +691,7 @@ bool ZprimeMuMuPatMiniAodNewData::SelectSecondMuon(int ChargeMu1,unsigned FlagMu
     dxymuon2         = Mu_absdxyTunePMuonBestTrack->at(iflag);
     pTmuon2tuneP     = Mu_ptTunePMuonBestTrack->at(iflag);
     pTmuonBestTrack2 = Mu_ptTunePMuonBestTrack->at(iflag);
-    //std:cout << "Second ChargeMu2= " << ChargeMu2 << " Pt2= " << pTmuonBestTrack2 << std::endl;
+    //std::cout << "Second ChargeMu2= " << ChargeMu2 << " Pt2= " << pTmuonBestTrack2 << std::endl;
     return true;
   } else {
     return false;
@@ -715,25 +721,25 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
   float weight10 = MassCorrection(vertexMassMu);
   //float weight2 = std::min(1.01696-7.73522E-5*vertexMassMu+6.69239E-9*vertexMassMu*vertexMassMu,1);
   //----------------------------------------------------------
-  h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,weight);
-  h1_ZprimeRecomasslogscale_->Fill(log10(vertexMassMu));
-  h1_ZprimeRecomass_->Fill(vertexMassMu,weight);
-  h1_MassRecoInAccep_->Fill(MassGenerated,weight);
+  h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,m_weight);
+  h1_ZprimeRecomasslogscale_->Fill(log10(vertexMassMu),m_weight);
+  h1_ZprimeRecomass_->Fill(vertexMassMu,m_weight);
+  h1_MassRecoInAccep_->Fill(MassGenerated,m_weight);
 
-  // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        0.,weight);
-  h2_CSMassBinned_       ->Fill(m_vtxMassMu,               0.,weight);
-  // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),0.,weight);
-  // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),0.,weight);
+  // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        0.,m_weight);
+  h2_CSMassBinned_       ->Fill(m_vtxMassMu,               0.,m_weight);
+  // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),0.,m_weight);
+  // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),0.,m_weight);
   if (m_csAngle > 0) {
-    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        2.,weight);
-    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               2.,weight);
-    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),2.,weight);
-    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),2.,weight);
+    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        2.,m_weight);
+    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               2.,m_weight);
+    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),2.,m_weight);
+    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),2.,m_weight);
   } else {
-    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        1.,weight);
-    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               1.,weight);
-    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),1.,weight);
-    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),1.,weight);
+    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        1.,m_weight);
+    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               1.,m_weight);
+    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),1.,m_weight);
+    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),1.,m_weight);
   }
 
   /*
@@ -744,13 +750,14 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
   std::cout << std::endl;
   if (fabs(h2_CSMassBinned_->ProjectionX("tmp",1,1)->GetEntries()-h1_ZprimeRecomass_->GetEntries()) > 0.01)
     std::cout << "Mass values different"
-	      << "  h2_CSMassBinned_->ProjectionX(\"tmp\",1,1)->GetEntries(): " << h2_CSMassBinned_->ProjectionX("tmp",1,1)->GetEntries()
+	      << "  h2_CSMassBinned_->ProjectionX(\"tmp\",1,1)->GetEntries(): "
+	      << h2_CSMassBinned_->ProjectionX("tmp",1,1)->GetEntries()
 	      << "  h1_ZprimeRecomass_->GetEntries(): " << h1_ZprimeRecomass_->GetEntries()
 	      << std::endl;
-  if (fabs(weight-weight) > 0)
-    std::cout << "Mass values different"
-	      << "  weight: " << weight
-	      << "  weight: " << weight
+  if (fabs(m_weight-newweight) > 0)
+    std::cout << "Weights different"
+	      << "  weight: " << m_weight
+	      << "  newweight: " << newweight
 	      << std::endl;
   if (fabs(m_vtxMassMu-vertexMassMu) > 0)
     std::cout << "Mass values different"
@@ -763,49 +770,49 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
   int secEtaBin = -1;
 
   if (fabs(etaMu1) < 1.2 && fabs(etaMu2) < 1.2) {  //BB
-    h1_ZprimeRecomassBinWidthBB_->Fill(vertexMassMu,weight);
-    h1_ZprimeRecomass60to120BB_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomassBinWidthBB_->Fill(vertexMassMu,m_weight);
+    h1_ZprimeRecomass60to120BB_->Fill(vertexMassMu,m_weight);
     // SHOULD BE FILLED FOR ALL EVENTS???
-    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
-    h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,m_weight);
+    h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,m_weight);
     priEtaBin = 1;
   } else if ((fabs(etaMu1) < 1.2 && (fabs(etaMu2) > 1.2 && fabs(etaMu2) < 2.4)) ||
 	     (fabs(etaMu2) < 1.2 && (fabs(etaMu1) > 1.2 && fabs(etaMu1) < 2.4))) {  //BE
-    h1_ZprimeRecomassBinWidthAllBE_->Fill(vertexMassMu,weight);
-    h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
-    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomassBinWidthAllBE_->Fill(vertexMassMu,m_weight);
+    h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,m_weight);
+    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,m_weight);
     priEtaBin = 2;
 
     //==================Sub-categories============================================
     if ((fabs(etaMu1) < 1.2 && (etaMu2 > 1.2 && etaMu2 < 2.4)) ||
 	(fabs(etaMu2) < 1.2 && (etaMu1 > 1.2 && etaMu1 < 2.4))) {  //BE+
-      h1_ZprimeRecomassBinWidthBEpos_->Fill(vertexMassMu,weight);
-      h1_ZprimeRecomass60to120BEpos_->Fill(vertexMassMu,weight);
-      // h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
-      // h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+      h1_ZprimeRecomassBinWidthBEpos_->Fill(vertexMassMu,m_weight);
+      h1_ZprimeRecomass60to120BEpos_->Fill(vertexMassMu,m_weight);
+      // h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,m_weight);
+      // h1_ZprimeRecomass60to120_->Fill(vertexMassMu,m_weight);
       secEtaBin = 4;
     } else if ((fabs(etaMu1) < 1.2 && (etaMu2 > -2.4 && etaMu2 < -1.2)) ||
 	       (fabs(etaMu2) < 1.2 && (etaMu1 > -2.4 && etaMu1 < -1.2))) {  //BE-
-      h1_ZprimeRecomassBinWidthBEnev_->Fill(vertexMassMu,weight);
-      h1_ZprimeRecomass60to120BEnev_->Fill(vertexMassMu,weight);
+      h1_ZprimeRecomassBinWidthBEnev_->Fill(vertexMassMu,m_weight);
+      h1_ZprimeRecomass60to120BEnev_->Fill(vertexMassMu,m_weight);
       // WHY FILLED FOR BE+ BUT NOT BE-??
-      // h1_ZprimeRecomass_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
-      // h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
-      // h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+      // h1_ZprimeRecomass_->Fill(vertexMassMu,m_weight); // DUPLICATE!!!!!
+      // h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,m_weight);
+      // h1_ZprimeRecomass60to120_->Fill(vertexMassMu,m_weight);
       secEtaBin = 5;
     }
   } else if ((fabs(etaMu1) > 1.2 && fabs(etaMu1) < 2.4) &&
 	     (fabs(etaMu2) > 1.2 && fabs(etaMu2) < 2.4)) {  //EE
-    h1_ZprimeRecomassBinWidthAllEE_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomassBinWidthAllEE_->Fill(vertexMassMu,m_weight);
     priEtaBin = 3;
   //==================Sub-categories============================================
     if (((etaMu1 > 1.2 && etaMu1 < 2.4) && (etaMu2 > -2.4 && etaMu2 < -1.2)) ||
 	((etaMu2 > 1.2 && etaMu2 < 2.4) && (etaMu1 > -2.4 && etaMu1 < -1.2))) {  //E+E-
-      h1_ZprimeRecomassBinWidthEE_->Fill(vertexMassMu,weight);
-      h1_ZprimeRecomass60to120EE_->Fill(vertexMassMu,weight);
-      //h1_ZprimeRecomass_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
-      //h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
-      h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+      h1_ZprimeRecomassBinWidthEE_->Fill(vertexMassMu,m_weight);
+      h1_ZprimeRecomass60to120EE_->Fill(vertexMassMu,m_weight);
+      //h1_ZprimeRecomass_->Fill(vertexMassMu,m_weight); // DUPLICATE!!!!!
+      //h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,m_weight); // DUPLICATE!!!!!
+      h1_ZprimeRecomass60to120_->Fill(vertexMassMu,m_weight);
       secEtaBin = 6;
     // currently ignored cases?
     } else if ((etaMu1 > -2.4 && etaMu1 < -1.2) && (etaMu2 > -2.4 && etaMu2 < -1.2)) {  //E-E-
@@ -819,57 +826,57 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
   //==================Sub-categories============================================
   //BE+
   if (fabs(etaMu1) < 1.2 && etaMu2 > 1.2 && etaMu2 < 2.4)) {
-    h1_ZprimeRecomassBinWidthBEpos_->Fill(vertexMassMu,weight);
-    h1_ZprimeRecomass60to120BEpos_->Fill(vertexMassMu,weight);
-    //h1_ZprimeRecomass_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
-    h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
-    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomassBinWidthBEpos_->Fill(vertexMassMu,m_weight);
+    h1_ZprimeRecomass60to120BEpos_->Fill(vertexMassMu,m_weight);
+    //h1_ZprimeRecomass_->Fill(vertexMassMu,m_weight); // DUPLICATE!!!!!
+    h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,m_weight);
+    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,m_weight);
     secEtaBin = 4;
   }
 
   if (fabs(etaMu2) < 1.2 && etaMu1 > 1.2 && etaMu1 < 2.4)) {
-    h1_ZprimeRecomassBinWidthBEpos_->Fill(vertexMassMu,weight);
-    h1_ZprimeRecomassBinWidthBEpos_->Fill(vertexMassMu,weight);
-    //h1_ZprimeRecomass_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
-    h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
-    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomassBinWidthBEpos_->Fill(vertexMassMu,m_weight);
+    h1_ZprimeRecomassBinWidthBEpos_->Fill(vertexMassMu,m_weight);
+    //h1_ZprimeRecomass_->Fill(vertexMassMu,m_weight); // DUPLICATE!!!!!
+    h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,m_weight);
+    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,m_weight);
     secEtaBin = 4;
   }
 
   //BE-
   if (fabs(etaMu1) < 1.2 && etaMu2 > -2.4 && etaMu2 < -1.2)) {
-    h1_ZprimeRecomassBinWidthBEnev_->Fill(vertexMassMu,weight);
-    h1_ZprimeRecomass60to120BEnev_->Fill(vertexMassMu,weight);
-    //h1_ZprimeRecomass_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
-    //h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,weight);
-    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomassBinWidthBEnev_->Fill(vertexMassMu,m_weight);
+    h1_ZprimeRecomass60to120BEnev_->Fill(vertexMassMu,m_weight);
+    //h1_ZprimeRecomass_->Fill(vertexMassMu,m_weight); // DUPLICATE!!!!!
+    //h1_ZprimeRecomassBinWidthAll_->Fill(vertexMassMu,m_weight);
+    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,m_weight);
     secEtaBin = 5;
   }
 
   if (fabs(etaMu2) < 1.2 && etaMu1 > -2.4 && etaMu1 < -1.2)) {
-    h1_ZprimeRecomassBinWidthBEnev_->Fill(vertexMassMu,weight);
-    h1_ZprimeRecomass60to120BEnev_->Fill(vertexMassMu,weight);
-    //h1_ZprimeRecomass_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
-    //h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
-    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomassBinWidthBEnev_->Fill(vertexMassMu,m_weight);
+    h1_ZprimeRecomass60to120BEnev_->Fill(vertexMassMu,m_weight);
+    //h1_ZprimeRecomass_->Fill(vertexMassMu,m_weight); // DUPLICATE!!!!!
+    //h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,m_weight); // DUPLICATE!!!!!
+    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,m_weight);
     secEtaBin = 5;
   }
 
   //E+E-
   if ((etaMu1 > 1.2 && etaMu1 < 2.4) && etaMu2 > -2.4 && etaMu2 < -1.2)) {
-    h1_ZprimeRecomassBinWidthEE_->Fill(vertexMassMu,weight);
-    h1_ZprimeRecomass60to120EE_->Fill(vertexMassMu,weight);
-    //h1_ZprimeRecomass_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
-    //h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
-    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomassBinWidthEE_->Fill(vertexMassMu,m_weight);
+    h1_ZprimeRecomass60to120EE_->Fill(vertexMassMu,m_weight);
+    //h1_ZprimeRecomass_->Fill(vertexMassMu,m_weight); // DUPLICATE!!!!!
+    //h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,m_weight); // DUPLICATE!!!!!
+    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,m_weight);
     secEtaBin = 6;
   }
   if ((etaMu2 > 1.2 && etaMu2 < 2.4) && (etaMu1 > -2.4 && etaMu1 < -1.2)) {
-    h1_ZprimeRecomassBinWidthEE_->Fill(vertexMassMu,weight);
-    h1_ZprimeRecomass60to120EE_->Fill(vertexMassMu,weight);
-    //h1_ZprimeRecomass_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
-    //h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,weight); // DUPLICATE!!!!!
-    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,weight);
+    h1_ZprimeRecomassBinWidthEE_->Fill(vertexMassMu,m_weight);
+    h1_ZprimeRecomass60to120EE_->Fill(vertexMassMu,m_weight);
+    //h1_ZprimeRecomass_->Fill(vertexMassMu,m_weight); // DUPLICATE!!!!!
+    //h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,m_weight); // DUPLICATE!!!!!
+    h1_ZprimeRecomass60to120_->Fill(vertexMassMu,m_weight);
     secEtaBin = 6;
   }
   // currently ignored cases
@@ -893,42 +900,42 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
 	    << std::endl;
   std::cout << "primary bin (" << priEtaBin << "*3)+0(" << (priEtaBin*3)+0 << ")" << std::endl;
   */
-  // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+0,weight);
-  h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+0,weight);
-  // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+0,weight);
-  // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+0,weight);
+  // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+0,m_weight);
+  h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+0,m_weight);
+  // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+0,m_weight);
+  // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+0,m_weight);
   if (secEtaBin > 0) {
     // std::cout << "secondary bin (" << secEtaBin << "*3)+0(" << (secEtaBin*3)+0 << ")" << std::endl;
-    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+0,weight);
-    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+0,weight);
-    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+0,weight);
-    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+0,weight);
+    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+0,m_weight);
+    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+0,m_weight);
+    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+0,m_weight);
+    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+0,m_weight);
   }
   if (m_csAngle > 0) {
     // std::cout << "primary bin (" << priEtaBin << "*3)+2(" << (priEtaBin*3)+2 << ")" << std::endl;
-    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+2,weight);
-    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+2,weight);
-    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+2,weight);
-    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+2,weight);
+    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+2,m_weight);
+    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+2,m_weight);
+    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+2,m_weight);
+    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+2,m_weight);
     if (secEtaBin > 0) {
       // std::cout << "secondary bin (" << secEtaBin << "*3)+2(" << (secEtaBin*3)+2 << ")" << std::endl;
-      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+2,weight);
-      h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+2,weight);
-      // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+2,weight);
-      // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+2,weight);
+      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+2,m_weight);
+      h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+2,m_weight);
+      // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+2,m_weight);
+      // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+2,m_weight);
     }
   } else {
     // std::cout << "primary bin (" << priEtaBin << "*3)+1(" << (priEtaBin*3)+1 << ")" << std::endl;
-    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+1,weight);
-    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+1,weight);
-    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+1,weight);
-    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+1,weight);
+    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+1,m_weight);
+    h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+1,m_weight);
+    // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+1,m_weight);
+    // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+1,m_weight);
     if (secEtaBin > 0) {
       // std::cout << "secondary bin (" << secEtaBin << "*3)+1(" << (secEtaBin*3)+1 << ")" << std::endl;
-      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+1,weight);
-      h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+1,weight);
-      // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+1,weight);
-      // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+1,weight);
+      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+1,m_weight);
+      h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+1,m_weight);
+      // h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+1,m_weight);
+      // h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+1,m_weight);
     }
   }
 
@@ -949,34 +956,34 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
 
   /*if (vertexMassMu>60 && vertexMassMu<120)
     h1_ZprimeRecomass60to120_->Fill(vertexMassMu);*/
-  h1_3Dangle_->Fill(CosmicMuonRejec,weight);
+  h1_3Dangle_->Fill(CosmicMuonRejec,m_weight);
 
   //part for Pt resolution
-  h1_PtResolutionTunePMBT_->Fill((PtTunePMuBestTrack-PtGenerated)/PtGenerated,weight);
-  h1_PtResolutiontuneP_->Fill((PtTunePMu-PtGenerated)/PtGenerated,weight);
-  h1_PtResolutionMBT_->Fill((PtMuBestTrack-PtGenerated)/PtGenerated,weight);
+  h1_PtResolutionTunePMBT_->Fill((PtTunePMuBestTrack-PtGenerated)/PtGenerated,m_weight);
+  h1_PtResolutiontuneP_->Fill((PtTunePMu-PtGenerated)/PtGenerated,m_weight);
+  h1_PtResolutionMBT_->Fill((PtMuBestTrack-PtGenerated)/PtGenerated,m_weight);
 
   //part for mass resolution
   if (vertexMassMu > 0.0 && vertexMassMu < 250.0) {
-    h1_MassResultionEBEB1_->Fill((vertexMassMu-MassGenerated)/MassGenerated,weight);
+    h1_MassResultionEBEB1_->Fill((vertexMassMu-MassGenerated)/MassGenerated,m_weight);
   }
   if (vertexMassMu > 250 && vertexMassMu < 750.0) {
-    h1_MassResultionEBEB2_->Fill((vertexMassMu-MassGenerated)/MassGenerated,weight);
+    h1_MassResultionEBEB2_->Fill((vertexMassMu-MassGenerated)/MassGenerated,m_weight);
   }
   if (vertexMassMu > 750 && vertexMassMu < 1250.0) {
-    h1_MassResultionEBEB3_->Fill((vertexMassMu-MassGenerated)/MassGenerated,weight);
+    h1_MassResultionEBEB3_->Fill((vertexMassMu-MassGenerated)/MassGenerated,m_weight);
   }
   if (vertexMassMu > 1250 && vertexMassMu < 1750.0) {
-    h1_MassResultionEBEB4_->Fill((vertexMassMu-MassGenerated)/MassGenerated,weight);
+    h1_MassResultionEBEB4_->Fill((vertexMassMu-MassGenerated)/MassGenerated,m_weight);
   }
   if (vertexMassMu > 1750 && vertexMassMu < 2250.0) {
-    h1_MassResultionEBEB5_->Fill((vertexMassMu-MassGenerated)/MassGenerated,weight);
+    h1_MassResultionEBEB5_->Fill((vertexMassMu-MassGenerated)/MassGenerated,m_weight);
   }
   if (vertexMassMu > 2000 && vertexMassMu < 4000.0) {
-    h1_MassResultionEBEB6_->Fill((vertexMassMu-MassGenerated)/MassGenerated,weight);
+    h1_MassResultionEBEB6_->Fill((vertexMassMu-MassGenerated)/MassGenerated,m_weight);
   }
   if (vertexMassMu > 4000 && vertexMassMu < 6000.0) {
-    h1_MassResultionEBEB7_->Fill((vertexMassMu-MassGenerated)/MassGenerated,weight);
+    h1_MassResultionEBEB7_->Fill((vertexMassMu-MassGenerated)/MassGenerated,m_weight);
   }
 }
 
@@ -1119,14 +1126,14 @@ bool ZprimeMuMuPatMiniAodNewData::SelectSecondGenMu(unsigned GenFlag1,float ETMu
 void ZprimeMuMuPatMiniAodNewData::PlotGenInfo(float ZprimeGenMass,float EtaGenMu1,float EtaGenMu2,float PtGenMu1,
 				       float PtGenMu2,float EnGenMu1,float EnGenMu2)
 {
-  h1_MassGenInAccep_->Fill(ZprimeGenMass,weight);
-  h1_ZprimeGenmass_->Fill(ZprimeGenMass,weight);
-  h1_ZprimeGenEta1_->Fill(EtaGenMu1,weight);
-  h1_ZprimeGenEta2_->Fill(EtaGenMu2,weight);
-  h1_ZprimeGenPt1_->Fill(PtGenMu1,weight);
-  h1_ZprimeGenPt2_->Fill(PtGenMu2,weight);
-  h1_ZprimeGenEn1_->Fill(EnGenMu1,weight);
-  h1_ZprimeGenEn2_->Fill(EnGenMu2,weight);
+  h1_MassGenInAccep_->Fill(ZprimeGenMass,m_weight);
+  h1_ZprimeGenmass_->Fill(ZprimeGenMass,m_weight);
+  h1_ZprimeGenEta1_->Fill(EtaGenMu1,m_weight);
+  h1_ZprimeGenEta2_->Fill(EtaGenMu2,m_weight);
+  h1_ZprimeGenPt1_->Fill(PtGenMu1,m_weight);
+  h1_ZprimeGenPt2_->Fill(PtGenMu2,m_weight);
+  h1_ZprimeGenEn1_->Fill(EnGenMu1,m_weight);
+  h1_ZprimeGenEn2_->Fill(EnGenMu2,m_weight);
 }
 //----------------------------------------------------
 //                                                   -
@@ -1146,9 +1153,9 @@ void ZprimeMuMuPatMiniAodNewData::MuonPassingID()
        Mu_numberOfValidMuonHits->at(i) > 0 &&
        Mu_numberOfMatchedStations->at(i) > 1 &&
        Mu_dPToverPTTunePMuonBestTrack->at(i) < 0.3) {
-      h1_PtID_->Fill(Mu_ptTunePMuonBestTrack->at(i),weight);
-      h1_EtaID_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),weight);
-      h1_nbPVID_->Fill(Mu_nbofpv->at(i),weight);
+      h1_PtID_->Fill(Mu_ptTunePMuonBestTrack->at(i),m_weight);
+      h1_EtaID_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),m_weight);
+      h1_nbPVID_->Fill(Mu_nbofpv->at(i),m_weight);
     }
     else continue;
   }
@@ -1166,9 +1173,9 @@ void ZprimeMuMuPatMiniAodNewData::PlotPterror()
        Mu_numberOfValidPixelHits->at(i) > 0 &&
        Mu_numberOfValidMuonHits->at(i) > 0 &&
        Mu_numberOfMatchedStations->at(i) > 1) {
-      h1_dPToverPT_->Fill(Mu_dPToverPTTunePMuonBestTrack->at(i),weight );
-      h1_PtEffpterror_->Fill(Mu_ptTunePMuonBestTrack->at(i),weight);
-      h1_EtaEffpterror_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),weight);
+      h1_dPToverPT_->Fill(Mu_dPToverPTTunePMuonBestTrack->at(i),m_weight );
+      h1_PtEffpterror_->Fill(Mu_ptTunePMuonBestTrack->at(i),m_weight);
+      h1_EtaEffpterror_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),m_weight);
     }
     else continue;
   }
@@ -1187,9 +1194,9 @@ void ZprimeMuMuPatMiniAodNewData::PlotNbTrackLayers()
        Mu_numberOfValidMuonHits->at(i) > 0 &&
        Mu_numberOfMatchedStations->at(i) > 1 &&
        Mu_dPToverPTTunePMuonBestTrack->at(i) < 0.3) {
-      h1_numberOftrackerLayersWithMeasurement_->Fill( Mu_numberOftrackerLayersWithMeasurement->at(i),weight );
-      h1_PtEffptnumberOftrackerLayers_->Fill(Mu_ptTunePMuonBestTrack->at(i),weight);
-      h1_EtaEffptnumberOftrackerLayers_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),weight);
+      h1_numberOftrackerLayersWithMeasurement_->Fill( Mu_numberOftrackerLayersWithMeasurement->at(i),m_weight );
+      h1_PtEffptnumberOftrackerLayers_->Fill(Mu_ptTunePMuonBestTrack->at(i),m_weight);
+      h1_EtaEffptnumberOftrackerLayers_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),m_weight);
     }
     else continue;
   }
@@ -1209,9 +1216,9 @@ void ZprimeMuMuPatMiniAodNewData::PlotNBValidPixelHits()
        Mu_numberOfValidMuonHits->at(i) > 0 &&
        Mu_numberOfMatchedStations->at(i) > 1 &&
        Mu_dPToverPTTunePMuonBestTrack->at(i) < 0.3) {
-      h1_numberOfValidPixelHits_->Fill( Mu_numberOfValidPixelHits->at(i),weight );
-      h1_PtEffptnumberOfPixelHits_->Fill(Mu_ptTunePMuonBestTrack->at(i),weight);
-      h1_EtaEffptnumberOfPixelHits_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),weight);
+      h1_numberOfValidPixelHits_->Fill( Mu_numberOfValidPixelHits->at(i),m_weight );
+      h1_PtEffptnumberOfPixelHits_->Fill(Mu_ptTunePMuonBestTrack->at(i),m_weight);
+      h1_EtaEffptnumberOfPixelHits_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),m_weight);
     }
     else continue;
   }
@@ -1230,9 +1237,9 @@ void ZprimeMuMuPatMiniAodNewData::PlotNbValidMuonHits()
        //Mu_numberOfValidMuonHits->at(i) > 0 &&
        Mu_numberOfMatchedStations->at(i) > 1 &&
        Mu_dPToverPTTunePMuonBestTrack->at(i) < 0.3) {
-      h1_numberOfValidMuonHits_->Fill( Mu_numberOfValidMuonHits->at(i),weight );
-      h1_PtEffptnumberOfMuonHits_->Fill(Mu_ptTunePMuonBestTrack->at(i),weight);
-      h1_EtaEffptnumberOfMuonHits_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),weight);
+      h1_numberOfValidMuonHits_->Fill( Mu_numberOfValidMuonHits->at(i),m_weight );
+      h1_PtEffptnumberOfMuonHits_->Fill(Mu_ptTunePMuonBestTrack->at(i),m_weight);
+      h1_EtaEffptnumberOfMuonHits_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),m_weight);
     }
     else continue;
   }
@@ -1252,9 +1259,9 @@ void ZprimeMuMuPatMiniAodNewData::PlotNbMatchedStations()
        Mu_numberOfValidMuonHits->at(i) > 0 &&
        //Mu_numberOfMatchedStations->at(i) > 1 &&
        Mu_dPToverPTTunePMuonBestTrack->at(i) < 0.3) {
-      h1_numberOfMatchedStations_->Fill( Mu_numberOfMatchedStations->at(i),weight );
-      h1_PtEffptnumberOfMatchedStations_->Fill(Mu_ptTunePMuonBestTrack->at(i),weight);
-      h1_EtaEffptnumberOfMatchedStations_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),weight);
+      h1_numberOfMatchedStations_->Fill( Mu_numberOfMatchedStations->at(i),m_weight );
+      h1_PtEffptnumberOfMatchedStations_->Fill(Mu_ptTunePMuonBestTrack->at(i),m_weight);
+      h1_EtaEffptnumberOfMatchedStations_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),m_weight);
     }
     else continue;
   }
@@ -1274,9 +1281,9 @@ void ZprimeMuMuPatMiniAodNewData::PlotTrackiso()
        Mu_numberOfValidMuonHits->at(i) > 0 &&
        Mu_numberOfMatchedStations->at(i) > 1 &&
        Mu_dPToverPTTunePMuonBestTrack->at(i) < 0.3) {
-      h1_trackiso_->Fill( Mu_trackiso->at(i)/Mu_ptTunePMuonBestTrack->at(i),weight );
-      h1_PtEffptTrackIso_->Fill(Mu_ptTunePMuonBestTrack->at(i),weight);
-      h1_EtaEffptTrackIso_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),weight);
+      h1_trackiso_->Fill( Mu_trackiso->at(i)/Mu_ptTunePMuonBestTrack->at(i),m_weight );
+      h1_PtEffptTrackIso_->Fill(Mu_ptTunePMuonBestTrack->at(i),m_weight);
+      h1_EtaEffptTrackIso_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),m_weight);
     }
     else continue;
   }
@@ -1296,9 +1303,9 @@ void ZprimeMuMuPatMiniAodNewData::PlotAbsDxy()
        Mu_numberOfValidMuonHits->at(i) > 0 &&
        Mu_numberOfMatchedStations->at(i) > 1 &&
        Mu_dPToverPTTunePMuonBestTrack->at(i) < 0.3) {
-      h1_absdxy_->Fill( Mu_absdxyTunePMuonBestTrack->at(i) ,weight);
-      h1_PtEffptabsdsy_->Fill(Mu_ptTunePMuonBestTrack->at(i),weight);
-      h1_EtaEffptabsdsy_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),weight);
+      h1_absdxy_->Fill( Mu_absdxyTunePMuonBestTrack->at(i) ,m_weight);
+      h1_PtEffptabsdsy_->Fill(Mu_ptTunePMuonBestTrack->at(i),m_weight);
+      h1_EtaEffptabsdsy_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),m_weight);
     }
     else continue;
   }
@@ -1316,7 +1323,7 @@ void ZprimeMuMuPatMiniAodNewData::PlotPtTuneP()
        Mu_numberOfValidMuonHits->at(i) > 0 &&
        Mu_numberOfMatchedStations->at(i) > 1 &&
        Mu_dPToverPTTunePMuonBestTrack->at(i) < 0.3) {
-      h1_PtTuneP_->Fill( Mu_ptTunePMuonBestTrack->at(i) ,weight);
+      h1_PtTuneP_->Fill( Mu_ptTunePMuonBestTrack->at(i) ,m_weight);
     }
     else continue;
   }
@@ -1352,9 +1359,9 @@ void ZprimeMuMuPatMiniAodNewData::MuonPassingNewID()
        Mu_numberOfValidMuonHits->at(i) > 0 &&
        Mu_numberOfMatchedStations->at(i) > 1 &&
        Mu_dPToverPTTunePMuonBestTrack->at(i) < 0.3) {
-      h1_PtNewID_->Fill(Mu_ptTunePMuonBestTrack->at(i),weight);
-      h1_EtaNewID_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),weight);
-      h1_nbPVNewID_->Fill(Mu_nbofpv->at(i),weight);
+      h1_PtNewID_->Fill(Mu_ptTunePMuonBestTrack->at(i),m_weight);
+      h1_EtaNewID_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),m_weight);
+      h1_nbPVNewID_->Fill(Mu_nbofpv->at(i),m_weight);
     }
     else continue;
   }
@@ -1375,9 +1382,9 @@ void ZprimeMuMuPatMiniAodNewData::MuonPassingTightID()
        Mu_numberOfValidMuonHits->at(i) > 0 &&
        Mu_numberOfMatchedStations->at(i) > 1 &&
        Mu_dPToverPTTunePMuonBestTrack->at(i) < 0.3) {
-      h1_PtTightID_->Fill(Mu_ptTunePMuonBestTrack->at(i),weight);
-      h1_EtaTightID_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),weight);
-      h1_nbPVTightID_->Fill(Mu_nbofpv->at(i),weight);
+      h1_PtTightID_->Fill(Mu_ptTunePMuonBestTrack->at(i),m_weight);
+      h1_EtaTightID_->Fill(fabs(Mu_etaTunePMuonBestTrack->at(i)),m_weight);
+      h1_nbPVTightID_->Fill(Mu_nbofpv->at(i),m_weight);
     }
     else continue;
   }
@@ -1415,35 +1422,21 @@ float ZprimeMuMuPatMiniAodNewData::CosThetaCollinSoper(float Et1,float Eta1,floa
 
   double costheta = 2.0 / Q.Mag() / sqrt(pow(Q.Mag(), 2) + pow(Q.Pt(), 2)) *
     (Eleplus * Elebarminus - Eleminus * Elebarplus);
-  if (Q.Pz()<0.0) costheta = -costheta;
+  if (Q.Pz() < 0.0) costheta = -costheta;
 
-  if (RecoMass > 60.0 && RecoMass < 120.0 )
-    {
-      h1_CosAngleCollinSoperCorrect60Mass120_->Fill(costheta,weight);
-    }
-
-
-  if (RecoMass > 120.0 && RecoMass < 300.0 )
-    {
-      h1_CosAngleCollinSoperCorrect120Mass300_->Fill(costheta,weight);
-    }
-
-  if (RecoMass > 300.0 && RecoMass < 700.0 )
-    {
-      h1_CosAngleCollinSoperCorrect300Mass700_->Fill(costheta,weight);
-    }
-
-  if (RecoMass > 700.0 && RecoMass < 3000.0 )
-    {
-      h1_CosAngleCollinSoperCorrect700Mass3000_->Fill(costheta,weight);
-    }
-
-  if (RecoMass > 4500.0 && RecoMass < 6000.0 )
-    {
-      h1_CosAngleCollinSoperCorrect4900Mass5100_->Fill(costheta,weight);
-      h1_absCosAngleCollinSoperCorrect4500Mass5500_->Fill(fabs(costheta),weight);
-    }
-
+  if (RecoMass > 60.0 && RecoMass < 120.0) {
+    h1_CosAngleCollinSoperCorrect60Mass120_->Fill(costheta,m_weight);
+  } else if (RecoMass > 120.0 && RecoMass < 300.0) {
+    h1_CosAngleCollinSoperCorrect120Mass300_->Fill(costheta,m_weight);
+  } else if (RecoMass > 300.0 && RecoMass < 700.0) {
+    h1_CosAngleCollinSoperCorrect300Mass700_->Fill(costheta,m_weight);
+  } else if (RecoMass > 700.0 && RecoMass < 3000.0) {
+    h1_CosAngleCollinSoperCorrect700Mass3000_->Fill(costheta,m_weight);
+  } else if (RecoMass > 4500.0 && RecoMass < 6000.0) {
+    h1_CosAngleCollinSoperCorrect4900Mass5100_->Fill(costheta,m_weight);
+    h1_absCosAngleCollinSoperCorrect4500Mass5500_->Fill(fabs(costheta),m_weight);
+  }
+  
   /************************************************************************
    *
    * 2) tanphi = (Q^2 + Qt^2)^1/2 / Q (Dt dot R unit) /(Dt dot Qt unit)
@@ -1461,7 +1454,7 @@ float ZprimeMuMuPatMiniAodNewData::CosThetaCollinSoper(float Et1,float Eta1,floa
   TVector3 Dt = D.Vect(); Dt.SetZ(0);
   double tanphi = sqrt(pow(Q.Mag(), 2) + pow(Q.Perp(), 2)) / Q.Mag() * Dt.Dot(Runit) / Dt.Dot(Qtunit);
   if (Q.Pz()<0.0) tanphi = -tanphi;
-  //h1_TanPhiCollinSoperCorrect_->Fill(tanphi,weight);
+  //h1_TanPhiCollinSoperCorrect_->Fill(tanphi,m_weight);
   /************************************************************************
    *
    * 3) sin2(theta) = Q^-2 Dt^2 - Q^-2 (Q^2 + Qt^2)^-1 * (Dt dot Qt)^2
@@ -1470,7 +1463,7 @@ float ZprimeMuMuPatMiniAodNewData::CosThetaCollinSoper(float Et1,float Eta1,floa
   //double dt_qt = D.X()*Q.X() + D.Y()*Q.Y();
   //double sin2theta = pow(D.Pt()/Q.Mag(), 2)
   //- 1.0/pow(Q.Mag(), 2)/(pow(Q.Mag(), 2) + pow(Q.Pt(), 2))*pow(dt_qt, 2);
-  //h1_Sin2AngleCollinSoperCorrect_->Fill(sin2theta,weight);
+  //h1_Sin2AngleCollinSoperCorrect_->Fill(sin2theta,m_weight);
 
   return costheta;
 }
@@ -2281,29 +2274,21 @@ float ZprimeMuMuPatMiniAodNewData::FRweight(float eta, float pt)
   parEE2 = -4.90668e+02;
   parEE3 = 7.96427e+02;
   parEE4 = 0.3570;
-  if (fabs(eta)<1.2 && pt>50.0 && pt<700.0)
-    {
-      FR = parEB1 + parEB2 / (parEB3 + pt );
-    }
-  else if (fabs(eta)<1.2 && pt>700.0)
-    {
-      FR = parEB4;
-    }
-  else if (fabs(eta)>1.2 && pt>50.0 && pt<700.0)
-    {
-      FR = parEE1 + parEE2 / (parEE3 + pt );
-    }
-  else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>700.0)
-    {
-      FR = parEE4;
-    }
-  else {
+  if (fabs(eta)<1.2 && pt>50.0 && pt<700.0) {
+    FR = parEB1 + parEB2 / (parEB3 + pt );
+  } else if (fabs(eta)<1.2 && pt>700.0) {
+    FR = parEB4;
+  } else if (fabs(eta)>1.2 && pt>50.0 && pt<700.0) {
+    FR = parEE1 + parEE2 / (parEE3 + pt );
+  } else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>700.0) {
+    FR = parEE4;
+  } else {
     std::cout << "out of FR range" << std::endl;
   }
   return (FR/(1-FR));
 }
 */
-/*
+ /*
 //================= Method to select first high pt muon ==============
 float ZprimeMuMuPatMiniAodNewData::FRweight(float eta, float pt)
 {
@@ -2318,23 +2303,15 @@ float ZprimeMuMuPatMiniAodNewData::FRweight(float eta, float pt)
   parEE3 = 2.00294e-05;
   parEE4 = -2.51248e-08;
   parEE5 = 2.40380e-01;
-  if (fabs(eta)<1.2 && pt>FR_Ptcut && pt<=600.0)
-    {
-      FR = parEB1 + parEB2*pow(pt,1) + parEB3*pow(pt,2) + parEB4*pow(pt,3);
-    }
-  else if (fabs(eta)<1.2 && pt>600.0)
-    {
-      FR = parEB5;
-    }
-  else if (fabs(eta)>1.2  && fabs(eta)<2.4 && pt>FR_Ptcut && pt<=600.0)
-    {
-      FR = parEE1 + parEE2*pow(pt,1) + parEE3*pow(pt,2) + parEE4*pow(pt,3);
-    }
-  else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>600.0)
-    {
-      FR = parEE5;
-    }
-  else {
+  if (fabs(eta)<1.2 && pt>FR_Ptcut && pt<=600.0) {
+    FR = parEB1 + parEB2*pow(pt,1) + parEB3*pow(pt,2) + parEB4*pow(pt,3);
+  } else if (fabs(eta)<1.2 && pt>600.0) {
+    FR = parEB5;
+  } else if (fabs(eta)>1.2  && fabs(eta)<2.4 && pt>FR_Ptcut && pt<=600.0) {
+    FR = parEE1 + parEE2*pow(pt,1) + parEE3*pow(pt,2) + parEE4*pow(pt,3);
+  } else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>600.0) {
+    FR = parEE5;
+  } else {
     std::cout << "out of FR range" << std::endl;
   }
   return (FR/(1-FR));
@@ -2374,27 +2351,17 @@ float ZprimeMuMuPatMiniAodNewData::FRweight(float eta, float pt)
   parEE3 = 5.64918e-06;
   parEE4 = 2.38683e-01;
 
-  if (fabs(eta)<1.2 && pt>FR_Ptcut && pt<=200.0)
-    {
+  if (fabs(eta)<1.2 && pt>FR_Ptcut && pt<=200.0) {
       FR = parEB1 + parEB2*pow(pt,1) + parEB3*pow(pt,2);
-    }
-  else if (fabs(eta)<1.2 && pt>200 && pt<=800.0)
-    {
+    } else if (fabs(eta)<1.2 && pt>200 && pt<=800.0) {
       FR = parEB4 + parEB5 / (parEB6 + pt );
-    }
-  else if (fabs(eta)<1.2 && pt>800.0)
-    {
+    } else if (fabs(eta)<1.2 && pt>800.0) {
       FR = parEB7;
-    }
-  else if (fabs(eta)>1.2  && fabs(eta)<2.4 && pt>FR_Ptcut && pt<=250.0)
-    {
+    } else if (fabs(eta)>1.2  && fabs(eta)<2.4 && pt>FR_Ptcut && pt<=250.0) {
       FR = parEE1 + parEE2*pow(pt,1) + parEE3*pow(pt,2);
-    }
-  else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>250.0)
-    {
+    } else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>250.0) {
       FR = parEE4;
-    }
-  else {
+    } else {
     std::cout << "out of FR range" << std::endl;
   }
   return (FR/(1-FR));
@@ -2426,23 +2393,15 @@ float ZprimeMuMuPatMiniAodNewData::FRweight(float eta, float pt)
   parEE9  = -2.15325e+07;
   parEE10 = 2.63281e+06;
 
-  if (fabs(eta)<1.2 && pt>FR_Ptcut && pt<=250.0)
-    {
-      FR = parEB1 + parEB2*pow(pt,1) + parEB3*pow(pt,2);
-    }
-  else if (fabs(eta)<1.2 && pt>250)
-    {
-      FR = parEB4+(parEB5/(pt+parEB6))+(parEB7/(pt*pt+parEB8))+(parEB9/(pt*pt*pt+parEB10));
-    }
-  else if (fabs(eta)>1.2  && fabs(eta)<2.4 && pt>FR_Ptcut && pt<=250.0)
-    {
-      FR = parEE1 + parEE2*pow(pt,1) + parEE3*pow(pt,2);
-    }
-  else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>250.0)
-    {
-      FR = parEE4+(parEE5/(pt+parEE6))+(parEE7/(pt*pt+parEE8))+(parEE9/(pt*pt*pt+parEE10));
-    }
-  else {
+  if (fabs(eta)<1.2 && pt>FR_Ptcut && pt<=250.0) {
+    FR = parEB1 + parEB2*pow(pt,1) + parEB3*pow(pt,2);
+  } else if (fabs(eta)<1.2 && pt>250) {
+    FR = parEB4+(parEB5/(pt+parEB6))+(parEB7/(pt*pt+parEB8))+(parEB9/(pt*pt*pt+parEB10));
+  } else if (fabs(eta)>1.2  && fabs(eta)<2.4 && pt>FR_Ptcut && pt<=250.0) {
+    FR = parEE1 + parEE2*pow(pt,1) + parEE3*pow(pt,2);
+  } else if (fabs(eta)>1.2 && fabs(eta)<2.4 && pt>250.0) {
+    FR = parEE4+(parEE5/(pt+parEE6))+(parEE7/(pt*pt+parEE8))+(parEE9/(pt*pt*pt+parEE10));
+  } else {
     std::cout << "out of FR range" << std::endl;
   }
   return (FR/(1-FR));

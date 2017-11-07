@@ -4,10 +4,10 @@
 //          To run over MINIAOD MC with fixed trigger          =
 //                  Author:  Sherif Elgammal                   =
 //                                                             =
-//                       08/04/2017                            =
+//                       11/03/2016                            =
 //==============================================================
-#ifndef ZprimeMuMuPatMiniAodNewData_h
-#define ZprimeMuMuPatMiniAodNewData_h
+#ifndef ZprimeEleElePatMiniAodNewMC_h
+#define ZprimeEleElePatMiniAodNewMC_h
 
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -32,7 +32,7 @@
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
-class ZprimeEleElePatMiniAodNewData {
+class ZprimeEleElePatMiniAodNewMC {
  public :
   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t           fCurrent; //!current Tree number in a TChain
@@ -42,6 +42,13 @@ class ZprimeEleElePatMiniAodNewData {
   UInt_t          event_evtNo;
   UInt_t          event_lumi;
   UInt_t          event_bunch;
+
+  // special for CI smaples
+  bool            isCISample;
+  Double_t        xsWeight;
+  Bool_t          passPreFSRMInvCut;
+  Bool_t          passMInvCut;
+
   std::vector<int>     *Ele_nbElectrons;
   std::vector<bool>    *Ele_isEcalDrivenSeed;
   std::vector<bool>    *Ele_isPassConversionVeto;
@@ -199,6 +206,12 @@ class ZprimeEleElePatMiniAodNewData {
   TBranch        *b_event_evtNo;   //!
   TBranch        *b_event_lumi;   //!
   TBranch        *b_event_bunch;   //!
+
+  // special for CI smaples
+  TBranch        *b_xsWeight;
+  TBranch        *b_passPreFSRMInvCut;
+  TBranch        *b_passMInvCut;
+
   TBranch        *b_Ele_nbElectrons;   //!
   TBranch        *b_Ele_isEcalDrivenSeed;   //!
   TBranch        *b_Ele_isPassConversionVeto;   //!
@@ -351,9 +364,9 @@ class ZprimeEleElePatMiniAodNewData {
   TBranch        *b_Rho;   //!
   TBranch        *b_MC_weighting;   //!
 
-  ZprimeEleElePatMiniAodNewData(Char_t namechar_[300], TTree *tree=0, Double_t weight_=1.,
-                                std::string DATA_type_="DATA", std::string MC_type_="MC");
-  virtual ~ZprimeEleElePatMiniAodNewData();
+  ZprimeEleElePatMiniAodNewMC(Char_t namechar_[300], TTree *tree=0, Double_t weight_=1.,
+                              std::string DATA_type_="DATA", std::string MC_type_="MC");
+  virtual ~ZprimeEleElePatMiniAodNewMC();
   Double_t m_weight;
   Char_t name[300];
   std::string DATA_type,MC_type;
@@ -364,16 +377,17 @@ class ZprimeEleElePatMiniAodNewData {
   virtual void     Loop(bool debug=false);
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
+  double MassCorrection(float M);
   bool SelectFirstEle(float &ETele1,float &Enele1,float &Etaele1,
-		      float &Phiele1,int &ChargeEle1,float &EtaSCele1,
-		      float &PhiSCele1,unsigned &FlagEle1,
-		      float &genEle1Pt, float &genEle1Eta, float &genEle1Phi, float &genEle1En);
+                      float &Phiele1,int &ChargeEle1,float &EtaSCele1,
+                      float &PhiSCele1,unsigned &FlagEle1,
+                      float &genEle1Pt, float &genEle1Eta, float &genEle1Phi, float &genEle1En);
   bool SelectSecondEle(int ChargeEle1,unsigned FlagEle1,float ETele1,float Etaele1,float Phiele1,
-		       float &ETele2,float &Enele2,float &Etaele2,float &Phiele2,int &ChargeEle2,
-		       float &EtaSCele2,float &PhiSCele2,
-		       float &genEle2Pt, float &genEle2Eta, float &genEle2Phi, float &genEle2En);
+                       float &ETele2,float &Enele2,float &Etaele2,float &Phiele2,int &ChargeEle2,
+                       float &EtaSCele2,float &PhiSCele2,
+                       float &genEle2Pt, float &genEle2Eta, float &genEle2Phi, float &genEle2En);
   float Mass(float Pt1,float Eta1,float Phi1,float En1,
-	     float Pt2,float Eta2,float Phi2,float En2);
+             float Pt2,float Eta2,float Phi2,float En2);
   void PlotRecoInfo(float MassEle,float etaEle1,float etaEle2);
   bool SelectFirstGenEle(float &ETEle1,float &PhiSCEle1,
                          float &EtaSCEle1,float &EnEle1,
@@ -382,27 +396,17 @@ class ZprimeEleElePatMiniAodNewData {
   bool SelectSecondGenEle(unsigned GenFlag1,float ETEle1,float &ETEle2,float &PhiSCEle2,
                           float &EtaSCEle2,float &EnEle2,int &IDele2,int &Statele2);
   bool GenRecoMatchEle(float RecoEta1,float RecoPhi1,
-		       float &ptGele,float &etaGele,float &phiGele,float &enGele);
-  bool isPassHLT1();
-  bool isPassHLT2();
-  bool RecoHLTEleMatching1(float RecoEta,float RecoPhi);
-  bool RecoHLTEleMatching2(float RecoEta,float RecoPhi);
+                       float &ptGele,float &etaGele,float &phiGele,float &enGele);
+  bool RecoHLTEleMatching(float RecoEta,float RecoPhi);
+  bool isPassHLT();
   float CosThetaCollinSoper(float Et1,float Eta1,float Phi1,float En1,
 			    float Et2,float Eta2,float Phi2,float En2,
 			    float ChargeEle1,float RecoMass);
   float delR(float eta1,float phi1,float eta2,float phi2);
-  void DrawDiJetMassBB();
-  void DrawDiJetMassBE();
-  void DrawDiJetMassEE();
-  void DrawWJetsMassBB();
-  void DrawWJetsMassBE1();
-  void DrawWJetsMassBE2();
-  void DrawWJetsMassEE();
-  float FRweight(float Et,float eta);
 
   //================================================================================
   float HLT_pt,HLT_eta,HLT_phi;
-  /* int m_weight; */
+  /* int m_weight; BUG BUG BUG*/
   float Etele1,Enele1,EtaTrakele1,PhiTrakele1,EtaSCele1,PhiSCele1;
   int Chargeele1;
   float Etele2,Enele2,EtaTrakele2,PhiTrakele2,EtaSCele2,PhiSCele2;
@@ -425,7 +429,7 @@ class ZprimeEleElePatMiniAodNewData {
   int m_genID1,m_genStat1;
   float m_genET2,m_genPhi2,m_genEta2,m_genEn2;
   int m_genID2,m_genStat2;
-  float m_genMass,m_recoMass, m_csAngle;
+  float m_genMass,m_recoMass,m_csAngle;
   int NbGen,NbReco;
   int nbTP,nbTT,nbTF;
   float TagProbeEtaCut;
@@ -447,9 +451,18 @@ class ZprimeEleElePatMiniAodNewData {
   /* std::array<std::array<TH1D*,4> 3> h1_MassBinned_       ; */
   /* std::array<std::array<TH1D*,4> 3> h1_MassUpBinned_     ; */
   /* std::array<std::array<TH1D*,4> 3> h1_MassDownBinned_   ; */
+  std::shared_ptr<TH2D> h2_CSSmearedMassBinned_;
   std::shared_ptr<TH2D> h2_CSMassBinned_       ;
+  std::shared_ptr<TH2D> h2_CSMassUpBinned_     ;
+  std::shared_ptr<TH2D> h2_CSMassDownBinned_   ;
+  std::shared_ptr<TH2D> h2_CSPosSmearedMassBinned_;
   std::shared_ptr<TH2D> h2_CSPosMassBinned_       ;
+  std::shared_ptr<TH2D> h2_CSPosMassUpBinned_     ;
+  std::shared_ptr<TH2D> h2_CSPosMassDownBinned_   ;
+  std::shared_ptr<TH2D> h2_CSNegSmearedMassBinned_;
   std::shared_ptr<TH2D> h2_CSNegMassBinned_       ;
+  std::shared_ptr<TH2D> h2_CSNegMassUpBinned_     ;
+  std::shared_ptr<TH2D> h2_CSNegMassDownBinned_   ;
 
   std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidth_;
   std::shared_ptr<TH1D> h1_ZprimeRecomassBinWidthBB_;
@@ -459,24 +472,14 @@ class ZprimeEleElePatMiniAodNewData {
   std::shared_ptr<TH1D> h1_ZprimeRecomass60to120EE_;
   std::shared_ptr<TH1D> h1_ZprimeRecomass60to120BB_;
   std::shared_ptr<TH1D> h1_ZprimeRecomass60to120_;
-  std::shared_ptr<TH1D> h1_DijetBinWidthBB_;
-  std::shared_ptr<TH1D> h1_DijetBinWidthBE_;
-  std::shared_ptr<TH1D> h1_DijetBinWidthEE_;
-  std::shared_ptr<TH1D> h1_DijetBinWidthBBBE_;
-  std::shared_ptr<TH1D> h1_DijetEta1_;
-  std::shared_ptr<TH1D> h1_DijetEta2_;
-  std::shared_ptr<TH1D> h1_WjetsBinWidthBB_;
-  std::shared_ptr<TH1D> h1_WjetsBinWidthBE_;
-  std::shared_ptr<TH1D> h1_WjetsBinWidthEE_;
-  std::shared_ptr<TH1D> h1_WjetsBinWidthBBBE_;
   std::shared_ptr<TH1D> h1_ZprimeRecomass_;
 };
 
 #endif
 
-#ifdef ZprimeEleElePatMiniAodNewData_cxx
-ZprimeEleElePatMiniAodNewData::ZprimeEleElePatMiniAodNewData(Char_t namechar_[300], TTree *tree, Double_t weight_,
-                                                             std::string DATA_type_, std::string MC_type_) : fChain(0)
+#ifdef ZprimeEleElePatMiniAodNewMC_cxx
+ZprimeEleElePatMiniAodNewMC::ZprimeEleElePatMiniAodNewMC(Char_t namechar_[300], TTree *tree, Double_t weight_,
+                                                         std::string DATA_type_, std::string MC_type_) : fChain(0)
 {
   sprintf(name,"%s",namechar_);
   m_weight = weight_;
@@ -487,9 +490,9 @@ ZprimeEleElePatMiniAodNewData::ZprimeEleElePatMiniAodNewData(Char_t namechar_[30
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
   if (tree == 0) {
-    TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("../../DoubleEG_Data_B_reminiaod_json_tree.root");
+    TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("");
     if (!f || !f->IsOpen()) {
-      f = new TFile("../../DoubleEG_Data_B_reminiaod_json_tree.root");
+      f = new TFile("../ZToEE_NNPDF30_13TeV-powheg_M_3500_4500_Moriond17_tree.root");
     }
     f->GetObject("tree",tree);
 
@@ -497,7 +500,7 @@ ZprimeEleElePatMiniAodNewData::ZprimeEleElePatMiniAodNewData(Char_t namechar_[30
   Init(tree);
 }
 
-ZprimeEleElePatMiniAodNewData::~ZprimeEleElePatMiniAodNewData()
+ZprimeEleElePatMiniAodNewMC::~ZprimeEleElePatMiniAodNewMC()
 {
   if (!fChain) return;
   std::cout << std::hex << fChain << std::endl;
@@ -506,13 +509,13 @@ ZprimeEleElePatMiniAodNewData::~ZprimeEleElePatMiniAodNewData()
     delete fChain->GetCurrentFile();
 }
 
-Int_t ZprimeEleElePatMiniAodNewData::GetEntry(Long64_t entry)
+Int_t ZprimeEleElePatMiniAodNewMC::GetEntry(Long64_t entry)
 {
   // Read contents of entry.
   if (!fChain) return 0;
   return fChain->GetEntry(entry);
 }
-Long64_t ZprimeEleElePatMiniAodNewData::LoadTree(Long64_t entry)
+Long64_t ZprimeEleElePatMiniAodNewMC::LoadTree(Long64_t entry)
 {
   // Set the environment to read one entry
   if (!fChain) return -5;
@@ -525,7 +528,7 @@ Long64_t ZprimeEleElePatMiniAodNewData::LoadTree(Long64_t entry)
   return centry;
 }
 
-void ZprimeEleElePatMiniAodNewData::Init(TTree *tree)
+void ZprimeEleElePatMiniAodNewMC::Init(TTree *tree)
 {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
@@ -678,6 +681,16 @@ void ZprimeEleElePatMiniAodNewData::Init(TTree *tree)
   fChain->SetBranchAddress("event_evtNo", &event_evtNo, &b_event_evtNo);
   fChain->SetBranchAddress("event_lumi", &event_lumi, &b_event_lumi);
   fChain->SetBranchAddress("event_bunch", &event_bunch, &b_event_bunch);
+
+  // special for CI smaples (will fail if not present... need to robustify
+  isCISample = false;
+  if (std::string(name).find("CI") != std::string::npos) {
+    isCISample = true;
+    fChain->SetBranchAddress("xsWeight",          &xsWeight,          &b_xsWeight);
+    fChain->SetBranchAddress("passPreFSRMInvCut", &passPreFSRMInvCut, &b_passPreFSRMInvCut);
+    fChain->SetBranchAddress("passMInvCut",       &passMInvCut,       &b_passMInvCut);
+  }
+
   fChain->SetBranchAddress("Ele_nbElectrons", &Ele_nbElectrons, &b_Ele_nbElectrons);
   fChain->SetBranchAddress("Ele_isEcalDrivenSeed", &Ele_isEcalDrivenSeed, &b_Ele_isEcalDrivenSeed);
   fChain->SetBranchAddress("Ele_isPassConversionVeto", &Ele_isPassConversionVeto, &b_Ele_isPassConversionVeto);
@@ -832,7 +845,7 @@ void ZprimeEleElePatMiniAodNewData::Init(TTree *tree)
   Notify();
 }
 
-Bool_t ZprimeEleElePatMiniAodNewData::Notify()
+Bool_t ZprimeEleElePatMiniAodNewMC::Notify()
 {
   // The Notify() function is called when a new file is opened. This
   // can be either for a new TTree in a TChain or when when a new TTree
@@ -843,18 +856,18 @@ Bool_t ZprimeEleElePatMiniAodNewData::Notify()
   return kTRUE;
 }
 
-void ZprimeEleElePatMiniAodNewData::Show(Long64_t entry)
+void ZprimeEleElePatMiniAodNewMC::Show(Long64_t entry)
 {
   // Print contents of entry.
   // If entry is not specified, print current entry
   if (!fChain) return;
   fChain->Show(entry);
 }
-Int_t ZprimeEleElePatMiniAodNewData::Cut(Long64_t entry)
+Int_t ZprimeEleElePatMiniAodNewMC::Cut(Long64_t entry)
 {
   // This function may be called from Loop.
   // returns  1 if entry is accepted.
   // returns -1 otherwise.
   return 1;
 }
-#endif // #ifdef ZprimeEleElePatMiniAodNewData_cxx
+#endif // #ifdef ZprimeEleElePatMiniAodNewMC_cxx

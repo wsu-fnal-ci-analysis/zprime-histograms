@@ -21,7 +21,11 @@ root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeMuM
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeMuMu/output_WWTo2L2Nu_Mll_600To1200_13TeV-powheg_Moriond17_tree.root
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeMuMu/output_WZ_TuneCUETP8M1_13TeV-pythia8_Moriond17_tree.root
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeMuMu/output_ZZ_TuneCUETP8M1_13TeV-pythia8_Moriond17_tree.root
-# root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeMuMu/output_TTTo2L2Nu_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8_Moriond17_tree.root
+# root://cmseos.fnal.gov///store/user/ndefilip/ZprimeAnalysis/histos/histosZprimeMuMu/Data-total-jets.root
+# root://cmseos.fnal.gov///store/user/ndefilip/ZprimeAnalysis/histos/histosZprimeMuMu/Data-total-jets-BB.root
+# root://cmseos.fnal.gov///store/user/ndefilip/ZprimeAnalysis/histos/histosZprimeMuMu/Data-total-jets-BEEE.root
+root://cmseos.fnal.gov///store/user/ndefilip/ZprimeAnalysis/histos/histosZprimeMuMu/Data-total-jets-BBBEEE.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeMuMu/output_TTTo2L2Nu_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8_Moriond17_tree.root
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeMuMu/output_TTToLL_MLL_1200To1800_TuneCUETP8M1_13TeV-powheg-pythia8_Moriond17_tree.root
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeMuMu/output_TTToLL_MLL_1800ToInf_TuneCUETP8M1_13TeV-powheg-pythia8_Moriond17_tree.root
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeMuMu/output_TTToLL_MLL_500To800_TuneCUETP8M1_13TeV-powheg-pythia8_Moriond17_tree.root
