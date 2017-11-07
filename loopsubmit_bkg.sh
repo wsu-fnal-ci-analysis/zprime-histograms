@@ -57,7 +57,12 @@ while [ $n -lt ${nlines} ]; do
   echo $samplename
 
   skip=0
-  if [ ${lflav} = "Ele" ]
+  res=$(echo ${samplename} | fgrep "#")
+  if [ $res ]
+  then
+      echo "Ignoring commented out ${samplename}"
+      skip=1
+  elif [ ${lflav} = "Ele" ]
   then
       res=$(echo ${samplename} | fgrep "MuMu")
       if [ $res ]
@@ -75,13 +80,14 @@ while [ $n -lt ${nlines} ]; do
       fi
   fi
 
-  cat bkg_input.txt | tail -n $m >  bkg_input_tmp.txt
-  mv  bkg_input_tmp.txt bkg_input.txt
   rm -f jobs/submit_Zprime${lflav}${lflav}Analysis_${samplename}.sh
   rm -f jobs/condor_template.cfg
+  cat bkg_input.txt | tail -n $m >  bkg_input_tmp.txt
+  mv  bkg_input_tmp.txt bkg_input.txt
 
   if [ "${skip}" = "1" ]
   then
+      rm -f BkgCards${simu}/bkg_input_${n}.txt
       continue
   fi
   

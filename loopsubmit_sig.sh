@@ -43,10 +43,25 @@ while [ $n -lt ${nlines} ]; do
   cat sig_input.txt | head -1 > SigCards${simu}/sig_input_${n}.txt
   samplename=`cat SigCards${simu}/sig_input_${n}.txt | awk '{print $1}'`
   echo $samplename
-  cat sig_input.txt | tail -n $m >  sig_input_tmp.txt
-  mv  sig_input_tmp.txt sig_input.txt
+
+  skip=0
+  res=$(echo ${samplename} | fgrep "#")
+  if [ $res ]
+  then
+      echo "Ignoring commented out ${samplename}"
+      skip=1
+  fi
+
   rm -f jobs/submit_Zprime${lflav}${lflav}Analysis_${samplename}.sh
   rm -f jobs/condor_template.cfg
+  cat sig_input.txt | tail -n $m >  sig_input_tmp.txt
+  mv  sig_input_tmp.txt sig_input.txt
+
+  if [ "${skip}" = "1" ]
+  then
+      rm -f SigCards${simu}/sig_input_${n}.txt
+      continue
+  fi
 
   if [ ${site} = ${SCERN} ]; then
       cat submit_Zprime${lflav}${lflav}Analysis_CERN.sh | \
