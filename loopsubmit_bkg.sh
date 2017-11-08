@@ -30,10 +30,10 @@ n=0;
 m=0;
 
 subflav=
-if [ "${lflav}"="Ele" ]
+if [ "${lflav}" = "Ele" ]
 then
     subflav="ee"
-elif [ "${lflav}"="Mu" ]
+elif [ "${lflav}" = "Mu" ]
 then
     subflav="mumu"
 else
@@ -50,10 +50,10 @@ while [ $n -lt ${nlines} ]; do
   (( n = n + 1 ))
   (( m = ${nlines} - n ))
   echo $n $m
-  mkdir -p BkgCards${simu}
-  rm -f BkgCards${simu}/bkg_input_${n}.txt
-  cat bkg_input.txt | head -1 > BkgCards${simu}/bkg_input_${n}.txt
-  samplename=`cat BkgCards${simu}/bkg_input_${n}.txt | awk '{print $1}'`
+  mkdir -p BkgCards${simu}_${subflav}
+  rm -f BkgCards${simu}_${subflav}/bkg_input_${n}.txt
+  cat bkg_input.txt | head -1 > BkgCards${simu}_${subflav}/bkg_input_${n}.txt
+  samplename=`cat BkgCards${simu}_${subflav}/bkg_input_${n}.txt | awk '{print $1}'`
   echo $samplename
 
   skip=0
@@ -87,7 +87,7 @@ while [ $n -lt ${nlines} ]; do
 
   if [ "${skip}" = "1" ]
   then
-      rm -f BkgCards${simu}/bkg_input_${n}.txt
+      rm -f BkgCards${simu}_${subflav}/bkg_input_${n}.txt
       continue
   fi
   
@@ -101,7 +101,7 @@ while [ $n -lt ${nlines} ]; do
 	  sed "s?jobdir?jobs/jobsZprime${lflav}${lflav}?g" | \
 	  sed "s?histodir?histos/histosZprime${lflav}${lflav}?g" | \
 	  sed "s?output?output_${samplename}?g" | \
-	  sed "s?bkg_input.txt?BkgCards${simu}/bkg_input_${n}.txt?g" | \
+	  sed "s?bkg_input.txt?BkgCards${simu}_${subflav}/bkg_input_${n}.txt?g" | \
 	  sed "s?s.log?s_${samplename}.log?g" > jobs/submit_Zprime${lflav}${lflav}Analysis_${samplename}.sh
   elif  [ ${site} = ${SFNAL} ]; then
       cat submit_Zprime${lflav}${lflav}Analysis_FNAL.sh | \
@@ -121,7 +121,7 @@ while [ $n -lt ${nlines} ]; do
 	  sed "s?submit_ZprimeAnalysis_FNAL?submit_Zprime${lflav}${lflav}Analysis_${samplename}?g" | \
 	  sed "s?ZprimeAnalysis?Zprime${lflav}${lflav}Analysis?g" | \
 	  sed "s?ZprimePat?Zprime${lflav}${lflav}Pat?g" | \
-	  sed "s?sig_input_h150.txt?BkgCards${simu}/bkg_input_${n}.txt?g" | \
+	  sed "s?sig_input_h150.txt?BkgCards${simu}_${subflav}/bkg_input_${n}.txt?g" | \
 	  sed "s?mail?`whoami`?g" > jobs/condor_Zprime${lflav}${lflav}Analysis_${samplename}.cfg
   elif  [ ${site} = ${SDESY} ]; then
       cat submit_Zprime${lflav}${lflav}Analysis_DESY.sh | \
@@ -132,7 +132,7 @@ while [ $n -lt ${nlines} ]; do
 	  sed "s?jobdir?jobs/jobsZprime${lflav}${lflav}?g" | \
 	  sed "s?histodir?histos/histosZprime${lflav}${lflav}?g" | \
 	  sed "s?output?output_${samplename}?g" | \
-	  sed "s?bkg_input.txt?BkgCards${simu}/bkg_input_${n}.txt?g" | \
+	  sed "s?bkg_input.txt?BkgCards${simu}_${subflav}/bkg_input_${n}.txt?g" | \
 	  sed "s?s.log?s_${samplename}.log?g" > jobs/submit_Zprime${lflav}${lflav}Analysis_${samplename}.sh
   elif  [ ${site} = ${SBARI} ]; then
       cat submit_Zprime${lflav}${lflav}Analysis_BARI.sh  | \
@@ -151,7 +151,7 @@ while [ $n -lt ${nlines} ]; do
 	  sed "s?submit_ZprimeAnalysis_BARI?submit_Zprime${lflav}${lflav}Analysis_${samplename}?g" | \
 	  sed "s?ZprimeAnalysis?Zprime${lflav}${lflav}Analysis?g" | \
 	  sed "s?ZprimePat?Zprime${lflav}${lflav}Pat?g" | \
-	  sed "s?sig_input_h150.txt?BkgCards${simu}/bkg_input_${n}.txt?g" | \
+	  sed "s?sig_input_h150.txt?BkgCards${simu}_${subflav}/bkg_input_${n}.txt?g" | \
 	  sed "s?mail?`whoami`?g" > jobs/condor_Zprime${lflav}${lflav}Analysis_${samplename}.cfg
   else
       cat submit_Zprime${lflav}${lflav}Analysis.sh | \
@@ -161,7 +161,7 @@ while [ $n -lt ${nlines} ]; do
 	  sed "s?jobdir?jobs/jobsZprime${lflav}${lflav}?g" | \
 	  sed "s?histodir?histos/histosZprime${lflav}${lflav}?g" | \
 	  sed "s?output?output_${samplename}?g" | \
-	  sed "s?bkg_input.txt?BkgCards${simu}/bkg_input_${n}.txt?g" | \
+	  sed "s?bkg_input.txt?BkgCards${simu}_${subflav}/bkg_input_${n}.txt?g" | \
 	  sed "s?s.log?s_${samplename}.log?g" > jobs/submit_Zprime${lflav}${lflav}Analysis_${samplename}.sh
   fi
 
