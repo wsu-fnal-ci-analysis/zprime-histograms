@@ -155,6 +155,11 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   Char_t outform[20000];
   sprintf(outform,"run: lumi: event: dil_mass: pTele1: pTele2: Etaele1: Etaele2:");
   output_txt << outform << std::endl;
+
+  TString inputfile=name;
+  inputfile=name;
+  std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
+
   //==================================================================================
   if (fChain == 0) return;
   Long64_t nentries = fChain->GetEntriesFast();
@@ -168,6 +173,9 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   int tenpcount = 1;
   int onepcount = 1;
   int tenthpcount = 1;
+
+  int wwto2l2nu_input(0),wwto2l2nu_fail_gen_mass(0),wwto2l2nu_fail_reco_mass(0);
+  int ttto2l2nu_input(0),ttto2l2nu_fail_gen_mass(0),ttto2l2nu_fail_reco_mass(0);
 
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry < nentries;jentry++) {
@@ -245,11 +253,15 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
 	std::cout << "failed el selection" << std::endl;
       continue;
     }
-    DiEleMass = Mass(Etele1,EtaTrakele1,PhiTrakele1,ELEC_MASS,
+    m_recoMass = Mass(Etele1,EtaTrakele1,PhiTrakele1,ELEC_MASS,
                      Etele2,EtaTrakele2,PhiTrakele2,ELEC_MASS);
-    if (DiEleMass < 60) {
+
+    m_genMass = GenMass(m_genET1, m_genEta1, m_genPhi1, m_genEn1,
+			m_genET2, m_genEta2, m_genPhi2, m_genEn2);
+
+    if (m_recoMass < 60) {
       if (debug)
-	std::cout << "failed DiEleMass" << std::endl;
+	std::cout << "failed m_recoMass" << std::endl;
       continue;
     }
     //=========================================================
@@ -265,12 +277,108 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
     bool RecoEle1MatchingWithHLT1 = RecoHLTEleMatching(EtaSCele1,PhiSCele1);
     bool RecoEle2MatchingWithHLT2 = RecoHLTEleMatching(EtaSCele2,PhiSCele2);
     if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
+
+      // Special inclusively binned samples, used only in the low mass region?
+      //  - Scaling is off...
+      // WW sample
+      // need to keep a running track of how many events are rejcted, and adjust the weight appropriately
+      if (inputfile.Contains("WWTo2L2Nu_13TeV")) {
+	wwto2l2nu_input++;
+	if (m_genMass > 600.) {
+	  if (debug)
+	    std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  newweight = 0;
+	  wwto2l2nu_fail_gen_mass++;
+	}
+	if (m_recoMass > 600.) {  // WHY CUT ON THE RECO MASS???
+	  if (debug)
+	    std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  // newweight = 0;
+	  wwto2l2nu_fail_reco_mass++;
+	}
+      } else if (inputfile.Contains("WWTo2L2Nu_Mll")) {
+	wwto2l2nu_input++;
+	if (m_genMass < 600.) {
+	  if (debug)
+	    std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  newweight = 0;
+	  wwto2l2nu_fail_gen_mass++;
+	}
+	if (m_recoMass < 600.) {  // WHY CUT ON THE RECO MASS???
+	  if (debug)
+	    std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  // newweight = 0;
+	  wwto2l2nu_fail_reco_mass++;
+	}
+      } else if (inputfile.Contains("TTTo2L2Nu_Tune")) {
+	// Inclusive TTTo2L2Nu sample
+	ttto2l2nu_input++;
+	if (m_genMass > 500.) {
+	  if (debug)
+	    std::cout << "Reweighting inclusive TTTo2L2Nu sample with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  newweight = 0;
+	  ttto2l2nu_fail_gen_mass++;
+	}
+	if (m_recoMass > 500.) {  // WHY CUT ON THE RECO MASS???
+	  if (debug)
+	    std::cout << "Reweighting inclusive TTTo2L2Nu sample with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  // newweight = 0;
+	  ttto2l2nu_fail_reco_mass++;
+	}
+      } else if (inputfile.Contains("TTTo2L2Nu_M") || inputfile.Contains("TTToLL_MLL_")) {
+	ttto2l2nu_input++;
+	if (m_genMass > 500.) {
+	  if (debug)
+	    std::cout << "Reweighting mass binned TTTo2L2Nu sample with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  newweight = 0;
+	  ttto2l2nu_fail_gen_mass++;
+	}
+	if (m_recoMass<500.) {
+	  if (debug)
+	    std::cout << "Reweighting mass binned TTTo2L2Nu sample with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  // newweight = 0;
+	  ttto2l2nu_fail_reco_mass++;
+	}
+      }
+
+
       m_csAngle = CosThetaCollinSoper(Etele1,EtaSCele1,PhiSCele1,Enele1,
 				      Etele2,EtaSCele2,PhiSCele2,Enele2,
-				      Chargeele1,DiEleMass);
-      PlotRecoInfo(DiEleMass,EtaSCele1,EtaSCele2);
+				      Chargeele1,m_recoMass);
+      PlotRecoInfo(m_recoMass,EtaSCele1,EtaSCele2);
     }
   }
+
+  std::cout << "100% done!" << std::endl;
+  std::cout << std::flush;
+
+  if (inputfile.Contains("TTToLL") || inputfile.Contains("TTTo2L2Nu"))
+    std::cout << "===Low mass TTTo2L2Nu sample info===="   << std::endl
+	      << "Total:     " << ttto2l2nu_input          << std::endl
+	      << "Fail GEN:  " << ttto2l2nu_fail_gen_mass  << std::endl
+	      << "Fail RECO: " << ttto2l2nu_fail_reco_mass << std::endl;
+  if (inputfile.Contains("WWTo2L2Nu"))
+    std::cout << "===Low mass WWTo2L2Nu sample info===="  << std::endl
+	      << "Total:     " << wwto2l2nu_input          << std::endl
+	      << "Fail GEN:  " << wwto2l2nu_fail_gen_mass  << std::endl
+	      << "Fail RECO: " << wwto2l2nu_fail_reco_mass << std::endl;
+
   ///===================================================
   fclose (pFile);
   //==================================================================================
@@ -469,6 +577,9 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float etaEle1,float
   }
 
   float weight10 = MassCorrection(MassEle);
+
+  m_recoMassCorr = m_recoMass*weight10;
+
   //----------------------------------------------------------
   if (!(inputfile.Contains("WW") && MassEle>2000.)) {
     // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        0.,m_weight);
@@ -552,6 +663,7 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float etaEle1,float
     }
   }
 }
+
 //===================== Methode to calculate the mass ========================
 float ZprimeEleElePatMiniAodNewMC::Mass(float Pt1,float Eta1,float Phi1,float En1,
                                         float Pt2,float Eta2,float Phi2,float En2)
@@ -604,6 +716,7 @@ bool ZprimeEleElePatMiniAodNewMC::SelectFirstGenEle(float &ETEle1,float &PhiSCEl
   }
   else return false;
 }
+
 //============================ Method to select second Gen Ele ========================
 bool ZprimeEleElePatMiniAodNewMC::SelectSecondGenEle(unsigned GenFlag1,float ETEle1,float &ETEle2,float &PhiSCEle2,
                                                      float &EtaSCEle2,float &EnEle2,int &IDele2,int &Statele2)
@@ -635,6 +748,16 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondGenEle(unsigned GenFlag1,float ETE
   else return false;
 }
 
+//============================ Method to compute gen level invariant mass ========================
+float ZprimeEleElePatMiniAodNewMC::GenMass(float ETEle1, float PhiEle1, float EtaEle1,float EnEle1,
+					 float ETEle2, float PhiEle2, float EtaEle2,float EnEle2)
+{
+  TLorentzVector ele1, ele2;
+  ele1.SetPtEtaPhiE(ETEle1,EtaEle1,PhiEle1,EnEle1);
+  ele2.SetPtEtaPhiE(ETEle2,EtaEle2,PhiEle2,EnEle2);
+
+  return (ele1+ele2).M();
+}
 
 float ZprimeEleElePatMiniAodNewMC::CosThetaCollinSoper(float Et1,float Eta1,float Phi1,float En1,
 						       float Et2,float Eta2,float Phi2,float En2,

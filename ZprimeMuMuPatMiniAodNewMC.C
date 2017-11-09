@@ -680,13 +680,12 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
             // newweight = 0;
             wwto2l2nu_fail_reco_mass++;
           }
-        } else if (inputfile.Contains("TTTo2L2Nu")) {
+        } else if (inputfile.Contains("TTTo2L2Nu_Tune")) {
           // TTTo2L2Nu sample
-          //if (datasetName.Contains("TTTo2L2Nu")) {
           ttto2l2nu_input++;
           if (m_genMass > 500.) {
             if (debug)
-              std::cout << "Reweighting sample of TTTo2L2Nu with weight=0: gen("
+	      std::cout << "Reweighting inclusive TTTo2L2Nu sample with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
             newweight = 0;
@@ -694,17 +693,17 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
           }
           if (m_vtxMassMu > 500.) {  // WHY CUT ON THE RECO MASS???
             if (debug)
-              std::cout << "Reweighting sample of TTTo2L2Nu with weight=0: gen("
+	      std::cout << "Reweighting inclusive TTTo2L2Nu sample with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
             // newweight = 0;
             ttto2l2nu_fail_reco_mass++;
           }
-        } else if (inputfile.Contains("TTToLL_MLL_")) {
+	} else if (inputfile.Contains("TTTo2L2Nu_M") || inputfile.Contains("TTToLL_MLL_")) {
           ttto2l2nu_input++;
           if (m_genMass > 500.) {
             if (debug)
-              std::cout << "Reweighting sample of TTToLL_MLL_ with weight=0: gen("
+	      std::cout << "Reweighting mass binned TTTo2L2Nu sample with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
             newweight = 0;
@@ -712,7 +711,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
           }
           if (m_vtxMassMu<500.) {
             if (debug)
-              std::cout << "Reweighting sample of TTToLL_MLL_ with weight=0: gen("
+	      std::cout << "Reweighting mass binned TTTo2L2Nu sample with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
             // newweight = 0;
@@ -743,18 +742,13 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
   std::cout << "100% done!" << std::endl;
   std::cout << std::flush;
 
-  if (inputfile.Contains("TTToLL_MLL_"))
-    std::cout << "===Low mass TTToLL_MLL_ info====" << std::endl
-	      << "Total:     " << ttto2l2nu_input          << std::endl
-	      << "Fail GEN:  " << ttto2l2nu_fail_gen_mass  << std::endl
-	      << "Fail RECO: " << ttto2l2nu_fail_reco_mass << std::endl;
-  if (inputfile.Contains("TTTo2L2Nu"))
-    std::cout << "===Low mass TTTo2L2Nu info====" << std::endl
+  if (inputfile.Contains("TTToLL") || inputfile.Contains("TTTo2L2Nu"))
+    std::cout << "===Low mass TTTo2L2Nu sample info===="   << std::endl
 	      << "Total:     " << ttto2l2nu_input          << std::endl
 	      << "Fail GEN:  " << ttto2l2nu_fail_gen_mass  << std::endl
 	      << "Fail RECO: " << ttto2l2nu_fail_reco_mass << std::endl;
   if (inputfile.Contains("WWTo2L2Nu"))
-    std::cout << "===Low mass WWTo2L2Nu info====" << std::endl
+    std::cout << "===Low mass WWTo2L2Nu sample info===="   << std::endl
 	      << "Total:     " << wwto2l2nu_input          << std::endl
 	      << "Fail GEN:  " << wwto2l2nu_fail_gen_mass  << std::endl
 	      << "Fail RECO: " << wwto2l2nu_fail_reco_mass << std::endl;
@@ -968,6 +962,9 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
   }
 
   float weight10 = MassCorrection(vertexMassMu);
+
+  m_recoMassCorr = vertexMassMu*weight10;
+
   //float weight2 = std::min(1.01696-7.73522E-5*vertexMassMu+6.69239E-9*vertexMassMu*vertexMassMu,1);
   //----------------------------------------------------------
   h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,newweight);
@@ -1262,17 +1259,17 @@ float ZprimeMuMuPatMiniAodNewMC::smearedMass(float Eta1, float Eta2,
   //sigma BB
   if (fabs(Eta1) <= 1.2 && fabs(Eta2) <= 1.2) {
     m_scaleUnc = 0.01;
-    a = 0.00701;
-    b = 3.32e-05;
+    a =  0.00701;
+    b =  3.32e-05;
     c = -1.29e-08;
-    d = 2.73e-12;
+    d =  2.73e-12;
     e = -2.05e-16;
   } else { //sigma BE
     m_scaleUnc = 0.03;
-    a = 0.0124;
-    b = 3.75e-05;
+    a =  0.0124;
+    b =  3.75e-05;
     c = -1.52e-08;
-    d = 3.44e-12;
+    d =  3.44e-12;
     e = -2.85e-16;
   }
   double res = a + b*genMass + c*genMass*genMass + d*pow(genMass,3) + e*pow(genMass,4);
@@ -2060,9 +2057,9 @@ bool ZprimeMuMuPatMiniAodNewMC::DiPFJetCut(float MuonEta1,float MuonPhi1,float M
 
 double ZprimeMuMuPatMiniAodNewMC::MassCorrection(float M)
 {
-  float a = 1.06780e+00;
+  float a =  1.06780e+00;
   float b = -1.20666e-04;
-  float c = 3.22646e-08;
+  float c =  3.22646e-08;
   float d = -3.94886e-12;
   double function = d*pow(M,3) + c*pow(M,2) + b*pow(M,1) + a;
   return function;

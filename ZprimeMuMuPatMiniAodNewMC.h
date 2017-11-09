@@ -455,7 +455,7 @@ class ZprimeMuMuPatMiniAodNewMC {
   int m_genID1,m_genStat1;
   float m_genET2,m_genPhi2,m_genEta2,m_genEn2;
   int m_genID2,m_genStat2;
-  float m_genMass, m_recoMass;  // seems not used...
+  float m_genMass, m_recoMass, m_recoMassCorr;  // seems not used...
   int m_nbGen,m_nbReco;
   int nbTP,nbTT,nbTF;
   float TagProbeEtaCut;

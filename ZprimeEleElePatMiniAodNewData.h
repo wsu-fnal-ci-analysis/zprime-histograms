@@ -425,7 +425,7 @@ class ZprimeEleElePatMiniAodNewData {
   int m_genID1,m_genStat1;
   float m_genET2,m_genPhi2,m_genEta2,m_genEn2;
   int m_genID2,m_genStat2;
-  float m_genMass,m_recoMass, m_csAngle;
+  float m_genMass, m_recoMass ,m_recoMassCorr, m_csAngle;
   int NbGen,NbReco;
   int nbTP,nbTT,nbTF;
   float TagProbeEtaCut;

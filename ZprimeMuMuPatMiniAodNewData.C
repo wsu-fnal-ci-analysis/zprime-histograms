@@ -333,6 +333,11 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
   Char_t outform[20000];
   sprintf (outform,"run: lumi: event: dil_mass: pTmu1: pTmu2: Etamu1: Etamu2:");
   output_txt  << outform << std::endl;
+
+  TString inputfile=name;
+  inputfile=name;
+  std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
+
   //==================================================================================
   if (fChain == 0) return;
   Long64_t nentries = fChain->GetEntries();
@@ -483,7 +488,7 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
 	if (passBTaggingDiscriminator3==1) {
 	  h1_BTagMassMuMu_->Fill(m_vtxMassMu);
 	}
-	PlotRecoInfo(CosmicRejec,m_vtxMassMu,MassGen,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,mPtGen1,EtaRecMu1,
+	PlotRecoInfo(CosmicRejec,m_vtxMassMu,m_genMass,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,mPtGen1,EtaRecMu1,
 		     PtRecTunePMuBestTrack2,PtRecTunePMu2,PtRecMuBestTrack2,mPtGen2,EtaRecMu2);
 	m_csAngle = CosThetaCollinSoper(PtRecTunePMuBestTrack1,EtaRecMu1,PhiRecMu1,EnRecMu1,
 					PtRecTunePMuBestTrack2,EtaRecMu2,PhiRecMu2,EnRecMu2,
@@ -719,6 +724,9 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
   }
 
   float weight10 = MassCorrection(vertexMassMu);
+
+  m_recoMassCorr = vertexMassMu*weight10;
+
   //float weight2 = std::min(1.01696-7.73522E-5*vertexMassMu+6.69239E-9*vertexMassMu*vertexMassMu,1);
   //----------------------------------------------------------
   h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,m_weight);
@@ -1770,9 +1778,9 @@ bool ZprimeMuMuPatMiniAodNewData::DiPFJetCut(float MuonEta1,float MuonPhi1,float
 
 double ZprimeMuMuPatMiniAodNewData::MassCorrection(float M)
 {
-  float a = 1.06780e+00;
+  float a =  1.06780e+00;
   float b = -1.20666e-04;
-  float c = 3.22646e-08;
+  float c =  3.22646e-08;
   float d = -3.94886e-12;
   double function = d*pow(M,3) + c*pow(M,2) + b*pow(M,1) + a;
   return function;

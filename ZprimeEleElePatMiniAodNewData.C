@@ -163,6 +163,11 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   Char_t outform[20000];
   sprintf (outform,"run: lumi: event: dil_mass: pTele1: pTele2: Etaele1: Etaele2:");
   output_txt  << outform << std::endl;
+
+  TString inputfile=name;
+  inputfile=name;
+  std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
+
   //==================================================================================
   if (fChain == 0) return;
   Long64_t nentries = fChain->GetEntriesFast();
@@ -255,9 +260,9 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
     //=========================================================
     if (firstEleFinal == 0 || secondEleFinal == 0)
       continue;
-    DiEleMass = Mass(Etele1,EtaTrakele1,PhiTrakele1,ELEC_MASS,
+    m_recoMass = Mass(Etele1,EtaTrakele1,PhiTrakele1,ELEC_MASS,
                      Etele2,EtaTrakele2,PhiTrakele2,ELEC_MASS);
-    if (DiEleMass<60.0)
+    if (m_recoMass<60.0)
       continue;
     //=========================================================
     //        start doing matching between reco & HLT         =
@@ -272,8 +277,8 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
       if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
         m_csAngle = CosThetaCollinSoper(Etele1,EtaSCele1,PhiSCele1,Enele1,
 					Etele2,EtaSCele2,PhiSCele2,Enele2,
-					Chargeele1,DiEleMass);
-        PlotRecoInfo(DiEleMass,EtaSCele1,EtaSCele2);
+					Chargeele1,m_recoMass);
+        PlotRecoInfo(m_recoMass,EtaSCele1,EtaSCele2);
       }
     } else {
       bool fireHLT2 = isPassHLT2();
@@ -284,8 +289,8 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
       if (RecoEle1MatchingWithHLT3==1 && RecoEle2MatchingWithHLT4==1) {
         m_csAngle = CosThetaCollinSoper(Etele1,EtaSCele1,PhiSCele1,Enele1,
 					Etele2,EtaSCele2,PhiSCele2,Enele2,
-					Chargeele1,DiEleMass);
-        PlotRecoInfo(DiEleMass,EtaSCele1,EtaSCele2);
+					Chargeele1,m_recoMass);
+        PlotRecoInfo(m_recoMass,EtaSCele1,EtaSCele2);
       }
     }
   }
