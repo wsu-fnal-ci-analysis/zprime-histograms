@@ -337,6 +337,7 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
   TString inputfile=name;
   inputfile=name;
   std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
+  std::cout << "Weight of the sample is= " << m_weight << std::endl;
 
   //==================================================================================
   if (fChain == 0) return;
@@ -496,15 +497,13 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
 	Boson(pxRecMu1,pyRecMu1,pzRecMu1,EnRecMu1,pxRecMu2,pyRecMu2,pzRecMu2,EnRecMu2,
 	      ChargeRecMu1,PFMet_et_cor,PFMet_px_cor,PFMet_py_cor,PFMet_pz_cor,PFMet_en_cor);
 	bool passBTaggingDiscriminator = BTaggingDiscriminator(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
-	if (passBTaggingDiscriminator==1)
-	  {
-	    h1_BTagMassMuMuBinWidth_->Fill(m_vtxMassMu);
-	    h1_BTagMassMuMu1GeVbin_->Fill(m_vtxMassMu);
-	  }
-	if (passBTaggingDiscriminator==0)
-	  {
-	    h1_ZprimeRecomassBinWidthAfterBtaging_->Fill(m_vtxMassMu);
-	  }
+	if (passBTaggingDiscriminator==1) {
+	  h1_BTagMassMuMuBinWidth_->Fill(m_vtxMassMu);
+	  h1_BTagMassMuMu1GeVbin_->Fill(m_vtxMassMu);
+	}
+	if (passBTaggingDiscriminator==0) {
+	  h1_ZprimeRecomassBinWidthAfterBtaging_->Fill(m_vtxMassMu);
+	}
       }
     }
   }

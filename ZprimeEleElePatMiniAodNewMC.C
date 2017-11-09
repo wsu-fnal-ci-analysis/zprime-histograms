@@ -56,6 +56,8 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="2017")
     m_weight = 1.;
   std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToEleEle_13TeV.root","recreate");
+  // Enable Sumw2 for histograms as we'll be normalizing them
+  TH1::SetDefaultSumw2();
   //==================================================================================
   //                                                                                 =
   //             Start the histograms for CollinSoper CMF                            =
@@ -159,6 +161,7 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   TString inputfile=name;
   inputfile=name;
   std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
+  std::cout << "Weight of the sample is= " << m_weight << std::endl;
 
   //==================================================================================
   if (fChain == 0) return;
@@ -274,10 +277,11 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
 	std::cout << "failed HLT" << std::endl;
       continue;
     }
+
     bool RecoEle1MatchingWithHLT1 = RecoHLTEleMatching(EtaSCele1,PhiSCele1);
     bool RecoEle2MatchingWithHLT2 = RecoHLTEleMatching(EtaSCele2,PhiSCele2);
-    if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
 
+    if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
       // Special inclusively binned samples, used only in the low mass region?
       //  - Scaling is off...
       // WW sample
@@ -356,7 +360,6 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
 	  ttto2l2nu_fail_reco_mass++;
 	}
       }
-
 
       m_csAngle = CosThetaCollinSoper(Etele1,EtaSCele1,PhiSCele1,Enele1,
 				      Etele2,EtaSCele2,PhiSCele2,Enele2,
@@ -606,7 +609,7 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float etaEle1,float
       h1_ZprimeRecomass60to120BB_->Fill(MassEle,weight10);
       h1_ZprimeRecomassBinWidth_->Fill(MassEle,weight10);
       h1_ZprimeRecomass60to120_->Fill(MassEle,weight10);
-      h1_ZprimeRecomass_->Fill(MassEle);
+      h1_ZprimeRecomass_->Fill(MassEle, m_weight);
       priEtaBin = 1;
     } else if ((fabs(etaEle1) < 1.4442 && (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) ||
                (fabs(etaEle2) < 1.4442 && (fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5))) {  //BE
@@ -614,13 +617,13 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float etaEle1,float
       h1_ZprimeRecomass60to120BE_->Fill(MassEle,weight10);
       h1_ZprimeRecomassBinWidth_->Fill(MassEle,weight10);
       h1_ZprimeRecomass60to120_->Fill(MassEle,weight10);
-      h1_ZprimeRecomass_->Fill(MassEle);
+      h1_ZprimeRecomass_->Fill(MassEle, m_weight);
       priEtaBin = 2;
     } else if ((fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5) &&
                (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) {  //EE
       h1_ZprimeRecomassBinWidthEE_->Fill(MassEle,weight10);
       h1_ZprimeRecomass60to120EE_->Fill(MassEle,weight10);
-      h1_ZprimeRecomass_->Fill(MassEle);
+      h1_ZprimeRecomass_->Fill(MassEle, m_weight);
       priEtaBin = 3;
     }
     // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+0,m_weight);

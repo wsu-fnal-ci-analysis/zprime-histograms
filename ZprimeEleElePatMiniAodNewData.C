@@ -54,6 +54,8 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="2017")
     m_weight = 1.;
   std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToEleEle_13TeV.root","recreate");
+  // Enable Sumw2 for histograms as we'll be normalizing them
+  TH1::SetDefaultSumw2();
   //==================================================================================
   //                                                                                 =
   //             Start the histograms for CollinSoper CMF                            =
@@ -167,6 +169,7 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   TString inputfile=name;
   inputfile=name;
   std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
+  std::cout << "Weight of the sample is= " << m_weight << std::endl;
 
   //==================================================================================
   if (fChain == 0) return;
@@ -683,7 +686,7 @@ void ZprimeEleElePatMiniAodNewData::PlotRecoInfo(float MassEle,float etaEle1,flo
       h1_ZprimeRecomass60to120BB_->Fill(MassEle,m_weight);
       h1_ZprimeRecomassBinWidth_->Fill(MassEle,m_weight);
       h1_ZprimeRecomass60to120_->Fill(MassEle,m_weight);
-      h1_ZprimeRecomass_->Fill(MassEle);
+      h1_ZprimeRecomass_->Fill(MassEle,m_weight);
       priEtaBin = 1;
     } else if ((fabs(etaEle1) < 1.4442 && (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) ||
 	       (fabs(etaEle2) < 1.4442 && (fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5))) {  //BE
@@ -691,13 +694,13 @@ void ZprimeEleElePatMiniAodNewData::PlotRecoInfo(float MassEle,float etaEle1,flo
       h1_ZprimeRecomass60to120BE_->Fill(MassEle,m_weight);
       h1_ZprimeRecomassBinWidth_->Fill(MassEle,m_weight);
       h1_ZprimeRecomass60to120_->Fill(MassEle,m_weight);
-      h1_ZprimeRecomass_->Fill(MassEle);
+      h1_ZprimeRecomass_->Fill(MassEle,m_weight);
       priEtaBin = 2;
     } else if ((fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5) &&
 	       (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) {  //EE
       h1_ZprimeRecomassBinWidthEE_->Fill(MassEle,m_weight);
       h1_ZprimeRecomass60to120EE_->Fill(MassEle,m_weight);
-      h1_ZprimeRecomass_->Fill(MassEle);
+      h1_ZprimeRecomass_->Fill(MassEle,m_weight);
       priEtaBin = 3;
     }
 
@@ -870,22 +873,13 @@ float ZprimeEleElePatMiniAodNewData::CosThetaCollinSoper(float Et1,float Eta1,fl
 
   if (RecoMass > 60.0 && RecoMass < 120.0) {
     h1_CosAngleCollinSoperCorrect60Mass120_->Fill(costheta,m_weight);
-  }
-
-
-  if (RecoMass > 120.0 && RecoMass < 300.0) {
+  } else if (RecoMass > 120.0 && RecoMass < 300.0) {
     h1_CosAngleCollinSoperCorrect120Mass300_->Fill(costheta,m_weight);
-  }
-
-  if (RecoMass > 300.0 && RecoMass < 700.0) {
+  } else if (RecoMass > 300.0 && RecoMass < 700.0) {
     h1_CosAngleCollinSoperCorrect300Mass700_->Fill(costheta,m_weight);
-  }
-
-  if (RecoMass > 700.0 && RecoMass < 3000.0) {
+  } else if (RecoMass > 700.0 && RecoMass < 3000.0) {
     h1_CosAngleCollinSoperCorrect700Mass3000_->Fill(costheta,m_weight);
-  }
-
-  if (RecoMass > 4500.0 && RecoMass < 6000.0) {
+  } else if (RecoMass > 4500.0 && RecoMass < 6000.0) {
     h1_CosAngleCollinSoperCorrect4900Mass5100_->Fill(costheta,m_weight);
     h1_absCosAngleCollinSoperCorrect4500Mass5500_->Fill(fabs(costheta),m_weight);
   }
