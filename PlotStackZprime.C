@@ -27,7 +27,7 @@
 class PlotStackZprime{
 
 public:
-  PlotStackZprime(std::string const&, int, bool, bool, bool, bool, bool);
+  PlotStackZprime(std::string const&, std::string const&, std::string const&, int, int, bool, bool, bool, bool, bool);
   void plotm4l(std::string);
   void setSamplesNames4l();
   void printnumbers(char*, TH1F*);
@@ -50,13 +50,15 @@ private:
   double Xmin;
   double Xmax;
   int nRebin,nRebinZ_X;
+  int histErrType;
   double Ymax;
   bool m_setLogY,m_setLogX;
   bool m_useDYJets,m_useDYJetsFromData,m_useDiJetsFromFakeRateFromData,m_useWJetsFromFakeRateFromMC;
   bool m_useDiJetsWJetsFromFakeRateFromData;
   std::string histosdir;
   std::string inputfile;
-  std::string whichchannel,whichchanneltex,whichenergy,whichsample;
+  std::string ciSampleType;
+  std::string whichchannel,whichchanneltex,whichenergy,whichsample,whichinvmasstex;
   char histotitle[500];
   ofstream outputyields;
   float errorZZ,errorH125,errorH126,errorH200,errorH350,errorH500,errorH800;
@@ -67,7 +69,11 @@ public:
 
 };
 
-PlotStackZprime::PlotStackZprime(std::string const& histolabel, int rebins=20,
+PlotStackZprime::PlotStackZprime(std::string const& histolabel,
+				 std::string const& sampletype="Lam16TeVConLL",
+				 std::string const& leptonflavour="MuMu",
+				 int histerrors=1, // 0 for kNormal, 1 for kPoisson, 2 for kPoisson2
+				 int rebins=20,
 				 bool dyjets=true,
 				 bool dyjetsdata=false,
 				 bool dijetsfrdata=false,
@@ -78,8 +84,15 @@ PlotStackZprime::PlotStackZprime(std::string const& histolabel, int rebins=20,
   //LoadLib.Load("/cmshome/nicola/slc6/MonoHiggs/Analysis13TeV/CMSSW_7_2_0/lib/slc6_amd64_gcc481/libHiggsHiggs_CS_and_Width.so");
   //getMassWindow(500.);
 
-  // inputfile="filelist_zprime_SingleMuon_2016_Spring16_25ns_AN.txt";
-  inputfile="filelist_zprime_DoubleEG_2016_Spring16_25ns_AN.txt";
+  if (leptonflavour.rfind("MuMu") != std::string::npos)
+    inputfile="filelist_zprime_SingleMuon_2016_Spring16_25ns_AN.txt";
+  else if (leptonflavour.rfind("EE") != std::string::npos)
+    inputfile="filelist_zprime_DoubleEG_2016_Spring16_25ns_AN.txt";
+  else
+    return;
+
+  ciSampleType = sampletype;
+  histErrType  = histerrors;
 
   setSamplesNames4l();
   std::cout << "\t Analysing samples for " << whichchannel << " analysis" << std::endl;
@@ -347,17 +360,17 @@ void PlotStackZprime::plotm4l(std::string histlabel)
   if (nRebin == 20) hframe->SetYTitle("Events/20 GeV");
 
   //hframe->SetXTitle("M_{Z2} [GeV]");
-  if (histlabel.find("ZprimeRecomass") < 20) hframe->SetXTitle("m_{#mu^{+}#mu^{-}} [GeV]");
+  if (histlabel.find("ZprimeRecomass") < 20) hframe->SetXTitle("m_{" + TString(whichinvmasstex) + "} [GeV]");
   if (histlabel.find("Den_Pt") < 10 || histlabel.find("Num_Pt") < 10) hframe->SetXTitle("p_{T} [GeV]");
 
   if (histlabel.find("CosAngleCollinSoperCorrect60Mass120") < 10) {
     if (nRebin == 10) hframe->SetYTitle("Events/ bin=10");
-    hframe->SetXTitle("cos(#theta), 60<m_{#mu^{+}#mu^{-}}<120 GeV");
+    hframe->SetXTitle("cos(#theta), 60<m_{" + TString(whichinvmasstex) + "}<120 GeV");
   }
 
   if (histlabel.find("CosAngleCollinSoperCorrect300Mass700") < 10) {
     if (nRebin == 10) hframe->SetYTitle("Events/ bin=10");
-    hframe->SetXTitle("cos(#theta), 300<m_{#mu^{+}#mu^{-}}<700 GeV");
+    hframe->SetXTitle("cos(#theta), 300<m_{" + TString(whichinvmasstex) + "}<700 GeV");
   }
 
   hframe->GetYaxis()->SetLabelSize(0.03);
@@ -434,6 +447,13 @@ void PlotStackZprime::plotm4l(std::string histlabel)
   delete [] arraysize;
 
   float totaldataentries=0.,totaldataentries100=0.;
+
+  if (histErrType == 0)
+    htotaldata->SetBinErrorOption(TH1::kNormal);
+  else if (histErrType == 1)
+    htotaldata->SetBinErrorOption(TH1::kPoisson);
+  else if (histErrType == 2)
+    htotaldata->SetBinErrorOption(TH1::kPoisson2);
 
   for (int nbins=1;nbins<=htotaldata->GetNbinsX(); nbins++) {
     // std::cout << "BinCenter=" << htotaldata->GetBinCenter(nbins) << " BinContent=" << htotaldata->GetBinContent(nbins) << " BinErrorContent=" << htotaldata->GetBinError(nbins) << std::endl;
@@ -932,7 +952,7 @@ void PlotStackZprime::plotm4l(std::string histlabel)
 	    hfourlepbestmass_4l_afterSel_new_TT->GetEntries() > 0.)
 	    legend->AddEntry(hfourlepbestmass_4l_afterSel_new_new,Vlabelbkg.at(datasetId).c_str(), "F");*/
 	  //hfourlepbestmass_4l_afterSel_new_new->Draw("sameP");
-	  if (datasetnamebkg.find("TTTo2L2Nu") < 200  &&
+	  if (datasetnamebkg.find("TTTo2L2Nu_Tune") < 200  &&
 	      datasetnamebkg.find(temp) < 200 &&
 	      (datasetnamebkg.find(whichenergy) < 200 || datasetnamebkg.find(whichsample) < 200) &&
 	      hfourlepbestmass_4l_afterSel_new_Tlike->GetEntries() > 0.)
@@ -1542,7 +1562,7 @@ void PlotStackZprime::plotm4l(std::string histlabel)
   hfourlepbestmass_4l_CIToLL->SetMarkerSize(0.95);
   hfourlepbestmass_4l_CIToLL->SetMarkerColor(kRed-7);
   hfourlepbestmass_4l_CIToLL->SetLineColor(kRed-7);
-  hfourlepbestmass_4l_CIToLL->SetFillColor(kRed-7);
+  // hfourlepbestmass_4l_CIToLL->SetFillColor(kRed-7);
   hfourlepbestmass_4l_CIToLL->SetLineWidth(2);
 
   //htotal->Draw("hist same");
@@ -1554,10 +1574,11 @@ void PlotStackZprime::plotm4l(std::string histlabel)
   //htotal->Add(hfourlepbestmass_4l_afterSel_new_Zprime5000);
 
   // Contact Interaction
-  hfourlepbestmass_4l_CIToLL_M300->Draw("same");
-  hfourlepbestmass_4l_CIToLL_M800->Draw("same");
-  hfourlepbestmass_4l_CIToLL_M1300->Draw("same");
-  hfourlepbestmass_4l_CIToLL_M2000->Draw("same");
+  // hfourlepbestmass_4l_CIToLL_M300->Draw("same");
+  // hfourlepbestmass_4l_CIToLL_M800->Draw("same");
+  // hfourlepbestmass_4l_CIToLL_M1300->Draw("same");
+  // hfourlepbestmass_4l_CIToLL_M2000->Draw("same");
+
   // htotal->Add(hfourlepbestmass_4l_CIToLL_M300);
   // htotal->Add(hfourlepbestmass_4l_CIToLL_M800);
   // htotal->Add(hfourlepbestmass_4l_CIToLL_M1300);
@@ -1600,7 +1621,7 @@ void PlotStackZprime::plotm4l(std::string histlabel)
   //   gr->Draw("EPsame");
 
   htotal->Draw("hist same");
-  gr->Draw("EPsame");
+  gr->Draw("E0P0same");
 
   //leg0->Draw("same");
   //leg1->Draw("same");
@@ -1750,31 +1771,37 @@ void PlotStackZprime::setSamplesNames4l()
     std::cout << "Plotting 4e+4mu+2e2mu combined in 4lepton plots" << std::endl;
     whichchannel="4l";
     whichchanneltex="4l";
+    whichinvmasstex="4l";
     histosdir="histos4mu";
   } else if (inputfile.find("4mu") < 25) {
     std::cout << "Plotting 4mu" << std::endl;
     whichchannel="4mu";
     whichchanneltex="4#mu";
+    whichinvmasstex="4#mu";
     histosdir="histos4mu";
   } else if (inputfile.find("4e") < 25) {
     std::cout << "Plotting 4e" << std::endl;
     whichchannel="4e";
     whichchanneltex="4e";
+    whichinvmasstex="4e";
     histosdir="histos4e";
   } else if (inputfile.find("2e2mu") < 25) {
     std::cout << "Plotting 2e2mu" << std::endl;
     whichchannel="2e2mu";
     whichchanneltex="2e2#mu";
+    whichinvmasstex="2e2#mu";
     histosdir="histos2e2mu";
   } else if (inputfile.find("zprime_SingleMuon") < 25) {
     std::cout << "Plotting Z->mumu" << std::endl;
     whichchannel="2mu";
     whichchanneltex="#mu#mu";
+    whichinvmasstex="#mu^{+}#mu^{-}";
     histosdir="histos/histosZprimeMuMu";
   } else if (inputfile.find("zprime_DoubleEG") < 25) {
     std::cout << "Plotting Z->ee" << std::endl;
     whichchannel="2e";
     whichchanneltex="ee";
+    whichinvmasstex="e^{+}e^{-}";
     histosdir="histos/histosZprimeEleEle";
   }
 
@@ -1785,13 +1812,45 @@ void PlotStackZprime::setSamplesNames4l()
   std::string inputfilename;
 
   while(std::getline(infile,inputfilename)) {
-    std::cout << "Reading " << inputfilename.c_str() << std::endl;
-
     // DATA
     if (inputfilename.find("#") < 1)
       continue;
 
+    if (inputfilename.rfind("CITo2") != std::string::npos) {
+      if ((inputfilename.rfind("M2000") != std::string::npos) && 
+	  (ciSampleType.rfind("ConLL") == std::string::npos))
+	continue;
+
+      if (inputfilename.rfind("Lam100k") == std::string::npos) {
+	// modify based on input requirement
+	// lambda
+	size_t charLp = ciSampleType.find("Lam");
+	size_t charTp = ciSampleType.find("TeV"); //first instance
+	std::string lVal = ciSampleType.substr(charLp,charTp-(charLp));
+	std::string iVal = ciSampleType.substr(charTp+3,3);
+	std::string hVal = ciSampleType.substr(charTp+6,2);
+
+	if (inputfilename.find("Lam16") != std::string::npos) {
+	  inputfilename.replace(inputfilename.find("Lam16"),std::string("Lam16").size(),lVal);
+	}
+	// interference
+	if (inputfilename.find("Con") != std::string::npos) {
+	  inputfilename.replace(inputfilename.find("Con"),std::string("Con").size(),iVal);
+	}
+	// helicity
+	if (inputfilename.find("LL") != std::string::npos) {
+	  inputfilename.replace(inputfilename.find("LL"),std::string("LL").size(),hVal);
+	}
+      }
+    }
+
+    std::cout << "Reading " << inputfilename.c_str() << std::endl;
+
     if (inputfilename.find("_SingleElectron") < 53) {
+      Vdatasetnamedata.push_back(inputfilename);
+      Vlabeldata.push_back("2016");
+      Vxsectiondata.push_back(1.); //pb
+    } else if (inputfilename.find("_DoubleEG") < 53) {
       Vdatasetnamedata.push_back(inputfilename);
       Vlabeldata.push_back("2016");
       Vxsectiondata.push_back(1.); //pb
@@ -1830,8 +1889,9 @@ void PlotStackZprime::setSamplesNames4l()
       std::string iVal = inputfilename.substr(charTp+3,3);
       std::string hVal = inputfilename.substr(charTp+6,2);
       std::string lFlav = inputfilename.substr(charSp+6,charMp);
+
       Vdatasetnamesig.push_back(inputfilename);
-      Vlabelsig.push_back("#lambda="+lVal+" TeV, m_{" + (lFlav == "E" ? "e^{+}e^{-}" : "mu^{+}#mu^{-}")
+      Vlabelsig.push_back("#lambda="+lVal+" TeV, m_{" + (lFlav == "EE" ? "e^{+}e^{-}" : "mu^{+}#mu^{-}")
 			  + "}= "+mVal+" GeV, mode = "+iVal+(iVal == "Des" ? "tructive" :  "structive")+", #eta="+hVal);
       Vxsectionsig.push_back(1.); //pb
       Vcolorsig.push_back(kOrange-3);
@@ -2069,8 +2129,6 @@ void PlotStackZprime::setSamplesNames4l()
 	Vcolorbkg.push_back(kRed+0);
       }
 
-
-
       // // DYToEE_M-10To20_TuneZ2_8TeV-pythia6
 //       if (inputfilename.find("DYToEE")!=-1) {
 // 	Vdatasetnamebkg.push_back(inputfilename);
@@ -2087,7 +2145,6 @@ void PlotStackZprime::setSamplesNames4l()
 // 	Vcolorbkg.push_back(kAzure-7);
 //       }
 
-
       // DYToMuMu_M-20_TuneZ2_8TeV-pythia6
       if (inputfilename.find("DYtoMuMu") < 200) {
  	Vdatasetnamebkg.push_back(inputfilename);
@@ -2095,7 +2152,6 @@ void PlotStackZprime::setSamplesNames4l()
  	Vxsectionbkg.push_back(1.); //pb
  	Vcolorbkg.push_back(kAzure-9);
       }
-
 
       // ZToMuMu_NNPDF30_13TeV-powheg_M
       if (inputfilename.find("ZToMuMu_NNPDF30_13TeV-powheg_M") < 200) {//ZToMuMu_NNPDF30_13TeV-powheg_M
