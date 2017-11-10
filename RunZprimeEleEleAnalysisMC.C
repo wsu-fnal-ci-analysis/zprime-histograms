@@ -144,7 +144,7 @@ int main(int argc, char ** argv)
 
     ZprimeEleElePatMiniAodNewMC b(namechar,tree3,weight,dataconf,mcconf);
     // ZprimeEleElePatMiniAodNewMC b(namechar,tree3.get(),weight,dataconf,mcconf);
-    b.Loop(false);
+    b.Loop();
     // tree3 = nullptr;
     // delete tree3;  // didn't create with new, no need to delete
     file3->Close();
