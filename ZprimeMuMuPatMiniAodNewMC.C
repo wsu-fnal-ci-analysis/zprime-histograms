@@ -484,6 +484,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
   int tenpcount = 1;
   int onepcount = 1;
   int tenthpcount = 1;
+  std::streamsize defpres = std::cout.precision();
 
   int wwto2l2nu_input(0),wwto2l2nu_fail_gen_mass(0),wwto2l2nu_fail_reco_mass(0);
   int ttto2l2nu_input(0),ttto2l2nu_fail_gen_mass(0),ttto2l2nu_fail_reco_mass(0);
@@ -508,7 +509,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 		<< "t = "  << std::setprecision(4) << std::setw(7) << time
 		<< " projected finish =" << std::setw(7) << std::setprecision(4) << finTime << "s"
 		<< " (" << std::setw(4) << std::setprecision(2) << finMin << " min).   "
-		<< std::resetiosflags << std::endl;
+		<< std::setprecision(defpres) << std::resetiosflags << std::endl;
       std::cout << std::flush;
       tenpcount++;
       // } else if ( (jentry*100)/nentries == onepcount ) {
@@ -581,9 +582,10 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 					  PtRecTunePMu2,PtRecMuBestTrack2,
 					  m_genET2, m_genEta2, m_genPhi2, m_genEn2);
 
+    PickThehighestMass(m_vtxMassMu,m_vtxChi2Mu,event_evtNo);
+
     m_genMass = GenMass(m_genET1, m_genEta1, m_genPhi1, m_genEn1,
 			m_genET2, m_genEta2, m_genPhi2, m_genEn2);
-    PickThehighestMass(m_vtxMassMu,m_vtxChi2Mu,event_evtNo);
 
     m_vtxMassSmearedMu = smearedMass(EtaRecMu1, EtaRecMu2, m_vtxMassMu, m_genMass, m_scaleUnc);
 
@@ -595,17 +597,22 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
     //=========================================================
     //std::cout << "firstMu= " << firstMuFinal << " " << "secondMu= " << secondMuFinal << std::endl;
     if (firstMuFinal == 0 || secondMuFinal == 0) continue;
+
     //std::cout << "Vertex mass mu= " << m_vtxMassMu << std::endl;
     //if (m_vtxMassMu<60 || m_vtxMassMu>1200) continue;
     if (m_vtxMassMu<60) continue;
+
     //=========================================================
     //        start doing matching between reco & HLT         =
     //                                                        =
     //=========================================================
     bool fireHLT2 = isPassHLT();
+
     if (fireHLT2 == 0) continue;
+
     bool RecoMuon1MatchingWithHLT1 = RecoHLTMuonMatching(EtaRecMu1,PhiRecMu1);
     bool RecoMuon2MatchingWithHLT2 = RecoHLTMuonMatching(EtaRecMu2,PhiRecMu2);
+
     if (RecoMuon1MatchingWithHLT1==1 || RecoMuon2MatchingWithHLT2==1) {
       plotAllHighPtMuonsID();
       //PrintEventInformation(256843,465,665539990,m_vtxChi2Mu,m_vtxMassMu,CosmicRejec);
@@ -683,6 +690,10 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
           }
         } else if (inputfile.Contains("TTTo2L2Nu_Tune")) {
           // TTTo2L2Nu sample
+	  if (debug)
+	    std::cout << "Checking reweighting of inclusive TTTo2L2Nu sample: gen("
+		      << m_genMass << ") reco("
+		      << m_vtxMassMu << ")" << std::endl;
           ttto2l2nu_input++;
           if (m_genMass > 500.) {
             if (debug)
@@ -701,6 +712,10 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
             ttto2l2nu_fail_reco_mass++;
           }
 	} else if (inputfile.Contains("TTTo2L2Nu_M") || inputfile.Contains("TTToLL_MLL_")) {
+	  if (debug)
+	    std::cout << "Checking reweighting of mass binned TTTo2L2Nu sample: gen("
+		      << m_genMass << ") reco("
+		      << m_vtxMassMu << ")" << std::endl;
           ttto2l2nu_input++;
           if (m_genMass > 500.) {
             if (debug)
@@ -801,9 +816,9 @@ bool ZprimeMuMuPatMiniAodNewMC::GenRecoMatchMu(float RecoEta1,float RecoPhi1,
   phiGmu = -10.;
   enGmu  = -10.;
   for (unsigned i=0; i<iGen->size(); i++) {
-    float deltaR1   = delR(RecoEta1,RecoPhi1,etaGen->at(i),phiGen->at(i));
     if (fabs(idGen->at(i)) != 13) continue;
     if (statusGen->at(i) != 1)    continue;
+    float deltaR1   = delR(RecoEta1,RecoPhi1,etaGen->at(i),phiGen->at(i));
     if (fabs(deltaR1)>deltaRcut)  continue;
     iflag  = i;
     NbHighPtmu++;
@@ -851,7 +866,7 @@ bool ZprimeMuMuPatMiniAodNewMC::SelectFirstMuon(float &pTmuon1,float &Enmuon1,fl
 	//if (GenRecoMatch1 == 0) continue;
 	highestpt=Mu_ptTunePMuonBestTrack->at(i);
 	iflag  = i;
-	NbHighPtmu ++;
+	NbHighPtmu++;
       }
     } else {
       continue;
@@ -917,7 +932,7 @@ bool ZprimeMuMuPatMiniAodNewMC::SelectSecondMuon(int ChargeMu1,unsigned FlagMu1,
 	highestpt=Mu_ptTunePMuonBestTrack->at(i);
 	//std::cout << "Highest PT second lepton has pt= " << highestpt << std::endl;
 	iflag  = i;
-	NbHighPtmu ++;
+	NbHighPtmu++;
       }
     } else {
       continue;
@@ -1238,7 +1253,7 @@ float ZprimeMuMuPatMiniAodNewMC::Mass(float Pt1,float Eta1,float Phi1,float En1,
   TLorentzVector Mu2;
   Mu1.SetPtEtaPhiM(Pt1,Eta1,Phi1,En1);
   Mu2.SetPtEtaPhiM(Pt2,Eta2,Phi2,En2);
-  MuMuMass = (Mu1 + Mu2).M();
+  MuMuMass = sqrt((Mu1+Mu2).M2());
   return MuMuMass;
 }
 
@@ -1369,7 +1384,7 @@ bool ZprimeMuMuPatMiniAodNewMC::SelectFirstGenMu(float &ETMu1,float &PhiMu1,
     if (ptGen->at(i) > ETMu1) {
       ETMu1 = ptGen->at(i);
       iflag = i;
-      NbHighPtmu ++;
+      NbHighPtmu++;
     } else {
       continue;
     }
@@ -1403,7 +1418,7 @@ bool ZprimeMuMuPatMiniAodNewMC::SelectSecondGenMu(unsigned GenFlag1, float ETMu1
     if (ptGen->at(i) > ETMu2) {
       ETMu2 = ptGen->at(i);
       iflag = i;
-      NbHighPtmu ++;
+      NbHighPtmu++;
     } else {
       continue;
     }
@@ -1426,8 +1441,10 @@ float ZprimeMuMuPatMiniAodNewMC::GenMass(float ETMu1, float PhiMu1, float EtaMu1
 					 float ETMu2, float PhiMu2, float EtaMu2,float EnMu2)
 {
   TLorentzVector mu1, mu2;
-  mu1.SetPtEtaPhiE(ETMu1,EtaMu1,PhiMu1,EnMu1);
-  mu2.SetPtEtaPhiE(ETMu2,EtaMu2,PhiMu2,EnMu2);
+  // mu1.SetPtEtaPhiE(ETMu1,EtaMu1,PhiMu1,EnMu1);
+  // mu2.SetPtEtaPhiE(ETMu2,EtaMu2,PhiMu2,EnMu2);
+  mu1.SetPtEtaPhiM(ETMu1,EtaMu1,PhiMu1,MUON_MASS);
+  mu2.SetPtEtaPhiM(ETMu2,EtaMu2,PhiMu2,MUON_MASS);
 
   return (mu1+mu2).M();
 }

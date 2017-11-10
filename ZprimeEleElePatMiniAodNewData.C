@@ -184,6 +184,7 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   int tenpcount = 1;
   int onepcount = 1;
   int tenthpcount = 1;
+  std::streamsize defpres = std::cout.precision();
 
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry < nentries;jentry++) {
@@ -205,7 +206,7 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
 		<< "t = "  << std::setprecision(4) << std::setw(7) << time
 		<< " projected finish =" << std::setw(7) << std::setprecision(4) << finTime << "s"
 		<< " (" << std::setw(4) << std::setprecision(2) << finMin << " min).   "
-		<< std::resetiosflags << std::endl;
+		<< std::setprecision(defpres) << std::resetiosflags << std::endl;
       std::cout << std::flush;
       tenpcount++;
       // } else if ( (jentry*100)/nentries == onepcount) {
