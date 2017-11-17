@@ -30,7 +30,7 @@ n=0;
 m=0;
 
 subflav=
-if [ "${lflav}"  ="Ele" ]
+if [ "${lflav}" = "Ele" ]
 then
     subflav="ee"
 elif [ "${lflav}" = "Mu" ]

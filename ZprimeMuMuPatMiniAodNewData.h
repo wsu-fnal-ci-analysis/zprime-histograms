@@ -27,8 +27,6 @@
 #include "TVector3.h"
 // Header file for the classes stored in the TTree if any.
 #include <vector>
-// VERY BAD PRACTICE
-/* using namespace std; */
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -438,7 +436,7 @@ class ZprimeMuMuPatMiniAodNewData {
   int genID1,genStat1;
   float genET2,genPhi2,genEta2,genEn2;
   int genID2,genStat2;
-  float MassGen,RecoMass;
+  float m_genMass, m_recoMass, m_recoMassCorr;  // seems not used...
   int NbGen,NbReco;
   int nbTP,nbTT,nbTF;
   float TagProbeEtaCut;

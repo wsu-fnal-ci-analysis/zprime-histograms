@@ -333,6 +333,12 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
   Char_t outform[20000];
   sprintf (outform,"run: lumi: event: dil_mass: pTmu1: pTmu2: Etamu1: Etamu2:");
   output_txt  << outform << std::endl;
+
+  TString inputfile=name;
+  inputfile=name;
+  std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
+  std::cout << "Weight of the sample is= " << m_weight << std::endl;
+
   //==================================================================================
   if (fChain == 0) return;
   Long64_t nentries = fChain->GetEntries();
@@ -346,6 +352,7 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
   int tenpcount = 1;
   int onepcount = 1;
   int tenthpcount = 1;
+  std::streamsize defpres = std::cout.precision();
 
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
@@ -367,7 +374,7 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
 		<< "t = "  << std::setprecision(4) << std::setw(7) << time
 		<< " projected finish =" << std::setw(7) << std::setprecision(4) << finTime << "s"
 		<< " (" << std::setw(4) << std::setprecision(2) << finMin << " min).   "
-		<< std::resetiosflags << std::endl;
+		<< std::setprecision(defpres) << std::resetiosflags << std::endl;
       std::cout << std::flush;
       tenpcount++;
       // } else if ( (jentry*100)/nentries == onepcount ) {
@@ -483,7 +490,7 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
 	if (passBTaggingDiscriminator3==1) {
 	  h1_BTagMassMuMu_->Fill(m_vtxMassMu);
 	}
-	PlotRecoInfo(CosmicRejec,m_vtxMassMu,MassGen,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,mPtGen1,EtaRecMu1,
+	PlotRecoInfo(CosmicRejec,m_vtxMassMu,m_genMass,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,mPtGen1,EtaRecMu1,
 		     PtRecTunePMuBestTrack2,PtRecTunePMu2,PtRecMuBestTrack2,mPtGen2,EtaRecMu2);
 	m_csAngle = CosThetaCollinSoper(PtRecTunePMuBestTrack1,EtaRecMu1,PhiRecMu1,EnRecMu1,
 					PtRecTunePMuBestTrack2,EtaRecMu2,PhiRecMu2,EnRecMu2,
@@ -491,15 +498,13 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
 	Boson(pxRecMu1,pyRecMu1,pzRecMu1,EnRecMu1,pxRecMu2,pyRecMu2,pzRecMu2,EnRecMu2,
 	      ChargeRecMu1,PFMet_et_cor,PFMet_px_cor,PFMet_py_cor,PFMet_pz_cor,PFMet_en_cor);
 	bool passBTaggingDiscriminator = BTaggingDiscriminator(EtaRecMu1,PhiRecMu1,EtaRecMu2,PhiRecMu2);
-	if (passBTaggingDiscriminator==1)
-	  {
-	    h1_BTagMassMuMuBinWidth_->Fill(m_vtxMassMu);
-	    h1_BTagMassMuMu1GeVbin_->Fill(m_vtxMassMu);
-	  }
-	if (passBTaggingDiscriminator==0)
-	  {
-	    h1_ZprimeRecomassBinWidthAfterBtaging_->Fill(m_vtxMassMu);
-	  }
+	if (passBTaggingDiscriminator==1) {
+	  h1_BTagMassMuMuBinWidth_->Fill(m_vtxMassMu);
+	  h1_BTagMassMuMu1GeVbin_->Fill(m_vtxMassMu);
+	}
+	if (passBTaggingDiscriminator==0) {
+	  h1_ZprimeRecomassBinWidthAfterBtaging_->Fill(m_vtxMassMu);
+	}
       }
     }
   }
@@ -719,6 +724,9 @@ void ZprimeMuMuPatMiniAodNewData::PlotRecoInfo(float CosmicMuonRejec, float vert
   }
 
   float weight10 = MassCorrection(vertexMassMu);
+
+  m_recoMassCorr = vertexMassMu*weight10;
+
   //float weight2 = std::min(1.01696-7.73522E-5*vertexMassMu+6.69239E-9*vertexMassMu*vertexMassMu,1);
   //----------------------------------------------------------
   h1_ZprimeRecomassBinWidth_->Fill(vertexMassMu,m_weight);
@@ -1770,9 +1778,9 @@ bool ZprimeMuMuPatMiniAodNewData::DiPFJetCut(float MuonEta1,float MuonPhi1,float
 
 double ZprimeMuMuPatMiniAodNewData::MassCorrection(float M)
 {
-  float a = 1.06780e+00;
+  float a =  1.06780e+00;
   float b = -1.20666e-04;
-  float c = 3.22646e-08;
+  float c =  3.22646e-08;
   float d = -3.94886e-12;
   double function = d*pow(M,3) + c*pow(M,2) + b*pow(M,1) + a;
   return function;

@@ -56,6 +56,8 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="2017")
     m_weight = 1.;
   std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToEleEle_13TeV.root","recreate");
+  // Enable Sumw2 for histograms as we'll be normalizing them
+  TH1::SetDefaultSumw2();
   //==================================================================================
   //                                                                                 =
   //             Start the histograms for CollinSoper CMF                            =
@@ -155,6 +157,12 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   Char_t outform[20000];
   sprintf(outform,"run: lumi: event: dil_mass: pTele1: pTele2: Etaele1: Etaele2:");
   output_txt << outform << std::endl;
+
+  TString inputfile=name;
+  inputfile=name;
+  std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
+  std::cout << "Weight of the sample is= " << m_weight << std::endl;
+
   //==================================================================================
   if (fChain == 0) return;
   Long64_t nentries = fChain->GetEntriesFast();
@@ -168,6 +176,11 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   int tenpcount = 1;
   int onepcount = 1;
   int tenthpcount = 1;
+  std::streamsize defpres = std::cout.precision();
+
+  int wwto2l2nu_input(0),wwto2l2nu_fail_gen_mass(0),wwto2l2nu_fail_reco_mass(0);
+  int ttto2l2nu_input(0),ttto2l2nu_fail_gen_mass(0),ttto2l2nu_fail_reco_mass(0);
+
 
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry < nentries;jentry++) {
@@ -189,7 +202,7 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
 		<< "t = "  << std::setprecision(4) << std::setw(7) << time
 		<< " projected finish =" << std::setw(7) << std::setprecision(4) << finTime << "s"
 		<< " (" << std::setw(4) << std::setprecision(2) << finMin << " min).   "
-		<< std::resetiosflags << std::endl;
+		<< std::setprecision(defpres) << std::resetiosflags << std::endl;
       std::cout << std::flush;
       tenpcount++;
       // } else if ( (jentry*100)/nentries == onepcount) {
@@ -208,6 +221,7 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);
     nbytes += nb;
+    newweight = m_weight;
 
     if (isCISample) {
       // have to choose which cut to use
@@ -245,13 +259,21 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
 	std::cout << "failed el selection" << std::endl;
       continue;
     }
-    DiEleMass = Mass(Etele1,EtaTrakele1,PhiTrakele1,ELEC_MASS,
-                     Etele2,EtaTrakele2,PhiTrakele2,ELEC_MASS);
-    if (DiEleMass < 60) {
+
+    m_recoMass = Mass(Etele1,EtaTrakele1,PhiTrakele1,ELEC_MASS,
+		      Etele2,EtaTrakele2,PhiTrakele2,ELEC_MASS);
+
+    if (m_recoMass < 60) {
       if (debug)
-	std::cout << "failed DiEleMass" << std::endl;
+	std::cout << "failed m_recoMass" << std::endl;
       continue;
     }
+
+    m_genMass = GenMass(m_genET1, m_genEta1, m_genPhi1, m_genEn1,
+			m_genET2, m_genEta2, m_genPhi2, m_genEn2);
+
+    m_recoMassSmeared = smearedMass(EtaTrakele1, EtaTrakele2, m_recoMass, m_genMass, m_scaleUnc);
+
     //=========================================================
     //        start doing matching between reco & HLT         =
     //                                                        =
@@ -262,15 +284,119 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
 	std::cout << "failed HLT" << std::endl;
       continue;
     }
+
     bool RecoEle1MatchingWithHLT1 = RecoHLTEleMatching(EtaSCele1,PhiSCele1);
     bool RecoEle2MatchingWithHLT2 = RecoHLTEleMatching(EtaSCele2,PhiSCele2);
+
     if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
+      // Special inclusively binned samples, used only in the low mass region?
+      //  - Scaling is off...
+      // WW sample
+      // need to keep a running track of how many events are rejcted, and adjust the weight appropriately
+      if (inputfile.Contains("WWTo2L2Nu_13TeV")) {
+	wwto2l2nu_input++;
+	if (m_genMass > 600.) {
+	  if (debug)
+	    std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  newweight = 0;
+	  wwto2l2nu_fail_gen_mass++;
+	}
+	if (m_recoMass > 600.) {  // WHY CUT ON THE RECO MASS???
+	  if (debug)
+	    std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  // newweight = 0;
+	  wwto2l2nu_fail_reco_mass++;
+	}
+      } else if (inputfile.Contains("WWTo2L2Nu_Mll")) {
+	wwto2l2nu_input++;
+	if (m_genMass < 600.) {
+	  if (debug)
+	    std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  newweight = 0;
+	  wwto2l2nu_fail_gen_mass++;
+	}
+	if (m_recoMass < 600.) {  // WHY CUT ON THE RECO MASS???
+	  if (debug)
+	    std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  // newweight = 0;
+	  wwto2l2nu_fail_reco_mass++;
+	}
+      } else if (inputfile.Contains("TTTo2L2Nu_Tune")) {
+	// Inclusive TTTo2L2Nu sample
+	if (debug)
+	  std::cout << "Checking reweighting of inclusive TTTo2L2Nu sample: gen("
+		    << m_genMass << ") reco("
+		    << m_recoMass << ")" << std::endl;
+	ttto2l2nu_input++;
+	if (m_genMass > 500.) {
+	  if (debug)
+	    std::cout << "Reweighting inclusive TTTo2L2Nu sample with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  newweight = 0;
+	  ttto2l2nu_fail_gen_mass++;
+	}
+	if (m_recoMass > 500.) {  // WHY CUT ON THE RECO MASS???
+	  if (debug)
+	    std::cout << "Reweighting inclusive TTTo2L2Nu sample with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  // newweight = 0;
+	  ttto2l2nu_fail_reco_mass++;
+	}
+      } else if (inputfile.Contains("TTTo2L2Nu_M") || inputfile.Contains("TTToLL_MLL_")) {
+	if (debug)
+	  std::cout << "Checking reweighting of mass binned TTTo2L2Nu sample: gen("
+		    << m_genMass << ") reco("
+		    << m_recoMass << ")" << std::endl;
+	ttto2l2nu_input++;
+	if (m_genMass > 500.) {
+	  if (debug)
+	    std::cout << "Reweighting mass binned TTTo2L2Nu sample with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  newweight = 0;
+	  ttto2l2nu_fail_gen_mass++;
+	}
+	if (m_recoMass<500.) {
+	  if (debug)
+	    std::cout << "Reweighting mass binned TTTo2L2Nu sample with weight=0: gen("
+		      << m_genMass << ") reco("
+		      << m_recoMass << ")" << std::endl;
+	  // newweight = 0;
+	  ttto2l2nu_fail_reco_mass++;
+	}
+      }
+
       m_csAngle = CosThetaCollinSoper(Etele1,EtaSCele1,PhiSCele1,Enele1,
 				      Etele2,EtaSCele2,PhiSCele2,Enele2,
-				      Chargeele1,DiEleMass);
-      PlotRecoInfo(DiEleMass,EtaSCele1,EtaSCele2);
+				      Chargeele1,m_recoMass);
+      PlotRecoInfo(m_recoMass,EtaSCele1,EtaSCele2);
     }
   }
+
+  std::cout << "100% done!" << std::endl;
+  std::cout << std::flush;
+
+  if (inputfile.Contains("TTToLL") || inputfile.Contains("TTTo2L2Nu"))
+    std::cout << "===Low mass TTTo2L2Nu sample info===="   << std::endl
+	      << "Total:     " << ttto2l2nu_input          << std::endl
+	      << "Fail GEN:  " << ttto2l2nu_fail_gen_mass  << std::endl
+	      << "Fail RECO: " << ttto2l2nu_fail_reco_mass << std::endl;
+  if (inputfile.Contains("WWTo2L2Nu"))
+    std::cout << "===Low mass WWTo2L2Nu sample info===="  << std::endl
+	      << "Total:     " << wwto2l2nu_input          << std::endl
+	      << "Fail GEN:  " << wwto2l2nu_fail_gen_mass  << std::endl
+	      << "Fail RECO: " << wwto2l2nu_fail_reco_mass << std::endl;
+
   ///===================================================
   fclose (pFile);
   //==================================================================================
@@ -312,18 +438,27 @@ bool ZprimeEleElePatMiniAodNewMC::GenRecoMatchEle(float RecoEta1,float RecoPhi1,
 {
   int NbHEEPele = 0;
   unsigned iflag = -10;
+  ptGele  = -10.;
+  etaGele = -10.;
+  phiGele = -10.;
+  enGele  = -10.;
   for (unsigned i=0; i<iGen->size(); i++) {
-    float deltaR1   = delR(RecoEta1,RecoPhi1,etaGen->at(i),phiGen->at(i));
     if (fabs(idGen->at(i)) != 11) continue;
-    if (statusGen->at(i) != 1)  continue;
-    if (fabs(deltaR1)>deltaRcut) continue;
+    if (statusGen->at(i) != 1)    continue;
+    float deltaR1   = delR(RecoEta1,RecoPhi1,etaGen->at(i),phiGen->at(i));
+    if (fabs(deltaR1)>deltaRcut)  continue;
     iflag  = i;
-    NbHEEPele ++;
+    NbHEEPele++;
+    ptGele  = ptGen->at(i);
+    etaGele = etaGen->at(i);
+    phiGele = phiGen->at(i);
+    enGele  = EnergyGen->at(i);
   }
   if (NbHEEPele > 0) {
     return true;
+  } else {
+    return false;
   }
-  else return false;
 }
 
 //============================ Method to select first high pt ele ========================
@@ -339,29 +474,29 @@ bool ZprimeEleElePatMiniAodNewMC::SelectFirstEle(float &ETele1,float &Enele1,flo
   for (unsigned i=0; i<Ele_nbElectrons->size(); i++) {
     ET = Ele_EtFromCaloEn->at(i);
     //Barrel
-    if ( ET > 35 && fabs(Ele_etaSC->at(i)) < 1.4442 && Ele_isPassHeepID->at(i)==1) {
+    if (ET > 35 && fabs(Ele_etaSC->at(i)) < 1.4442 && Ele_isPassHeepID->at(i)==1) {
       if (ET>highestpt) {
 	bool GenRecoMatch1 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i),
                                              genEle1Pt, genEle1Eta, genEle1Phi, genEle1En);
 	if (GenRecoMatch1 == 0) continue;
 	highestpt=ET;
 	iflag  = i;
-	NbHEEPele ++;
+	NbHEEPele++;
       }
-    }
-    //endcap
-    if ( ET > 35 && fabs(Ele_etaSC->at(i)) > 1.566 && fabs(Ele_etaSC->at(i)) < 2.5 && Ele_isPassHeepID->at(i)==1) {
+    } else if (ET > 35 && fabs(Ele_etaSC->at(i)) > 1.566 && fabs(Ele_etaSC->at(i)) < 2.5 && Ele_isPassHeepID->at(i)==1) { //endcap
       if (ET>highestpt) {
 	bool GenRecoMatch2 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i),
                                              genEle1Pt, genEle1Eta, genEle1Phi, genEle1En);
 	if (GenRecoMatch2 == 0) continue;
 	highestpt=ET;
 	iflag  = i;
-	NbHEEPele ++;
+	NbHEEPele++;
       }
+    } else {
+      continue;
     }
-    else continue;
   }
+
   if (NbHEEPele > 0) {
     FlagEle1           = iflag;
     ETele1             = Ele_EtFromCaloEn->at(iflag);
@@ -372,8 +507,9 @@ bool ZprimeEleElePatMiniAodNewMC::SelectFirstEle(float &ETele1,float &Enele1,flo
     EtaSCele1          = Ele_etaSC->at(iflag);
     PhiSCele1          = Ele_phiSC->at(iflag);
     return true;
+  } else {
+    return false;
   }
-  else return false;
 }
 //============================ Method to select second high pt ele ========================
 bool ZprimeEleElePatMiniAodNewMC::SelectSecondEle(int ChargeEle1,unsigned FlagEle1,float ETele1,float Etaele1,float Phiele1,
@@ -391,30 +527,30 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondEle(int ChargeEle1,unsigned FlagEl
     if (Ele_etaSC->at(i) == Etaele1) continue;
     if (Ele_phiSC->at(i) == Phiele1) continue;
     ET = Ele_EtFromCaloEn->at(i);
-    //Barrel
-    if ( ET > 35 && fabs(Ele_etaSC->at(i)) < 1.4442 && Ele_isPassHeepID->at(i)==1) {
+
+    if (ET > 35 && fabs(Ele_etaSC->at(i)) < 1.4442 && Ele_isPassHeepID->at(i)==1) {  //Barrel
       if (ET>highestpt) {
 	bool GenRecoMatch1 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i),
                                              genEle1Pt, genEle1Eta, genEle1Phi, genEle1En);
 	if (GenRecoMatch1 == 0) continue;
 	highestpt=ET;
 	iflag  = i;
-	NbHEEPele ++;
+	NbHEEPele++;
       }
-    }
-    //endcap
-    if ( ET > 35 && fabs(Ele_etaSC->at(i)) > 1.566 && fabs(Ele_etaSC->at(i)) < 2.5 && Ele_isPassHeepID->at(i)==1) {
+    } else if (ET > 35 && fabs(Ele_etaSC->at(i)) > 1.566 && fabs(Ele_etaSC->at(i)) < 2.5 && Ele_isPassHeepID->at(i)==1) {  //endcap
       if (ET>highestpt) {
 	bool GenRecoMatch2 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i),
                                              genEle1Pt, genEle1Eta, genEle1Phi, genEle1En);
 	if (GenRecoMatch2 == 0) continue;
 	highestpt=ET;
 	iflag  = i;
-	NbHEEPele ++;
+	NbHEEPele++;
       }
+    } else {
+      continue;
     }
-    else continue;
   }
+
   if (NbHEEPele > 0) {
     ETele2             = Ele_EtFromCaloEn->at(iflag);
     Enele2             = Ele_energySC->at(iflag);
@@ -424,8 +560,9 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondEle(int ChargeEle1,unsigned FlagEl
     EtaSCele2          = Ele_etaSC->at(iflag);
     PhiSCele2          = Ele_phiSC->at(iflag);
     return true;
+  } else {
+    return false;
   }
-  else return false;
 }
 void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float etaEle1,float etaEle2)
 {
@@ -468,90 +605,98 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float etaEle1,float
     }
   }
 
-  float weight10 = MassCorrection(MassEle);
+  // only for DY POWHEG??
+  float weight10 = 1.;
+  if (inputfile.Contains("NNPDF30"))
+    weight10 = MassCorrection(MassEle);
+
+  newweight = newweight*weight10;
+  m_recoMassCorr = m_recoMass*weight10;
+
   //----------------------------------------------------------
   if (!(inputfile.Contains("WW") && MassEle>2000.)) {
-    // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        0.,m_weight);
-    h2_CSMassBinned_       ->Fill(MassEle,               0.,m_weight);
-    // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),0.,m_weight);
-    // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),0.,m_weight);
+    // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        0.,newweight);
+    h2_CSMassBinned_       ->Fill(MassEle,               0.,newweight);
+    h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),0.,newweight);
+    h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),0.,newweight);
     if (m_csAngle > 0) {
-      // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        2.,m_weight);
-      h2_CSMassBinned_       ->Fill(MassEle,               2.,m_weight);
-      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),2.,m_weight);
-      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),2.,m_weight);
+      // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        2.,newweight);
+      h2_CSMassBinned_       ->Fill(MassEle,               2.,newweight);
+      h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),2.,newweight);
+      h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),2.,newweight);
     } else {
-      // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        1.,m_weight);
-      h2_CSMassBinned_       ->Fill(MassEle,               1.,m_weight);
-      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),1.,m_weight);
-      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),1.,m_weight);
+      // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        1.,newweight);
+      h2_CSMassBinned_       ->Fill(MassEle,               1.,newweight);
+      h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),1.,newweight);
+      h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),1.,newweight);
     }
 
     int priEtaBin = -1;
     int secEtaBin = -1;
 
     if (fabs(etaEle1) < 1.4442 && fabs(etaEle2) < 1.4442) {  //BB
-      h1_ZprimeRecomassBinWidthBB_->Fill(MassEle,weight10);
-      h1_ZprimeRecomass60to120BB_->Fill(MassEle,weight10);
-      h1_ZprimeRecomassBinWidth_->Fill(MassEle,weight10);
-      h1_ZprimeRecomass60to120_->Fill(MassEle,weight10);
-      h1_ZprimeRecomass_->Fill(MassEle);
+      h1_ZprimeRecomassBinWidthBB_->Fill(MassEle,newweight);
+      h1_ZprimeRecomass60to120BB_->Fill(MassEle,newweight);
+      h1_ZprimeRecomassBinWidth_->Fill(MassEle,newweight);
+      h1_ZprimeRecomass60to120_->Fill(MassEle,newweight);
+      h1_ZprimeRecomass_->Fill(MassEle,newweight);
       priEtaBin = 1;
     } else if ((fabs(etaEle1) < 1.4442 && (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) ||
                (fabs(etaEle2) < 1.4442 && (fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5))) {  //BE
-      h1_ZprimeRecomassBinWidthBE_->Fill(MassEle,weight10);
-      h1_ZprimeRecomass60to120BE_->Fill(MassEle,weight10);
-      h1_ZprimeRecomassBinWidth_->Fill(MassEle,weight10);
-      h1_ZprimeRecomass60to120_->Fill(MassEle,weight10);
-      h1_ZprimeRecomass_->Fill(MassEle);
+      h1_ZprimeRecomassBinWidthBE_->Fill(MassEle,newweight);
+      h1_ZprimeRecomass60to120BE_->Fill(MassEle,newweight);
+      h1_ZprimeRecomassBinWidth_->Fill(MassEle,newweight);
+      h1_ZprimeRecomass60to120_->Fill(MassEle,newweight);
+      h1_ZprimeRecomass_->Fill(MassEle,newweight);
       priEtaBin = 2;
     } else if ((fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5) &&
                (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) {  //EE
-      h1_ZprimeRecomassBinWidthEE_->Fill(MassEle,weight10);
-      h1_ZprimeRecomass60to120EE_->Fill(MassEle,weight10);
-      h1_ZprimeRecomass_->Fill(MassEle);
+      h1_ZprimeRecomassBinWidthEE_->Fill(MassEle,newweight);
+      h1_ZprimeRecomass60to120EE_->Fill(MassEle,newweight);
+      h1_ZprimeRecomass_->Fill(MassEle,newweight);
       priEtaBin = 3;
     }
-    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+0,m_weight);
-    h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+0,m_weight);
-    // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+0,m_weight);
-    // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+0,m_weight);
+    // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+0,newweight);
+    h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+0,newweight);
+    h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+0,newweight);
+    h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+0,newweight);
     if (secEtaBin > 0) {
       // std::cout << "secondary bin (" << secEtaBin << "*3)+0(" << (secEtaBin*3)+0 << ")" << std::endl;
-      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+0,m_weight);
-      h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+0,m_weight);
-      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+0,m_weight);
-      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+0,m_weight);
+      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+0,newweight);
+      h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+0,newweight);
+      h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+0,newweight);
+      h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+0,newweight);
     }
     if (m_csAngle > 0) {
       // std::cout << "primary bin (" << priEtaBin << "*3)+2(" << (priEtaBin*3)+2 << ")" << std::endl;
-      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+2,m_weight);
-      h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+2,m_weight);
-      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+2,m_weight);
-      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+2,m_weight);
+      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+2,newweight);
+      h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+2,newweight);
+      h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+2,newweight);
+      h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+2,newweight);
       if (secEtaBin > 0) {
 	// std::cout << "secondary bin (" << secEtaBin << "*3)+2(" << (secEtaBin*3)+2 << ")" << std::endl;
-	// h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+2,m_weight);
-	h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+2,m_weight);
-	// h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+2,m_weight);
-	// h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+2,m_weight);
+	// h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+2,newweight);
+	h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+2,newweight);
+	h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+2,newweight);
+	h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+2,newweight);
       }
     } else {
       // std::cout << "primary bin (" << priEtaBin << "*3)+1(" << (priEtaBin*3)+1 << ")" << std::endl;
-      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+1,m_weight);
-      h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+1,m_weight);
-      // h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+1,m_weight);
-      // h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+1,m_weight);
+      // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+1,newweight);
+      h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+1,newweight);
+      h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+1,newweight);
+      h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+1,newweight);
       if (secEtaBin > 0) {
 	// std::cout << "secondary bin (" << secEtaBin << "*3)+1(" << (secEtaBin*3)+1 << ")" << std::endl;
-	// h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+1,m_weight);
-	h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+1,m_weight);
-	// h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+1,m_weight);
-	// h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+1,m_weight);
+	// h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+1,newweight);
+	h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+1,newweight);
+	h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+1,newweight);
+	h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+1,newweight);
       }
     }
   }
 }
+
 //===================== Methode to calculate the mass ========================
 float ZprimeEleElePatMiniAodNewMC::Mass(float Pt1,float Eta1,float Phi1,float En1,
                                         float Pt2,float Eta2,float Phi2,float En2)
@@ -563,10 +708,61 @@ float ZprimeEleElePatMiniAodNewMC::Mass(float Pt1,float Eta1,float Phi1,float En
     Ele2.SetPtEtaPhiE(Pt2,Eta2,Phi2,En2);*/
   Ele1.SetPtEtaPhiM(Pt1,Eta1,Phi1,En1);
   Ele2.SetPtEtaPhiM(Pt2,Eta2,Phi2,En2);
-  EleEleMass = (Ele1 + Ele2).M();
+  EleEleMass = (Ele1+Ele2).M();
   return EleEleMass;
 }
 
+
+
+//===================== Method to calculate the smeared mass ========================
+float ZprimeEleElePatMiniAodNewMC::smearedMass(float Eta1, float Eta2,
+					       float recoMass, float genMass, float &scaleUnc)
+{
+  double a = 0.;
+  double b = 0.;
+  double c = 0.;
+  double d = 0.;
+  double e = 0.;
+
+  //sigma BB
+  if (fabs(Eta1) <= 1.4442 && fabs(Eta2) <= 1.4442) {
+    scaleUnc = 0.01;
+    a =  0.00701;
+    b =  3.32e-05;
+    c = -1.29e-08;
+    d =  2.73e-12;
+    e = -2.05e-16;
+  } else if ((fabs(Eta1) < 1.4442 && (fabs(Eta2) > 1.566 && fabs(Eta2) < 2.5)) ||
+	     (fabs(Eta2) < 1.4442 && (fabs(Eta1) > 1.566 && fabs(Eta1) < 2.5))) {  //BE
+    scaleUnc = 0.02;
+    a =  0.0124;
+    b =  3.75e-05;
+    c = -1.52e-08;
+    d =  3.44e-12;
+    e = -2.85e-16;
+  } else if ((fabs(Eta1) > 1.566 && fabs(Eta1) < 2.5) &&
+	     (fabs(Eta2) > 1.566 && fabs(Eta2) < 2.5)) {  //EE
+    scaleUnc = 0.02; //?
+    a =  0.0124;
+    b =  3.75e-05;
+    c = -1.52e-08;
+    d =  3.44e-12;
+    e = -2.85e-16;
+  } else { // other?
+    scaleUnc = 0.03; //?
+    a =  0.0124;
+    b =  3.75e-05;
+    c = -1.52e-08;
+    d =  3.44e-12;
+    e = -2.85e-16;
+  }
+  double res = a + b*genMass + c*genMass*genMass + d*pow(genMass,3) + e*pow(genMass,4);
+
+  double extraSmear = res*0.15;
+
+  std::shared_ptr<TRandom3> rand = std::make_shared<TRandom3>(0); // why not a different random seed?
+  return recoMass*rand->Gaus(1,extraSmear);
+}
 
 //----------------------------------------------------
 //                                                   -
@@ -588,7 +784,7 @@ bool ZprimeEleElePatMiniAodNewMC::SelectFirstGenEle(float &ETEle1,float &PhiSCEl
     if (ptGen->at(i) > ETEle1) {
       ETEle1 = ptGen->at(i);
       iflag  = i;
-      NbHEEPele ++;
+      NbHEEPele++;
     }
     else continue;
   }
@@ -604,6 +800,7 @@ bool ZprimeEleElePatMiniAodNewMC::SelectFirstGenEle(float &ETEle1,float &PhiSCEl
   }
   else return false;
 }
+
 //============================ Method to select second Gen Ele ========================
 bool ZprimeEleElePatMiniAodNewMC::SelectSecondGenEle(unsigned GenFlag1,float ETEle1,float &ETEle2,float &PhiSCEle2,
                                                      float &EtaSCEle2,float &EnEle2,int &IDele2,int &Statele2)
@@ -619,7 +816,7 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondGenEle(unsigned GenFlag1,float ETE
     if (ptGen->at(i) > ETEle2) {
       ETEle2 = ptGen->at(i);
       iflag  = i;
-      NbHEEPele ++;
+      NbHEEPele++;
     }
     else continue;
   }
@@ -635,6 +832,18 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondGenEle(unsigned GenFlag1,float ETE
   else return false;
 }
 
+//============================ Method to compute gen level invariant mass ========================
+float ZprimeEleElePatMiniAodNewMC::GenMass(float ETEle1, float PhiEle1, float EtaEle1,float EnEle1,
+					   float ETEle2, float PhiEle2, float EtaEle2,float EnEle2)
+{
+  TLorentzVector ele1, ele2;
+  // ele1.SetPtEtaPhiE(ETEle1,EtaEle1,PhiEle1,EnEle1);
+  // ele2.SetPtEtaPhiE(ETEle2,EtaEle2,PhiEle2,EnEle2);
+  ele1.SetPtEtaPhiM(ETEle1,EtaEle1,PhiEle1,ELEC_MASS);
+  ele2.SetPtEtaPhiM(ETEle2,EtaEle2,PhiEle2,ELEC_MASS);
+
+  return (ele1+ele2).M();
+}
 
 float ZprimeEleElePatMiniAodNewMC::CosThetaCollinSoper(float Et1,float Eta1,float Phi1,float En1,
 						       float Et2,float Eta2,float Phi2,float En2,
@@ -670,25 +879,25 @@ float ZprimeEleElePatMiniAodNewMC::CosThetaCollinSoper(float Et1,float Eta1,floa
   if (Q.Pz()<0.0) costheta = -costheta;
 
   if (RecoMass > 60.0 && RecoMass < 120.0) {
-    h1_CosAngleCollinSoperCorrect60Mass120_->Fill(costheta,m_weight);
+    h1_CosAngleCollinSoperCorrect60Mass120_->Fill(costheta,newweight);
   }
 
 
   if (RecoMass > 120.0 && RecoMass < 300.0) {
-    h1_CosAngleCollinSoperCorrect120Mass300_->Fill(costheta,m_weight);
+    h1_CosAngleCollinSoperCorrect120Mass300_->Fill(costheta,newweight);
   }
 
   if (RecoMass > 300.0 && RecoMass < 700.0) {
-    h1_CosAngleCollinSoperCorrect300Mass700_->Fill(costheta,m_weight);
+    h1_CosAngleCollinSoperCorrect300Mass700_->Fill(costheta,newweight);
   }
 
   if (RecoMass > 700.0 && RecoMass < 3000.0) {
-    h1_CosAngleCollinSoperCorrect700Mass3000_->Fill(costheta,m_weight);
+    h1_CosAngleCollinSoperCorrect700Mass3000_->Fill(costheta,newweight);
   }
 
   if (RecoMass > 4500.0 && RecoMass < 6000.0) {
-    h1_CosAngleCollinSoperCorrect4900Mass5100_->Fill(costheta,m_weight);
-    h1_absCosAngleCollinSoperCorrect4500Mass5500_->Fill(fabs(costheta),m_weight);
+    h1_CosAngleCollinSoperCorrect4900Mass5100_->Fill(costheta,newweight);
+    h1_absCosAngleCollinSoperCorrect4500Mass5500_->Fill(fabs(costheta),newweight);
   }
 
   /************************************************************************
@@ -708,7 +917,7 @@ float ZprimeEleElePatMiniAodNewMC::CosThetaCollinSoper(float Et1,float Eta1,floa
   TVector3 Dt = D.Vect(); Dt.SetZ(0);
   double tanphi = sqrt(pow(Q.Mag(), 2) + pow(Q.Perp(), 2)) / Q.Mag() * Dt.Dot(Runit) / Dt.Dot(Qtunit);
   if (Q.Pz()<0.0) tanphi = -tanphi;
-  //h1_TanPhiCollinSoperCorrect_->Fill(tanphi,m_weight);
+  //h1_TanPhiCollinSoperCorrect_->Fill(tanphi,newweight);
   /************************************************************************
    *
    * 3) sin2(theta) = Q^-2 Dt^2 - Q^-2 (Q^2 + Qt^2)^-1 * (Dt dot Qt)^2
@@ -717,7 +926,7 @@ float ZprimeEleElePatMiniAodNewMC::CosThetaCollinSoper(float Et1,float Eta1,floa
   //double dt_qt = D.X()*Q.X() + D.Y()*Q.Y();
   //double sin2theta = pow(D.Pt()/Q.Mag(), 2)
   //- 1.0/pow(Q.Mag(), 2)/(pow(Q.Mag(), 2) + pow(Q.Pt(), 2))*pow(dt_qt, 2);
-  //h1_Sin2AngleCollinSoperCorrect_->Fill(sin2theta,m_weight);
+  //h1_Sin2AngleCollinSoperCorrect_->Fill(sin2theta,newweight);
 
   return costheta;
 }

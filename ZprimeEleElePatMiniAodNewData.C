@@ -54,6 +54,8 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="2017")
     m_weight = 1.;
   std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToEleEle_13TeV.root","recreate");
+  // Enable Sumw2 for histograms as we'll be normalizing them
+  TH1::SetDefaultSumw2();
   //==================================================================================
   //                                                                                 =
   //             Start the histograms for CollinSoper CMF                            =
@@ -163,6 +165,12 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   Char_t outform[20000];
   sprintf (outform,"run: lumi: event: dil_mass: pTele1: pTele2: Etaele1: Etaele2:");
   output_txt  << outform << std::endl;
+
+  TString inputfile=name;
+  inputfile=name;
+  std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
+  std::cout << "Weight of the sample is= " << m_weight << std::endl;
+
   //==================================================================================
   if (fChain == 0) return;
   Long64_t nentries = fChain->GetEntriesFast();
@@ -176,6 +184,7 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   int tenpcount = 1;
   int onepcount = 1;
   int tenthpcount = 1;
+  std::streamsize defpres = std::cout.precision();
 
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry < nentries;jentry++) {
@@ -197,7 +206,7 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
 		<< "t = "  << std::setprecision(4) << std::setw(7) << time
 		<< " projected finish =" << std::setw(7) << std::setprecision(4) << finTime << "s"
 		<< " (" << std::setw(4) << std::setprecision(2) << finMin << " min).   "
-		<< std::resetiosflags << std::endl;
+		<< std::setprecision(defpres) << std::resetiosflags << std::endl;
       std::cout << std::flush;
       tenpcount++;
       // } else if ( (jentry*100)/nentries == onepcount) {
@@ -255,9 +264,9 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
     //=========================================================
     if (firstEleFinal == 0 || secondEleFinal == 0)
       continue;
-    DiEleMass = Mass(Etele1,EtaTrakele1,PhiTrakele1,ELEC_MASS,
+    m_recoMass = Mass(Etele1,EtaTrakele1,PhiTrakele1,ELEC_MASS,
                      Etele2,EtaTrakele2,PhiTrakele2,ELEC_MASS);
-    if (DiEleMass<60.0)
+    if (m_recoMass<60.0)
       continue;
     //=========================================================
     //        start doing matching between reco & HLT         =
@@ -272,8 +281,8 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
       if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
         m_csAngle = CosThetaCollinSoper(Etele1,EtaSCele1,PhiSCele1,Enele1,
 					Etele2,EtaSCele2,PhiSCele2,Enele2,
-					Chargeele1,DiEleMass);
-        PlotRecoInfo(DiEleMass,EtaSCele1,EtaSCele2);
+					Chargeele1,m_recoMass);
+        PlotRecoInfo(m_recoMass,EtaSCele1,EtaSCele2);
       }
     } else {
       bool fireHLT2 = isPassHLT2();
@@ -284,8 +293,8 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
       if (RecoEle1MatchingWithHLT3==1 && RecoEle2MatchingWithHLT4==1) {
         m_csAngle = CosThetaCollinSoper(Etele1,EtaSCele1,PhiSCele1,Enele1,
 					Etele2,EtaSCele2,PhiSCele2,Enele2,
-					Chargeele1,DiEleMass);
-        PlotRecoInfo(DiEleMass,EtaSCele1,EtaSCele2);
+					Chargeele1,m_recoMass);
+        PlotRecoInfo(m_recoMass,EtaSCele1,EtaSCele2);
       }
     }
   }
@@ -678,7 +687,7 @@ void ZprimeEleElePatMiniAodNewData::PlotRecoInfo(float MassEle,float etaEle1,flo
       h1_ZprimeRecomass60to120BB_->Fill(MassEle,m_weight);
       h1_ZprimeRecomassBinWidth_->Fill(MassEle,m_weight);
       h1_ZprimeRecomass60to120_->Fill(MassEle,m_weight);
-      h1_ZprimeRecomass_->Fill(MassEle);
+      h1_ZprimeRecomass_->Fill(MassEle,m_weight);
       priEtaBin = 1;
     } else if ((fabs(etaEle1) < 1.4442 && (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) ||
 	       (fabs(etaEle2) < 1.4442 && (fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5))) {  //BE
@@ -686,13 +695,13 @@ void ZprimeEleElePatMiniAodNewData::PlotRecoInfo(float MassEle,float etaEle1,flo
       h1_ZprimeRecomass60to120BE_->Fill(MassEle,m_weight);
       h1_ZprimeRecomassBinWidth_->Fill(MassEle,m_weight);
       h1_ZprimeRecomass60to120_->Fill(MassEle,m_weight);
-      h1_ZprimeRecomass_->Fill(MassEle);
+      h1_ZprimeRecomass_->Fill(MassEle,m_weight);
       priEtaBin = 2;
     } else if ((fabs(etaEle1) > 1.566 && fabs(etaEle1) < 2.5) &&
 	       (fabs(etaEle2) > 1.566 && fabs(etaEle2) < 2.5)) {  //EE
       h1_ZprimeRecomassBinWidthEE_->Fill(MassEle,m_weight);
       h1_ZprimeRecomass60to120EE_->Fill(MassEle,m_weight);
-      h1_ZprimeRecomass_->Fill(MassEle);
+      h1_ZprimeRecomass_->Fill(MassEle,m_weight);
       priEtaBin = 3;
     }
 
@@ -865,22 +874,13 @@ float ZprimeEleElePatMiniAodNewData::CosThetaCollinSoper(float Et1,float Eta1,fl
 
   if (RecoMass > 60.0 && RecoMass < 120.0) {
     h1_CosAngleCollinSoperCorrect60Mass120_->Fill(costheta,m_weight);
-  }
-
-
-  if (RecoMass > 120.0 && RecoMass < 300.0) {
+  } else if (RecoMass > 120.0 && RecoMass < 300.0) {
     h1_CosAngleCollinSoperCorrect120Mass300_->Fill(costheta,m_weight);
-  }
-
-  if (RecoMass > 300.0 && RecoMass < 700.0) {
+  } else if (RecoMass > 300.0 && RecoMass < 700.0) {
     h1_CosAngleCollinSoperCorrect300Mass700_->Fill(costheta,m_weight);
-  }
-
-  if (RecoMass > 700.0 && RecoMass < 3000.0) {
+  } else if (RecoMass > 700.0 && RecoMass < 3000.0) {
     h1_CosAngleCollinSoperCorrect700Mass3000_->Fill(costheta,m_weight);
-  }
-
-  if (RecoMass > 4500.0 && RecoMass < 6000.0) {
+  } else if (RecoMass > 4500.0 && RecoMass < 6000.0) {
     h1_CosAngleCollinSoperCorrect4900Mass5100_->Fill(costheta,m_weight);
     h1_absCosAngleCollinSoperCorrect4500Mass5500_->Fill(fabs(costheta),m_weight);
   }

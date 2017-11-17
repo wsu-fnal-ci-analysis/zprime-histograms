@@ -27,8 +27,6 @@
 #include "TVector3.h"
 // Header file for the classes stored in the TTree if any.
 #include <vector>
-// VERY BAD PRACTICE
-/* using namespace std; */
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -388,6 +386,7 @@ class ZprimeEleElePatMiniAodNewMC {
                        float &genEle2Pt, float &genEle2Eta, float &genEle2Phi, float &genEle2En);
   float Mass(float Pt1,float Eta1,float Phi1,float En1,
              float Pt2,float Eta2,float Phi2,float En2);
+  float smearedMass(float Eta1,float Eta2,float vtxMass,float genMass, float &scaleUnc);
   void PlotRecoInfo(float MassEle,float etaEle1,float etaEle2);
   bool SelectFirstGenEle(float &ETEle1,float &PhiSCEle1,
                          float &EtaSCEle1,float &EnEle1,
@@ -395,6 +394,8 @@ class ZprimeEleElePatMiniAodNewMC {
                          unsigned &GenFlag1);
   bool SelectSecondGenEle(unsigned GenFlag1,float ETEle1,float &ETEle2,float &PhiSCEle2,
                           float &EtaSCEle2,float &EnEle2,int &IDele2,int &Statele2);
+  float GenMass(float Pt1,float Eta1,float Phi1,float En1,
+                float Pt2,float Eta2,float Phi2,float En2);
   bool GenRecoMatchEle(float RecoEta1,float RecoPhi1,
                        float &ptGele,float &etaGele,float &phiGele,float &enGele);
   bool RecoHLTEleMatching(float RecoEta,float RecoPhi);
@@ -429,7 +430,7 @@ class ZprimeEleElePatMiniAodNewMC {
   int m_genID1,m_genStat1;
   float m_genET2,m_genPhi2,m_genEta2,m_genEn2;
   int m_genID2,m_genStat2;
-  float m_genMass,m_recoMass,m_csAngle;
+  float m_genMass,m_recoMass,m_recoMassSmeared,m_recoMassCorr,m_scaleUnc,m_csAngle;
   int NbGen,NbReco;
   int nbTP,nbTT,nbTF;
   float TagProbeEtaCut;

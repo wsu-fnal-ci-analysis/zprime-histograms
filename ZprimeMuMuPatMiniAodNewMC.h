@@ -27,8 +27,6 @@
 #include "TVector3.h"
 // Header file for the classes stored in the TTree if any.
 #include <vector>
-// VERY BAD PRACTICE
-/* using namespace std; */
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -363,7 +361,7 @@ class ZprimeMuMuPatMiniAodNewMC {
                     float PtTunePMuBestTrack,float PtTunePMu,float PtMuBestTrack,
                     float PtGenerated,float etaMu1,
                     float PtTunePMuBestTrack2,float PtTunePMu2,float PtMuBestTrack2,
-                    float PtGenerated2,float etaMu2);
+                    float PtGenerated2,float etaMu2, float bosonPt);
   void PickThehighestMass(float &vtxHighestMass,float &vtxHighestChi2,int EvtNb);
   double ThreeDangle(float pxMu1,float pyMu1,float pzMu1,float pMu1,
                      float pxMu2,float pyMu2,float pzMu2,float pMu2);
@@ -401,7 +399,7 @@ class ZprimeMuMuPatMiniAodNewMC {
   void Boson(float Pt1,float Eta1,float Phi1,float En1,
              float Pt2,float Eta2,float Phi2,float En2,
              float ChargeEle1,float MetEt,float MetPx,
-             float MetPy,float MetPz,float MetEn);
+             float MetPy,float MetPz,float MetEn, float &bosonPt);
   void MuonPassingID();
   void PlotPterror();
   void PlotNbTrackLayers();
@@ -418,7 +416,7 @@ class ZprimeMuMuPatMiniAodNewMC {
                             float Et2,float Eta2,float Phi2,float En2,
                             float ChargeEle1,float RecoMass);
   float delR(float eta1,float phi1,float eta2,float phi2);
-  double MassCorrection(float M);
+  double MassCorrection(float M, float bosonPt, float eta1, float eta2);
   void DrawDiJetMassBB();
   void DrawDiJetMassBE();
   void DrawDiJetMassEE();
@@ -455,7 +453,7 @@ class ZprimeMuMuPatMiniAodNewMC {
   int m_genID1,m_genStat1;
   float m_genET2,m_genPhi2,m_genEta2,m_genEn2;
   int m_genID2,m_genStat2;
-  float m_genMass, m_recoMass;  // seems not used...
+  float m_genMass, m_recoMass, m_recoMassCorr, m_bosonPt;  // seems not used...
   int m_nbGen,m_nbReco;
   int nbTP,nbTT,nbTF;
   float TagProbeEtaCut;

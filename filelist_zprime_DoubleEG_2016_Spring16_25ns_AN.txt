@@ -5,36 +5,38 @@ root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEle
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_DoubleEG_Data_F_reminiaod_json_tree.root
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_DoubleEG_Data_G_reminiaod_json_tree.root
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_DoubleEG_Data_H2H3_reminiaod_json_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_50_120_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_120_200_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_200_400_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_400_800_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_800_1400_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_1400_2300_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_2300_3500_Moriond17_tree.root
-# MISSING # root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_3500_4500_Moriond17_tree.root
-# MISSING # root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_4500_6000_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_WWTo2L2Nu_13TeV-powheg_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_WWTo2L2Nu_Mll_1200To2500_13TeV-powheg_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_WWTo2L2Nu_Mll_2500ToInf_13TeV-powheg_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_WWTo2L2Nu_Mll_600To1200_13TeV-powheg_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_WZ_TuneCUETP8M1_13TeV-pythia8_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_ZZ_TuneCUETP8M1_13TeV-pythia8_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_120_200_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_1400_2300_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_200_400_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_2300_3500_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_3500_4500_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_400_800_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_50_120_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_800_1400_Moriond17_tree.root
+# # MISSING # root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_ZToEE_NNPDF30_13TeV-powheg_M_4500_6000_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_TTTo2L2Nu_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8_Moriond17_tree.root
+# root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_TTTo2L2Nu_M500to800_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8_Moriond17_tree.root
+# root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_TTTo2L2Nu_M800to1200_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8_Moriond17_tree.root
+# root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_TTTo2L2Nu_M1200to1800_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8_Moriond17_tree.root
+# root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_TTTo2L2Nu_M1800toInf_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_WWTo2L2Nu_13TeV-powheg_Moriond17_tree.root
+# MISSING # root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_WWTo2L2Nu_Mll_600To1200_13TeV-powheg_Moriond17_tree.root
+# MISSING # root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_WWTo2L2Nu_Mll_1200To2500_13TeV-powheg_Moriond17_tree.root
+# MISSING # root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_WWTo2L2Nu_Mll_2500ToInf_13TeV-powheg_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_WZ_TuneCUETP8M1_13TeV-pythia8_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_ZZ_TuneCUETP8M1_13TeV-pythia8_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histosCorr/histosZprimeEleEle/output_ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1_Moriond17_tree.root
 # FIXME # root://cmseos.fnal.gov///store/user/ndefilip/ZprimeAnalysis/histos/histosZprimeEleEle/Data-total-jets.root
 # FIXME # root://cmseos.fnal.gov///store/user/ndefilip/ZprimeAnalysis/histos/histosZprimeEleEle/Data-total-jets-BB.root
 # FIXME # root://cmseos.fnal.gov///store/user/ndefilip/ZprimeAnalysis/histos/histosZprimeEleEle/Data-total-jets-BEEE.root
-# FIXME # root://cmseos.fnal.gov///store/user/ndefilip/ZprimeAnalysis/histos/histosZprimeEleEle/Data-total-jets-BBBEEE.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_TTTo2L2Nu_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_TTToLL_MLL_1200To1800_TuneCUETP8M1_13TeV-powheg-pythia8_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_TTToLL_MLL_1800ToInf_TuneCUETP8M1_13TeV-powheg-pythia8_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_TTToLL_MLL_500To800_TuneCUETP8M1_13TeV-powheg-pythia8_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_TTToLL_MLL_800To1200_TuneCUETP8M1_13TeV-powheg-pythia8_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1_Moriond17_tree.root
-root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1_Moriond17_tree.root
+root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/Data-total-jets-BBBEEE.root
+## Choose CI sample here:
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_CITo2E_M800_CUETP8M1_Lam16TeVConLL_13TeV_Pythia8_Corrected-v4_ntuple.root
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_CITo2E_M300_CUETP8M1_Lam16TeVConLL_13TeV_Pythia8_Corrected-v4_ntuple.root
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_CITo2E_M1300_CUETP8M1_Lam16TeVConLL_13TeV_Pythia8_Corrected-v4_ntuple.root
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_CITo2E_M2000_CUETP8M1_Lam16TeVConLL_13TeV_Pythia8_Corrected-v4_ntuple.root
+## Done for DY subtraction
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_CITo2E_M800_CUETP8M1_Lam100kTeVConLL_13TeV_Pythia8_Corrected-v4_ntuple.root
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_CITo2E_M300_CUETP8M1_Lam100kTeVConLL_13TeV_Pythia8_Corrected-v4_ntuple.root
 root://cmseos.fnal.gov///store/user/sturdy/ZprimeAnalysis/histos/histosZprimeEleEle/output_CITo2E_M1300_CUETP8M1_Lam100kTeVConLL_13TeV_Pythia8_Corrected-v4_ntuple.root
