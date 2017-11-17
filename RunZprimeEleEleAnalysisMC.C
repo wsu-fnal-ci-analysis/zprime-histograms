@@ -54,7 +54,7 @@ int main(int argc, char ** argv)
   //
   float lumifb = 0.;
   if (mcconf.find("Spring16") < 5)
-    lumifb = 36.3 ; // 2016, double check for electrons
+    lumifb = 35.9 ; // 2016, double check for electrons
 
   std::string site=argv[8];
   std::cout << "Site is " << site.c_str() << " MC conf.= " << mcconf.c_str() << " data conf.= " << dataconf.c_str() << std::endl;
