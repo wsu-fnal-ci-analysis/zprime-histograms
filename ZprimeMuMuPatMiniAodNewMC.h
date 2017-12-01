@@ -20,6 +20,7 @@
 #include <memory>
 #include <vector>
 #include <TROOT.h>
+#include <TRandom3.h>
 #include <TChain.h>
 #include <TFile.h>
 #include <fstream>
@@ -338,8 +339,12 @@ class ZprimeMuMuPatMiniAodNewMC {
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
   void initMemberVariables();
+  TH2D* m_muon_scale_ratio_hist;
   bool DiPFJet(float MuonEta1,float MuonPhi1,float MuonEta2,float MuonPhi2);
   bool DiPFJetCut(float MuonEta1,float MuonPhi1,float MuonEta2,float MuonPhi2);
+  float GetScaleBias(float eta, float phi, float pt, float charge);
+  float GetResultionUncert(float pt,float eta);
+  TLorentzVector GetShiftedMuon(float px, float py, float pz, float E, float ratio);
   void PrintEventInformation(unsigned int runNumber, unsigned int lumiNumber, unsigned int eventNumber,
                              float vtxChi2, float vtxMass, float CosmicRejection);
   bool SelectFirstMuon(float &pTmuon1,float &Enmuon1,float &Etamuon1,
@@ -356,12 +361,13 @@ class ZprimeMuMuPatMiniAodNewMC {
                         float &genMu2Pt, float &genMu2Eta, float &genMu2Phi, float &genMu2En);
   float Mass(float Pt1,float Eta1,float Phi1,float En1,
              float Pt2,float Eta2,float Phi2,float En2);
-  float smearedMass(float Eta1,float Eta2,float vtxMass,float genMass, float &scaleUnc);
+  float smearedMass(float Eta1, float Phi1, float Pt1, float Eta2, float Phi2, float Pt2,float vtxMass);
+  float scaledMass(float Eta1, float Phi1, float Pt1, float Charge1, float Eta2, float Phi2, float Pt2, float Charge2, float vtxMass);
   void PlotRecoInfo(float CosmicMuonRejec,float vertexMassMu,float MassGenerated,
                     float PtTunePMuBestTrack,float PtTunePMu,float PtMuBestTrack,
-                    float PtGenerated,float etaMu1,
+                    float PtGenerated,float etaMu1, float pMu1,
                     float PtTunePMuBestTrack2,float PtTunePMu2,float PtMuBestTrack2,
-                    float PtGenerated2,float etaMu2, float bosonPt);
+                    float PtGenerated2,float etaMu2, float pMuMu2, float bosonPt);
   void PickThehighestMass(float &vtxHighestMass,float &vtxHighestChi2,int EvtNb);
   double ThreeDangle(float pxMu1,float pyMu1,float pzMu1,float pMu1,
                      float pxMu2,float pyMu2,float pzMu2,float pMu2);
@@ -437,7 +443,7 @@ class ZprimeMuMuPatMiniAodNewMC {
   float ptEffCut;
   float PtDYTRecMu1,PtDYTRecMu2,PtRecTunePMu1,PtRecTunePMu2,PtRecMuBestTrack1,PtRecMuBestTrack2;
   float RecoHLTMatchingDeltaRcut,deltaRcut,minMassCut,maxMassCut;
-  float m_vtxChi2Mu,m_vtxMassMu,m_vtxMassSmearedMu,m_scaleUnc,m_csAngle;
+  float m_vtxChi2Mu,m_vtxMassMu,m_vtxMassScaledMu,m_vtxMassSmearedMu,m_scaleUnc,m_csAngle;
   float m_ptGen1,m_phiGen1,m_etaGen1,m_enGen1;
   unsigned m_genFlag1;
   float m_ptGen2,m_phiGen2,m_etaGen2,m_enGen2;
@@ -465,6 +471,7 @@ class ZprimeMuMuPatMiniAodNewMC {
   int m_nbFireHLT;
   std::ofstream output_txt;
 
+  TRandom3* rand;
   // HISTOGRAMS
   /* std::shared_ptr<TH1D> h1_ZprimeRecomassBeforeTrigger_; */
   std::shared_ptr<TH1D> h1_ZprimeRecomass_;
@@ -548,6 +555,7 @@ class ZprimeMuMuPatMiniAodNewMC {
   /* std::array<std::array<TH1D*,4> 3> h1_MassDownBinned_   ; */
   std::shared_ptr<TH2D> h2_CSSmearedMassBinned_;
   std::shared_ptr<TH2D> h2_CSMassBinned_       ;
+  std::shared_ptr<TH2D> h2_CSMassMuIDBinned_       ;
   std::shared_ptr<TH2D> h2_CSMassUpBinned_     ;
   std::shared_ptr<TH2D> h2_CSMassDownBinned_   ;
   std::shared_ptr<TH2D> h2_CSPosSmearedMassBinned_;
