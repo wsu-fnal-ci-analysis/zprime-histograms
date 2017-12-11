@@ -28,6 +28,10 @@ float newweight = 1.;
 
 void ZprimeMuMuPatMiniAodNewMC::initMemberVariables()
 {
+
+
+  rand = std::make_shared<TRandom3>();
+
   m_nbGen          = 0;
   m_nbReco         = 0;
   MassCutMin     = 0.0;
@@ -84,6 +88,7 @@ void ZprimeMuMuPatMiniAodNewMC::initMemberVariables()
   m_vtxChi2Mu = -99999.;
   m_vtxMassMu = -99999.;
   m_vtxMassSmearedMu = -99999.;
+  m_vtxMassScaledMu = -99999.;
   m_scaleUnc  = -99999.;
   m_csAngle   = -99999.;
 
@@ -183,16 +188,19 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
   float ptMax = 400.0;
   ptEffCut = 3000.0;
   FR_Ptcut = 53.0; //53.0;
-
+ 
+ TFile *f = new TFile("muon_systematics.root","OPEN"); 
+  m_muon_scale_ratio_hist = static_cast<TH2D *>(f->Get("h2_muo_scale"));
   // m_weight = 1.;  // this is dumb, definitely don't want to reset the weight...
   if (DATA_type=="2015" || DATA_type=="2016" || DATA_type=="2017")
     m_weight = 1.;
   std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToMuMu_13TeV.root","recreate");
   // Enable Sumw2 for histograms as we'll be normalizing them
   TH1::SetDefaultSumw2(true);
+
   //==================================================================================
   //                                                                                 =
-  //             Start the histograms for CollinSoper CMF                            =
+  //             Dijet histograms                                                    =
   //                                                                                 =
   //==================================================================================
   h1_DijetEta1_       = std::make_shared<TH1D>("DijetEta1","",100,0.0,3.0);
@@ -217,6 +225,11 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
   h1_MassMuMuDijetBinWidthMET100_ = std::make_shared<TH1D>("MassMuMuDijetBinWidthMET100","MassMuMuDijetBinWidthMET100",NMBINS2, logMbins2);
   h1_MassMuMuDijet1GeVbinMET100_  = std::make_shared<TH1D>("MassMuMuDijet1GeVbinMET100","",3000,0.0,3000.0);
 
+  //==================================================================================
+  //                                                                                 =
+  //             Start the histograms for CollinSoper CMF                            =
+  //                                                                                 =
+  //==================================================================================
   m_nbFireHLT = 0;
   int   NbBins = 10;
   float MinBin = -1.0;
@@ -276,6 +289,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
   // }
   h2_CSSmearedMassBinned_ = std::make_shared<TH2D>("CSSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
   h2_CSMassBinned_        = std::make_shared<TH2D>("CSMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
+  h2_CSMassMuIDBinned_        = std::make_shared<TH2D>("CSMassMuIDBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
   h2_CSMassUpBinned_      = std::make_shared<TH2D>("CSMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
   h2_CSMassDownBinned_    = std::make_shared<TH2D>("CSMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
   // h2_CSPosSmearedMassBinned_ = std::make_shared<TH2D>("CSPosSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
@@ -290,6 +304,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
     for (int cb = 0; cb < csBinLabels.size(); ++cb) {
       h2_CSSmearedMassBinned_->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
       h2_CSMassBinned_       ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
+      h2_CSMassMuIDBinned_   ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
       h2_CSMassUpBinned_     ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
       h2_CSMassDownBinned_   ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
       // h2_CSPosSmearedMassBinned_->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
@@ -418,43 +433,48 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
     logMbins[ibin] = exp(log(MMIN) + (log(MMAX)-log(MMIN))*ibin/NMBINS);
     //std::cout << logMbins[ibin] << std::endl;
   }
-  h1_ZprimeRecomassBinWidthAll_     = std::make_shared<TH1D>("ZprimeRecomassBinWidthAll","ZprimeRecomassBinWidthAll",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidth_        = std::make_shared<TH1D>("ZprimeRecomassBinWidth","ZprimeRecomassBinWidth",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthAllBE_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthAllBE","ZprimeRecomassBinWidthAllBE",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthAllEE_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthAllEE","ZprimeRecomassBinWidthAllEE",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthEE_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthEE","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBB_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthBB","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthAll_     = std::make_shared<TH1D>("ZprimeRecomassBinWidthAll",
+							     "ZprimeRecomassBinWidthAll",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidth_        = std::make_shared<TH1D>("ZprimeRecomassBinWidth",
+							     "ZprimeRecomassBinWidth",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthAllBE_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthAllBE",
+							     "ZprimeRecomassBinWidthAllBE",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthAllEE_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthAllEE",
+							     "ZprimeRecomassBinWidthAllEE",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthEE_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthEE",   "",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBB_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthBB",   "",NMBINS, logMbins);
   h1_ZprimeRecomassBinWidthBEpos_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthBEpos","",NMBINS, logMbins);
   h1_ZprimeRecomassBinWidthBEnev_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthBEnev","",NMBINS, logMbins);
-  h1_ZprimeRecomass60to120BEpos_    = std::make_shared<TH1D>("ZprimeRecomass60to120BEpos","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BEnev_    = std::make_shared<TH1D>("ZprimeRecomass60to120BEnev","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120EE_       = std::make_shared<TH1D>("ZprimeRecomass60to120EE","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BB_       = std::make_shared<TH1D>("ZprimeRecomass60to120BB","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120_         = std::make_shared<TH1D>("ZprimeRecomass60to120","",60,60.0,120.0);
-  h1_ZprimeRecomassBinWidthAfterBtaging_ = std::make_shared<TH1D>("ZprimeRecomassBinWidthAfterBtaging","ZprimeRecomassBinWidthAfterBtaging",NMBINS, logMbins);
-  h1_DijetBinWidthBB_         = std::make_shared<TH1D>("DijetBinWidthBB","",NMBINS, logMbins);
-  h1_DijetBinWidthBE_         = std::make_shared<TH1D>("DijetBinWidthBE","",NMBINS, logMbins);
-  h1_DijetBinWidthEE_         = std::make_shared<TH1D>("DijetBinWidthEE","",NMBINS, logMbins);
-  h1_DijetBinWidthBBBE_       = std::make_shared<TH1D>("DijetBinWidthBBBE","",NMBINS, logMbins);
-  h1_WjetsBinWidthBB_         = std::make_shared<TH1D>("WjetsBinWidthBB","",NMBINS, logMbins);
-  h1_WjetsBinWidthBE_         = std::make_shared<TH1D>("WjetsBinWidthBE","",NMBINS, logMbins);
-  h1_WjetsBinWidthEE_         = std::make_shared<TH1D>("WjetsBinWidthEE","",NMBINS, logMbins);
-  h1_WjetsBinWidthBBBE_       = std::make_shared<TH1D>("WjetsBinWidthBBBE","",NMBINS, logMbins);
+  h1_ZprimeRecomass60to120BEpos_    = std::make_shared<TH1D>("ZprimeRecomass60to120BEpos", "",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BEnev_    = std::make_shared<TH1D>("ZprimeRecomass60to120BEnev", "",60,60.0,120.0);
+  h1_ZprimeRecomass60to120EE_       = std::make_shared<TH1D>("ZprimeRecomass60to120EE",    "",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BB_       = std::make_shared<TH1D>("ZprimeRecomass60to120BB",    "",60,60.0,120.0);
+  h1_ZprimeRecomass60to120_         = std::make_shared<TH1D>("ZprimeRecomass60to120",      "",60,60.0,120.0);
+  h1_ZprimeRecomassBinWidthAfterBtaging_ = std::make_shared<TH1D>("ZprimeRecomassBinWidthAfterBtaging",
+								  "ZprimeRecomassBinWidthAfterBtaging",NMBINS, logMbins);
+  h1_DijetBinWidthBB_   = std::make_shared<TH1D>("DijetBinWidthBB",  "",NMBINS, logMbins);
+  h1_DijetBinWidthBE_   = std::make_shared<TH1D>("DijetBinWidthBE",  "",NMBINS, logMbins);
+  h1_DijetBinWidthEE_   = std::make_shared<TH1D>("DijetBinWidthEE",  "",NMBINS, logMbins);
+  h1_DijetBinWidthBBBE_ = std::make_shared<TH1D>("DijetBinWidthBBBE","",NMBINS, logMbins);
+  h1_WjetsBinWidthBB_   = std::make_shared<TH1D>("WjetsBinWidthBB",  "",NMBINS, logMbins);
+  h1_WjetsBinWidthBE_   = std::make_shared<TH1D>("WjetsBinWidthBE",  "",NMBINS, logMbins);
+  h1_WjetsBinWidthEE_   = std::make_shared<TH1D>("WjetsBinWidthEE",  "",NMBINS, logMbins);
+  h1_WjetsBinWidthBBBE_ = std::make_shared<TH1D>("WjetsBinWidthBBBE","",NMBINS, logMbins);
 
-  h1_Dijet1GeVBB_     = std::make_shared<TH1D>("Dijet1GeVBB","",3000,0.0,3000.0);
-  h1_Dijet1GeVBEEE_   = std::make_shared<TH1D>("Dijet1GeVBEEE","",3000,0.0,3000.0);
-  h1_Dijet1GeVEE_     = std::make_shared<TH1D>("Dijet1GeVEE","",3000,0.0,3000.0);
+  h1_Dijet1GeVBB_     = std::make_shared<TH1D>("Dijet1GeVBB",    "",3000,0.0,3000.0);
+  h1_Dijet1GeVBEEE_   = std::make_shared<TH1D>("Dijet1GeVBEEE",  "",3000,0.0,3000.0);
+  h1_Dijet1GeVEE_     = std::make_shared<TH1D>("Dijet1GeVEE",    "",3000,0.0,3000.0);
   h1_Dijet1GeVBBBEEE_ = std::make_shared<TH1D>("Dijet1GeVBBBEEE","",3000,0.0,3000.0);
-  h1_Wjets1GeVBB_     = std::make_shared<TH1D>("Wjets1GeVBB","",3000,0.0,3000.0);
-  h1_Wjets1GeVBEEE_   = std::make_shared<TH1D>("Wjets1GeVBEEE","",3000,0.0,3000.0);
-  h1_Wjets1GeVEE_     = std::make_shared<TH1D>("Wjets1GeVEE","",3000,0.0,3000.0);
+  h1_Wjets1GeVBB_     = std::make_shared<TH1D>("Wjets1GeVBB",    "",3000,0.0,3000.0);
+  h1_Wjets1GeVBEEE_   = std::make_shared<TH1D>("Wjets1GeVBEEE",  "",3000,0.0,3000.0);
+  h1_Wjets1GeVEE_     = std::make_shared<TH1D>("Wjets1GeVEE",    "",3000,0.0,3000.0);
   h1_Wjets1GeVBBBEEE_ = std::make_shared<TH1D>("Wjets1GeVBBBEEE","",3000,0.0,3000.0);
 
-  h1_Dijet20GeVBB_     = std::make_shared<TH1D>("Dijet20GeVBB","",300,0.0,6000.0);
-  h1_Dijet20GeVBEEE_   = std::make_shared<TH1D>("Dijet20GeVBEEE","",300,0.0,6000.0);
+  h1_Dijet20GeVBB_     = std::make_shared<TH1D>("Dijet20GeVBB",    "",300,0.0,6000.0);
+  h1_Dijet20GeVBEEE_   = std::make_shared<TH1D>("Dijet20GeVBEEE",  "",300,0.0,6000.0);
   h1_Dijet20GeVBBBEEE_ = std::make_shared<TH1D>("Dijet20GeVBBBEEE","",300,0.0,6000.0);
-  h1_Wjets20GeVBB_     = std::make_shared<TH1D>("Wjet20GeVBB","",300,0.0,6000.0);
-  h1_Wjets20GeVBEEE_   = std::make_shared<TH1D>("Wjets20GeVBEEE","",300,0.0,6000.0);
+  h1_Wjets20GeVBB_     = std::make_shared<TH1D>("Wjet20GeVBB",     "",300,0.0,6000.0);
+  h1_Wjets20GeVBEEE_   = std::make_shared<TH1D>("Wjets20GeVBEEE",  "",300,0.0,6000.0);
   h1_Wjets20GeVBBBEEE_ = std::make_shared<TH1D>("Wjets20GeVBBBEEE","",300,0.0,6000.0);
 
   // Book txt file for candidate events
@@ -587,7 +607,8 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
     m_genMass = GenMass(m_genET1, m_genEta1, m_genPhi1, m_genEn1,
 			m_genET2, m_genEta2, m_genPhi2, m_genEn2);
 
-    m_vtxMassSmearedMu = smearedMass(EtaRecMu1, EtaRecMu2, m_vtxMassMu, m_genMass, m_scaleUnc);
+    m_vtxMassSmearedMu = smearedMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1, EtaRecMu2, PhiRecMu2, PtRecTunePMuBestTrack2, m_vtxMassMu);
+    m_vtxMassScaledMu  = scaledMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1, ChargeRecMu1,  EtaRecMu2, PhiRecMu2, PtRecTunePMuBestTrack2, ChargeRecMu2, m_vtxMassMu);
 
     double CosmicRejec = ThreeDangle(pxRecMu1,pyRecMu1,pzRecMu1,pRecMu1,
 				     pxRecMu2,pyRecMu2,pzRecMu2,pRecMu2);
@@ -659,7 +680,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
               std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            newweight = 0;
+            // newweight = 0;
             wwto2l2nu_fail_gen_mass++;
           }
           if (m_vtxMassMu > 600.) {  // WHY CUT ON THE RECO MASS???
@@ -667,7 +688,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
               std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            // newweight = 0;
+            newweight = 0;
             wwto2l2nu_fail_reco_mass++;
           }
         } else if (inputfile.Contains("WWTo2L2Nu_Mll")) {
@@ -677,7 +698,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
               std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            newweight = 0;
+            // newweight = 0;
             wwto2l2nu_fail_gen_mass++;
           }
           if (m_vtxMassMu < 600.) {  // WHY CUT ON THE RECO MASS???
@@ -685,7 +706,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
               std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            // newweight = 0;
+            newweight = 0;
             wwto2l2nu_fail_reco_mass++;
           }
         } else if (inputfile.Contains("TTTo2L2Nu_Tune")) {
@@ -700,7 +721,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 	      std::cout << "Reweighting inclusive TTTo2L2Nu sample with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            newweight = 0;
+            // newweight = 0;
             ttto2l2nu_fail_gen_mass++;
           }
           if (m_vtxMassMu > 500.) {  // WHY CUT ON THE RECO MASS???
@@ -708,7 +729,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 	      std::cout << "Reweighting inclusive TTTo2L2Nu sample with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            // newweight = 0;
+            newweight = 0;
             ttto2l2nu_fail_reco_mass++;
           }
 	} else if (inputfile.Contains("TTTo2L2Nu_M") || inputfile.Contains("TTToLL_MLL_")) {
@@ -722,7 +743,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 	      std::cout << "Reweighting mass binned TTTo2L2Nu sample with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            newweight = 0;
+            // newweight = 0;
             ttto2l2nu_fail_gen_mass++;
           }
           if (m_vtxMassMu<500.) {
@@ -730,15 +751,16 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 	      std::cout << "Reweighting mass binned TTTo2L2Nu sample with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            // newweight = 0;
+            newweight = 0;
             ttto2l2nu_fail_reco_mass++;
           }
         }
 
+
         Boson(pxRecMu1,pyRecMu1,pzRecMu1,EnRecMu1,pxRecMu2,pyRecMu2,pzRecMu2,EnRecMu2,
               ChargeRecMu1,PFMet_et_cor,PFMet_px_cor,PFMet_py_cor,PFMet_pz_cor,PFMet_en_cor, m_bosonPt);
-        PlotRecoInfo(CosmicRejec,m_vtxMassMu,m_genMass,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,m_ptGen1,EtaRecMu1,
-                     PtRecTunePMuBestTrack2,PtRecTunePMu2,PtRecMuBestTrack2,m_ptGen2,EtaRecMu2, m_bosonPt);
+        PlotRecoInfo(CosmicRejec,m_vtxMassMu,m_genMass,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,m_ptGen1,EtaRecMu1, pRecMu1,
+                     PtRecTunePMuBestTrack2,PtRecTunePMu2,PtRecMuBestTrack2,m_ptGen2,EtaRecMu2, pRecMu2, m_bosonPt);
         PlotGenInfo(m_genMass,m_genEta1,m_genEta2,m_genET1,m_genET2,m_genEn1,m_genEn2);
         m_csAngle = CosThetaCollinSoper(PtRecTunePMuBestTrack1,EtaRecMu1,PhiRecMu1,EnRecMu1,
                                         PtRecTunePMuBestTrack2,EtaRecMu2,PhiRecMu2,EnRecMu2,
@@ -798,6 +820,58 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 //       Part for Gen & Reco Matching                -
 //                                                   -
 //----------------------------------------------------
+//
+//
+//
+
+float ZprimeMuMuPatMiniAodNewMC::GetScaleBias(float eta, float phi, float pt, float charge)
+{
+  double shift = m_muon_scale_ratio_hist->GetBinContent(
+							m_muon_scale_ratio_hist->FindBin(eta, phi));
+  double uncertainty = m_muon_scale_ratio_hist->GetBinError(
+							    m_muon_scale_ratio_hist->FindBin(eta, phi));
+ 
+
+  //rand = new TRandom3();
+  // Central value correction + gaussian uncertainty
+  if (std::abs(eta) < 1.2) {
+    shift = 0.0;
+    uncertainty = 0.025;
+  }
+  double ratio   = 1. + (rand->Gaus(shift, uncertainty) * pt / 1000./ charge);
+  return 1./ratio;
+}
+
+float ZprimeMuMuPatMiniAodNewMC::GetResultionUncert(float pt,float eta)
+{ 
+  //rand = new TRandom3();
+  double smearing = 0.0;
+  if (pt < 200.) {
+    smearing = 0.003;
+  } else if (pt < 500.) {
+    smearing = 0.005;
+  } else {
+    smearing = 0.01;
+  }
+  // Double smearing for muons in the endcaps
+  if (std::abs(eta) > 1.2) smearing *= 2;
+  // Return Gaussian smearing
+  double ratio = rand->Gaus(1, smearing);
+  return ratio;
+}
+
+TLorentzVector ZprimeMuMuPatMiniAodNewMC::GetShiftedMuon(float px, float py, float pz, float E, float ratio)
+{
+  // TLorentzVector * result = new TLorentzVector();
+  std::shared_ptr<TLorentzVector> result = std::make_shared<TLorentzVector>();
+  result->SetPxPyPzE(ratio*px,
+		     ratio*py,
+		     ratio*pz,
+		     ratio*E);
+  return *result;
+}
+
+
 float ZprimeMuMuPatMiniAodNewMC::delR(float eta1,float phi1,float eta2,float phi2)
 {
   float mpi=M_PI;
@@ -960,9 +1034,9 @@ bool ZprimeMuMuPatMiniAodNewMC::SelectSecondMuon(int ChargeMu1,unsigned FlagMu1,
 
 void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertexMassMu,float MassGenerated,
 					     float PtTunePMuBestTrack,float PtTunePMu,float PtMuBestTrack,
-					     float PtGenerated, float etaMu1,
+					     float PtGenerated, float etaMu1, float pMu1,
 					     float PtTunePMuBestTrack2,float PtTunePMu2,float PtMuBestTrack2,
-					     float PtGenerated2,float etaMu2, float bosonPt)
+					     float PtGenerated2,float etaMu2, float pMu2, float bosonPt)
 {
   //----------------------------------------------------------
   if (vertexMassMu>900.0) {
@@ -993,20 +1067,34 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
   h1_ZprimeRecomass_->Fill(vertexMassMu,newweight);
   h1_MassRecoInAccep_->Fill(MassGenerated,newweight);
 
+  float SF1 = 1.;
+  float SF2 = 1.;
+
+  if (fabs(etaMu1) <= 1.6 && pMu1 > 100) SF1 = (0.994 - 4.08e-6 * pMu1)/(0.994 - 4.08e-6 * 100);
+  else if (fabs(etaMu1) > 1.6 && pMu1 > 200)  SF1 = ((0.9784 - 4.73e-5 * pMu1)/(0.9908 - 1.26e-5 * pMu1)) / ((0.9784 - 4.73e-5 * 200)/(0.9908 - 1.26e-5 * 200)) ;
+  if (fabs(etaMu2) <= 1.6 && pMu2 > 100) SF2 = (0.994 - 4.08e-6 * pMu2)/(0.994 - 4.08e-6 * 100);
+  else if (fabs(etaMu2) > 1.6 && pMu2 > 200)  SF2 = ((0.9784 - 4.73e-5 * pMu2)/(0.9908 - 1.26e-5 * pMu2)) / ((0.9784 - 4.73e-5 * 200)/(0.9908 - 1.26e-5 * 200) ) ;
+
+
+
+
   h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        0.,newweight);
   h2_CSMassBinned_       ->Fill(m_vtxMassMu,               0.,newweight);
-  h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),0.,newweight);
-  h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),0.,newweight);
+  h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               0.,newweight*SF1*SF2);
+  h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         0.,newweight);
+  h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         0.,newweight);
   if (m_csAngle > 0) {
     h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        2.,newweight);
     h2_CSMassBinned_       ->Fill(m_vtxMassMu,               2.,newweight);
-    h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),2.,newweight);
-    h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),2.,newweight);
+    h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               2.,newweight*SF1*SF2);
+    h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,               2.,newweight);
+    h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,               2.,newweight);
   } else {
     h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        1.,newweight);
     h2_CSMassBinned_       ->Fill(m_vtxMassMu,               1.,newweight);
-    h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),1.,newweight);
-    h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),1.,newweight);
+    h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               1.,newweight*SF1*SF2);
+    h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         1.,newweight);
+    h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         1.,newweight);
   }
 
   /*
@@ -1169,40 +1257,46 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
   */
   h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+0,newweight);
   h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+0,newweight);
-  h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+0,newweight);
-  h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+0,newweight);
+  h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               (priEtaBin*3)+0,newweight*SF1*SF2);
+  h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         (priEtaBin*3)+0,newweight);
+  h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu          ,(priEtaBin*3)+0,newweight);
   if (secEtaBin > 0) {
     // std::cout << "secondary bin (" << secEtaBin << "*3)+0(" << (secEtaBin*3)+0 << ")" << std::endl;
     h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+0,newweight);
     h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+0,newweight);
-    h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+0,newweight);
-    h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+0,newweight);
+    h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               (secEtaBin*3)+0,newweight*SF1*SF2);
+    h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         (secEtaBin*3)+0,newweight);
+    h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         (secEtaBin*3)+0,newweight);
   }
   if (m_csAngle > 0) {
     // std::cout << "primary bin (" << priEtaBin << "*3)+2(" << (priEtaBin*3)+2 << ")" << std::endl;
     h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+2,newweight);
     h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+2,newweight);
-    h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+2,newweight);
-    h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+2,newweight);
+    h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               (priEtaBin*3)+2,newweight*SF1*SF2);
+    h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         (priEtaBin*3)+2,newweight);
+    h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         (priEtaBin*3)+2,newweight);
     if (secEtaBin > 0) {
       // std::cout << "secondary bin (" << secEtaBin << "*3)+2(" << (secEtaBin*3)+2 << ")" << std::endl;
       h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+2,newweight);
       h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+2,newweight);
-      h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+2,newweight);
-      h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+2,newweight);
+      h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               (secEtaBin*3)+2,newweight*SF1*SF2);
+      h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         (secEtaBin*3)+2,newweight);
+      h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         (secEtaBin*3)+2,newweight);
     }
   } else {
     // std::cout << "primary bin (" << priEtaBin << "*3)+1(" << (priEtaBin*3)+1 << ")" << std::endl;
     h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (priEtaBin*3)+1,newweight);
     h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (priEtaBin*3)+1,newweight);
-    h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(priEtaBin*3)+1,newweight);
-    h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(priEtaBin*3)+1,newweight);
+    h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               (priEtaBin*3)+1,newweight*SF1*SF2);
+    h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         (priEtaBin*3)+1,newweight);
+    h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         (priEtaBin*3)+1,newweight);
     if (secEtaBin > 0) {
       // std::cout << "secondary bin (" << secEtaBin << "*3)+1(" << (secEtaBin*3)+1 << ")" << std::endl;
       h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+1,newweight);
       h2_CSMassBinned_       ->Fill(m_vtxMassMu,               (secEtaBin*3)+1,newweight);
-      h2_CSMassUpBinned_     ->Fill(m_vtxMassMu*(1+m_scaleUnc),(secEtaBin*3)+1,newweight);
-      h2_CSMassDownBinned_   ->Fill(m_vtxMassMu*(1-m_scaleUnc),(secEtaBin*3)+1,newweight);
+      h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               (secEtaBin*3)+1,newweight*SF1*SF2);
+      h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         (secEtaBin*3)+1,newweight);
+      h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         (secEtaBin*3)+1,newweight);
     }
   }
 
@@ -1258,52 +1352,47 @@ float ZprimeMuMuPatMiniAodNewMC::Mass(float Pt1,float Eta1,float Phi1,float En1,
 }
 
 //===================== Method to calculate the smeared mass ========================
-float ZprimeMuMuPatMiniAodNewMC::smearedMass(float Eta1, float Eta2,
-					     float vtxMass, float genMass, float &scaleUnc)
+float ZprimeMuMuPatMiniAodNewMC::smearedMass(float Eta1, float Phi1, float Pt1, float Eta2, float Phi2, float Pt2,
+					     float vtxMass)
 {
-  double a = 0.;
-  double b = 0.;
-  double c = 0.;
-  double d = 0.;
-  double e = 0.;
 
-  if (fabs(Eta1) <= 1.2 && fabs(Eta2) <= 1.2) { //sigma BB
-    scaleUnc = 0.01;
-    a =  0.00701;
-    b =  3.32e-05;
-    c = -1.29e-08;
-    d =  2.73e-12;
-    e = -2.05e-16;
-  } else if ((fabs(Eta1) < 1.2 && (fabs(Eta2) > 1.2 && fabs(Eta2) < 2.4)) ||
-	     (fabs(Eta2) < 1.2 && (fabs(Eta1) > 1.2 && fabs(Eta1) < 2.4))) {  //BE
-    scaleUnc = 0.03;
-    a =  0.0124;
-    b =  3.75e-05;
-    c = -1.52e-08;
-    d =  3.44e-12;
-    e = -2.85e-16;
-  } else if ((fabs(Eta1) > 1.2 && fabs(Eta1) < 2.4) &&
-	     (fabs(Eta2) > 1.2 && fabs(Eta2) < 2.4)) {  //EE
-    scaleUnc = 0.03;
-    a =  0.0124;
-    b =  3.75e-05;
-    c = -1.52e-08;
-    d =  3.44e-12;
-    e = -2.85e-16;
-  } else { // other?
-    scaleUnc = 0.03;
-    a =  0.0124;
-    b =  3.75e-05;
-    c = -1.52e-08;
-    d =  3.44e-12;
-    e = -2.85e-16;
-  }
-  double res = a + b*genMass + c*genMass*genMass + d*pow(genMass,3) + e*pow(genMass,4);
+  double ratio1 = GetResultionUncert(Pt1,Eta1);
+  double ratio2 = GetResultionUncert(Pt2,Eta2);
 
-  double extraSmear = res*0.15;
+  TLorentzVector * muon1 = new TLorentzVector();
+  muon1->SetPtEtaPhiM(Pt1,Eta1,Phi1,MUON_MASS);
+  TLorentzVector shiftedMuon1 = GetShiftedMuon(muon1->Px(),muon1->Py(),muon1->Pz(),muon1->E(), ratio1); 
 
-  std::shared_ptr<TRandom3> rand = std::make_shared<TRandom3>(0); // why not a different random seed?
-  return vtxMass*rand->Gaus(1,extraSmear);
+  TLorentzVector * muon2 = new TLorentzVector();
+  muon2->SetPtEtaPhiM(Pt2,Eta2,Phi2,MUON_MASS);
+  TLorentzVector shiftedMuon2 = GetShiftedMuon(muon2->Px(),muon2->Py(),muon2->Pz(),muon2->E(), ratio2); 
+
+  double mass = (*muon1 + *muon2).M();
+  double massShifted = (shiftedMuon1 + shiftedMuon2).M();
+
+  return vtxMass*mass/massShifted;
+
+}
+float ZprimeMuMuPatMiniAodNewMC::scaledMass(float Eta1, float Phi1, float Pt1, float Charge1, float Eta2, float Phi2, float Pt2, float Charge2,
+					     float vtxMass)
+{
+
+  double ratio1 = GetScaleBias(Eta1,Phi1, Pt1, Charge1);
+  double ratio2 = GetScaleBias(Eta2,Phi2, Pt2, Charge2);
+
+  TLorentzVector * muon1 = new TLorentzVector();
+  muon1->SetPtEtaPhiM(Pt1,Eta1,Phi1,MUON_MASS);
+  TLorentzVector shiftedMuon1 = GetShiftedMuon(muon1->Px(),muon1->Py(),muon1->Pz(),muon1->E(), ratio1); 
+
+  TLorentzVector * muon2 = new TLorentzVector();
+  muon2->SetPtEtaPhiM(Pt2,Eta2,Phi2,MUON_MASS);
+  TLorentzVector shiftedMuon2 = GetShiftedMuon(muon2->Px(),muon2->Py(),muon2->Pz(),muon2->E(), ratio2); 
+
+  double mass = (*muon1 + *muon2).M();
+  double massShifted = (shiftedMuon1 + shiftedMuon2).M();
+
+  return vtxMass*mass/massShifted;
+
 }
 
 void ZprimeMuMuPatMiniAodNewMC::PickThehighestMass(float &vtxHighestMass,float &vtxHighestChi2,int EvtNb)
