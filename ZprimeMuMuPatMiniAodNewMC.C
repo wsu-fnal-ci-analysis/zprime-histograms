@@ -604,9 +604,8 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 
     PickThehighestMass(m_vtxMassMu,m_vtxChi2Mu,event_evtNo);
 
-    m_genMass = GenMass(m_genET1, m_genEta1, m_genPhi1, m_genEn1,
-			m_genET2, m_genEta2, m_genPhi2, m_genEn2);
-
+    m_genMass = GenMass(m_genET1, m_genPhi1, m_genEta1, m_genEn1,
+			m_genET2, m_genPhi2, m_genEta2, m_genEn2);
     m_vtxMassSmearedMu = smearedMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1, EtaRecMu2, PhiRecMu2, PtRecTunePMuBestTrack2, m_vtxMassMu);
     m_vtxMassScaledMu  = scaledMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1, ChargeRecMu1,  EtaRecMu2, PhiRecMu2, PtRecTunePMuBestTrack2, ChargeRecMu2, m_vtxMassMu);
 
@@ -1370,7 +1369,7 @@ float ZprimeMuMuPatMiniAodNewMC::smearedMass(float Eta1, float Phi1, float Pt1, 
   double mass = (*muon1 + *muon2).M();
   double massShifted = (shiftedMuon1 + shiftedMuon2).M();
 
-  return vtxMass*mass/massShifted;
+  return vtxMass*massShifted/mass;
 
 }
 float ZprimeMuMuPatMiniAodNewMC::scaledMass(float Eta1, float Phi1, float Pt1, float Charge1, float Eta2, float Phi2, float Pt2, float Charge2,
@@ -1391,7 +1390,7 @@ float ZprimeMuMuPatMiniAodNewMC::scaledMass(float Eta1, float Phi1, float Pt1, f
   double mass = (*muon1 + *muon2).M();
   double massShifted = (shiftedMuon1 + shiftedMuon2).M();
 
-  return vtxMass*mass/massShifted;
+  return vtxMass*massShifted/mass;
 
 }
 
@@ -1534,7 +1533,6 @@ float ZprimeMuMuPatMiniAodNewMC::GenMass(float ETMu1, float PhiMu1, float EtaMu1
   // mu2.SetPtEtaPhiE(ETMu2,EtaMu2,PhiMu2,EnMu2);
   mu1.SetPtEtaPhiM(ETMu1,EtaMu1,PhiMu1,MUON_MASS);
   mu2.SetPtEtaPhiM(ETMu2,EtaMu2,PhiMu2,MUON_MASS);
-
   return (mu1+mu2).M();
 }
 
