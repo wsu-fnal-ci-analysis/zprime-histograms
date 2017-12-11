@@ -659,7 +659,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
               std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            newweight = 0;
+            // newweight = 0;
             wwto2l2nu_fail_gen_mass++;
           }
           if (m_vtxMassMu > 600.) {  // WHY CUT ON THE RECO MASS???
@@ -667,7 +667,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
               std::cout << "Reweighting sample of WWTo2L2Nu with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            // newweight = 0;
+            newweight = 0;
             wwto2l2nu_fail_reco_mass++;
           }
         } else if (inputfile.Contains("WWTo2L2Nu_Mll")) {
@@ -677,7 +677,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
               std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            newweight = 0;
+            // newweight = 0;
             wwto2l2nu_fail_gen_mass++;
           }
           if (m_vtxMassMu < 600.) {  // WHY CUT ON THE RECO MASS???
@@ -685,7 +685,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
               std::cout << "Reweighting sample of WWTo2L2Nu_Mll with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            // newweight = 0;
+            newweight = 0;
             wwto2l2nu_fail_reco_mass++;
           }
         } else if (inputfile.Contains("TTTo2L2Nu_Tune")) {
@@ -700,7 +700,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 	      std::cout << "Reweighting inclusive TTTo2L2Nu sample with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            newweight = 0;
+            // newweight = 0;
             ttto2l2nu_fail_gen_mass++;
           }
           if (m_vtxMassMu > 500.) {  // WHY CUT ON THE RECO MASS???
@@ -708,7 +708,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 	      std::cout << "Reweighting inclusive TTTo2L2Nu sample with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            // newweight = 0;
+            newweight = 0;
             ttto2l2nu_fail_reco_mass++;
           }
 	} else if (inputfile.Contains("TTTo2L2Nu_M") || inputfile.Contains("TTToLL_MLL_")) {
@@ -722,7 +722,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 	      std::cout << "Reweighting mass binned TTTo2L2Nu sample with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            newweight = 0;
+            // newweight = 0;
             ttto2l2nu_fail_gen_mass++;
           }
           if (m_vtxMassMu<500.) {
@@ -730,7 +730,7 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 	      std::cout << "Reweighting mass binned TTTo2L2Nu sample with weight=0: gen("
                         << m_genMass << ") reco("
                         << m_vtxMassMu << ")" << std::endl;
-            // newweight = 0;
+            newweight = 0;
             ttto2l2nu_fail_reco_mass++;
           }
         }
