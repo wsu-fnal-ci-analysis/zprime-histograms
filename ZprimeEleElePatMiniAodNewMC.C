@@ -272,8 +272,8 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
       continue;
     }
 
-    m_genMass = GenMass(m_genET1, m_genEta1, m_genPhi1, m_genEn1,
-			m_genET2, m_genEta2, m_genPhi2, m_genEn2);
+    m_genMass = GenMass(m_genET1, m_genPhi1, m_genEta1, m_genEn1,
+			m_genET2, m_genPhi2, m_genEta2, m_genEn2);
 
     m_recoMassSmeared = smearedMass(EtaTrakele1, EtaTrakele2, m_recoMass, m_genMass, m_scaleUnc);
 
