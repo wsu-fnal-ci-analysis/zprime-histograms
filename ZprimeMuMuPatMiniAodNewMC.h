@@ -471,7 +471,7 @@ class ZprimeMuMuPatMiniAodNewMC {
   int m_nbFireHLT;
   std::ofstream output_txt;
 
-  TRandom3* rand;
+  std::shared_ptr<TRandom3> rand;
   // HISTOGRAMS
   /* std::shared_ptr<TH1D> h1_ZprimeRecomassBeforeTrigger_; */
   std::shared_ptr<TH1D> h1_ZprimeRecomass_;

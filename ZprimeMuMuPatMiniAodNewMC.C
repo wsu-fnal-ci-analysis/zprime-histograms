@@ -30,7 +30,8 @@ void ZprimeMuMuPatMiniAodNewMC::initMemberVariables()
 {
 
 
-  rand = new TRandom3();
+  rand = std::make_shared<TRandom3>();
+
   m_nbGen          = 0;
   m_nbReco         = 0;
   MassCutMin     = 0.0;
@@ -196,9 +197,10 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
   std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToMuMu_13TeV.root","recreate");
   // Enable Sumw2 for histograms as we'll be normalizing them
   TH1::SetDefaultSumw2(true);
+
   //==================================================================================
   //                                                                                 =
-  //             Start the histograms for CollinSoper CMF                            =
+  //             Dijet histograms                                                    =
   //                                                                                 =
   //==================================================================================
   h1_DijetEta1_       = std::make_shared<TH1D>("DijetEta1","",100,0.0,3.0);
@@ -223,6 +225,11 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
   h1_MassMuMuDijetBinWidthMET100_ = std::make_shared<TH1D>("MassMuMuDijetBinWidthMET100","MassMuMuDijetBinWidthMET100",NMBINS2, logMbins2);
   h1_MassMuMuDijet1GeVbinMET100_  = std::make_shared<TH1D>("MassMuMuDijet1GeVbinMET100","",3000,0.0,3000.0);
 
+  //==================================================================================
+  //                                                                                 =
+  //             Start the histograms for CollinSoper CMF                            =
+  //                                                                                 =
+  //==================================================================================
   m_nbFireHLT = 0;
   int   NbBins = 10;
   float MinBin = -1.0;
@@ -426,43 +433,48 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
     logMbins[ibin] = exp(log(MMIN) + (log(MMAX)-log(MMIN))*ibin/NMBINS);
     //std::cout << logMbins[ibin] << std::endl;
   }
-  h1_ZprimeRecomassBinWidthAll_     = std::make_shared<TH1D>("ZprimeRecomassBinWidthAll","ZprimeRecomassBinWidthAll",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidth_        = std::make_shared<TH1D>("ZprimeRecomassBinWidth","ZprimeRecomassBinWidth",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthAllBE_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthAllBE","ZprimeRecomassBinWidthAllBE",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthAllEE_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthAllEE","ZprimeRecomassBinWidthAllEE",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthEE_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthEE","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBB_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthBB","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthAll_     = std::make_shared<TH1D>("ZprimeRecomassBinWidthAll",
+							     "ZprimeRecomassBinWidthAll",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidth_        = std::make_shared<TH1D>("ZprimeRecomassBinWidth",
+							     "ZprimeRecomassBinWidth",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthAllBE_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthAllBE",
+							     "ZprimeRecomassBinWidthAllBE",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthAllEE_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthAllEE",
+							     "ZprimeRecomassBinWidthAllEE",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthEE_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthEE",   "",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBB_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthBB",   "",NMBINS, logMbins);
   h1_ZprimeRecomassBinWidthBEpos_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthBEpos","",NMBINS, logMbins);
   h1_ZprimeRecomassBinWidthBEnev_   = std::make_shared<TH1D>("ZprimeRecomassBinWidthBEnev","",NMBINS, logMbins);
-  h1_ZprimeRecomass60to120BEpos_    = std::make_shared<TH1D>("ZprimeRecomass60to120BEpos","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BEnev_    = std::make_shared<TH1D>("ZprimeRecomass60to120BEnev","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120EE_       = std::make_shared<TH1D>("ZprimeRecomass60to120EE","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BB_       = std::make_shared<TH1D>("ZprimeRecomass60to120BB","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120_         = std::make_shared<TH1D>("ZprimeRecomass60to120","",60,60.0,120.0);
-  h1_ZprimeRecomassBinWidthAfterBtaging_ = std::make_shared<TH1D>("ZprimeRecomassBinWidthAfterBtaging","ZprimeRecomassBinWidthAfterBtaging",NMBINS, logMbins);
-  h1_DijetBinWidthBB_         = std::make_shared<TH1D>("DijetBinWidthBB","",NMBINS, logMbins);
-  h1_DijetBinWidthBE_         = std::make_shared<TH1D>("DijetBinWidthBE","",NMBINS, logMbins);
-  h1_DijetBinWidthEE_         = std::make_shared<TH1D>("DijetBinWidthEE","",NMBINS, logMbins);
-  h1_DijetBinWidthBBBE_       = std::make_shared<TH1D>("DijetBinWidthBBBE","",NMBINS, logMbins);
-  h1_WjetsBinWidthBB_         = std::make_shared<TH1D>("WjetsBinWidthBB","",NMBINS, logMbins);
-  h1_WjetsBinWidthBE_         = std::make_shared<TH1D>("WjetsBinWidthBE","",NMBINS, logMbins);
-  h1_WjetsBinWidthEE_         = std::make_shared<TH1D>("WjetsBinWidthEE","",NMBINS, logMbins);
-  h1_WjetsBinWidthBBBE_       = std::make_shared<TH1D>("WjetsBinWidthBBBE","",NMBINS, logMbins);
+  h1_ZprimeRecomass60to120BEpos_    = std::make_shared<TH1D>("ZprimeRecomass60to120BEpos", "",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BEnev_    = std::make_shared<TH1D>("ZprimeRecomass60to120BEnev", "",60,60.0,120.0);
+  h1_ZprimeRecomass60to120EE_       = std::make_shared<TH1D>("ZprimeRecomass60to120EE",    "",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BB_       = std::make_shared<TH1D>("ZprimeRecomass60to120BB",    "",60,60.0,120.0);
+  h1_ZprimeRecomass60to120_         = std::make_shared<TH1D>("ZprimeRecomass60to120",      "",60,60.0,120.0);
+  h1_ZprimeRecomassBinWidthAfterBtaging_ = std::make_shared<TH1D>("ZprimeRecomassBinWidthAfterBtaging",
+								  "ZprimeRecomassBinWidthAfterBtaging",NMBINS, logMbins);
+  h1_DijetBinWidthBB_   = std::make_shared<TH1D>("DijetBinWidthBB",  "",NMBINS, logMbins);
+  h1_DijetBinWidthBE_   = std::make_shared<TH1D>("DijetBinWidthBE",  "",NMBINS, logMbins);
+  h1_DijetBinWidthEE_   = std::make_shared<TH1D>("DijetBinWidthEE",  "",NMBINS, logMbins);
+  h1_DijetBinWidthBBBE_ = std::make_shared<TH1D>("DijetBinWidthBBBE","",NMBINS, logMbins);
+  h1_WjetsBinWidthBB_   = std::make_shared<TH1D>("WjetsBinWidthBB",  "",NMBINS, logMbins);
+  h1_WjetsBinWidthBE_   = std::make_shared<TH1D>("WjetsBinWidthBE",  "",NMBINS, logMbins);
+  h1_WjetsBinWidthEE_   = std::make_shared<TH1D>("WjetsBinWidthEE",  "",NMBINS, logMbins);
+  h1_WjetsBinWidthBBBE_ = std::make_shared<TH1D>("WjetsBinWidthBBBE","",NMBINS, logMbins);
 
-  h1_Dijet1GeVBB_     = std::make_shared<TH1D>("Dijet1GeVBB","",3000,0.0,3000.0);
-  h1_Dijet1GeVBEEE_   = std::make_shared<TH1D>("Dijet1GeVBEEE","",3000,0.0,3000.0);
-  h1_Dijet1GeVEE_     = std::make_shared<TH1D>("Dijet1GeVEE","",3000,0.0,3000.0);
+  h1_Dijet1GeVBB_     = std::make_shared<TH1D>("Dijet1GeVBB",    "",3000,0.0,3000.0);
+  h1_Dijet1GeVBEEE_   = std::make_shared<TH1D>("Dijet1GeVBEEE",  "",3000,0.0,3000.0);
+  h1_Dijet1GeVEE_     = std::make_shared<TH1D>("Dijet1GeVEE",    "",3000,0.0,3000.0);
   h1_Dijet1GeVBBBEEE_ = std::make_shared<TH1D>("Dijet1GeVBBBEEE","",3000,0.0,3000.0);
-  h1_Wjets1GeVBB_     = std::make_shared<TH1D>("Wjets1GeVBB","",3000,0.0,3000.0);
-  h1_Wjets1GeVBEEE_   = std::make_shared<TH1D>("Wjets1GeVBEEE","",3000,0.0,3000.0);
-  h1_Wjets1GeVEE_     = std::make_shared<TH1D>("Wjets1GeVEE","",3000,0.0,3000.0);
+  h1_Wjets1GeVBB_     = std::make_shared<TH1D>("Wjets1GeVBB",    "",3000,0.0,3000.0);
+  h1_Wjets1GeVBEEE_   = std::make_shared<TH1D>("Wjets1GeVBEEE",  "",3000,0.0,3000.0);
+  h1_Wjets1GeVEE_     = std::make_shared<TH1D>("Wjets1GeVEE",    "",3000,0.0,3000.0);
   h1_Wjets1GeVBBBEEE_ = std::make_shared<TH1D>("Wjets1GeVBBBEEE","",3000,0.0,3000.0);
 
-  h1_Dijet20GeVBB_     = std::make_shared<TH1D>("Dijet20GeVBB","",300,0.0,6000.0);
-  h1_Dijet20GeVBEEE_   = std::make_shared<TH1D>("Dijet20GeVBEEE","",300,0.0,6000.0);
+  h1_Dijet20GeVBB_     = std::make_shared<TH1D>("Dijet20GeVBB",    "",300,0.0,6000.0);
+  h1_Dijet20GeVBEEE_   = std::make_shared<TH1D>("Dijet20GeVBEEE",  "",300,0.0,6000.0);
   h1_Dijet20GeVBBBEEE_ = std::make_shared<TH1D>("Dijet20GeVBBBEEE","",300,0.0,6000.0);
-  h1_Wjets20GeVBB_     = std::make_shared<TH1D>("Wjet20GeVBB","",300,0.0,6000.0);
-  h1_Wjets20GeVBEEE_   = std::make_shared<TH1D>("Wjets20GeVBEEE","",300,0.0,6000.0);
+  h1_Wjets20GeVBB_     = std::make_shared<TH1D>("Wjet20GeVBB",     "",300,0.0,6000.0);
+  h1_Wjets20GeVBEEE_   = std::make_shared<TH1D>("Wjets20GeVBEEE",  "",300,0.0,6000.0);
   h1_Wjets20GeVBBBEEE_ = std::make_shared<TH1D>("Wjets20GeVBBBEEE","",300,0.0,6000.0);
 
   // Book txt file for candidate events
@@ -815,51 +827,48 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 float ZprimeMuMuPatMiniAodNewMC::GetScaleBias(float eta, float phi, float pt, float charge)
 {
   double shift = m_muon_scale_ratio_hist->GetBinContent(
-          m_muon_scale_ratio_hist->FindBin(eta, phi));
+							m_muon_scale_ratio_hist->FindBin(eta, phi));
   double uncertainty = m_muon_scale_ratio_hist->GetBinError(
-          m_muon_scale_ratio_hist->FindBin(eta, phi));
+							    m_muon_scale_ratio_hist->FindBin(eta, phi));
  
 
   //rand = new TRandom3();
   // Central value correction + gaussian uncertainty
   if (std::abs(eta) < 1.2) {
-      shift = 0.0;
-      uncertainty = 0.025;
+    shift = 0.0;
+    uncertainty = 0.025;
   }
   double ratio   = 1. + (rand->Gaus(shift, uncertainty) * pt / 1000./ charge);
   return 1./ratio;
- 
 }
 
 float ZprimeMuMuPatMiniAodNewMC::GetResultionUncert(float pt,float eta)
-{
- 
-     //rand = new TRandom3();
-     double smearing = 0.0;
-     if (pt < 200.) {
-       smearing = 0.003;
-     } else if (pt < 500.) {
-       smearing = 0.005;
-     } else {
-       smearing = 0.01;
-     }
-     // Double smearing for muons in the endcaps
-     if (std::abs(eta) > 1.2) smearing *= 2;
-     // Return Gaussian smearing
-     double ratio = rand->Gaus(1, smearing);
-     return ratio;
-
- 
+{ 
+  //rand = new TRandom3();
+  double smearing = 0.0;
+  if (pt < 200.) {
+    smearing = 0.003;
+  } else if (pt < 500.) {
+    smearing = 0.005;
+  } else {
+    smearing = 0.01;
+  }
+  // Double smearing for muons in the endcaps
+  if (std::abs(eta) > 1.2) smearing *= 2;
+  // Return Gaussian smearing
+  double ratio = rand->Gaus(1, smearing);
+  return ratio;
 }
 
-TLorentzVector ZprimeMuMuPatMiniAodNewMC::GetShiftedMuon(float px, float py, float pz, float E, float ratio){
-
-   TLorentzVector * result = new TLorentzVector();
-   result->SetPxPyPzE(ratio*px,
-                          ratio*py,
-                          ratio*pz,
-                          ratio*E);
-   return *result;
+TLorentzVector ZprimeMuMuPatMiniAodNewMC::GetShiftedMuon(float px, float py, float pz, float E, float ratio)
+{
+  // TLorentzVector * result = new TLorentzVector();
+  std::shared_ptr<TLorentzVector> result = std::make_shared<TLorentzVector>();
+  result->SetPxPyPzE(ratio*px,
+		     ratio*py,
+		     ratio*pz,
+		     ratio*E);
+  return *result;
 }
 
 

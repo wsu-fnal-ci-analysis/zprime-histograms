@@ -36,7 +36,7 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   //values needed for AccepXeff study
   NbGen = 0;
   NbReco= 0;
-  int binMass   = 100; //100; //100; //100; //100; //100; //100; //100; //100; //100; //10000;
+  int binMass   = 10000; //100; //100; //100; //100; //100; //100; //100; //100; //100; //10000;
   float minMass = 0.0;
   float maxMass = 10000.0;
   MassCutMin = 0.0;
@@ -58,6 +58,7 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToEleEle_13TeV.root","recreate");
   // Enable Sumw2 for histograms as we'll be normalizing them
   TH1::SetDefaultSumw2();
+
   //==================================================================================
   //                                                                                 =
   //             Start the histograms for CollinSoper CMF                            =
@@ -67,7 +68,8 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   int NbBins   = 10;
   float MinBin = -1.0;
   float MaxBin =  1.0;
-  h1_ZprimeRecomass_                         = std::make_shared<TH1D>("ZprimeRecomass","",6000,0.0,6000.0);
+  // h1_ZprimeRecomass_                         = std::make_shared<TH1D>("ZprimeRecomass","",6000,0.0,6000.0);
+  h1_ZprimeRecomass_                         = std::make_shared<TH1D>("ZprimeRecomass","",binMass,minMass,maxMass);
   h1_CosAngleCollinSoperCorrect60Mass120_    = std::make_shared<TH1D>("CosAngleCollinSoperCorrect60Mass120","",NbBins,MinBin,MaxBin);
   h1_CosAngleCollinSoperCorrect120Mass300_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect120Mass300","",NbBins,MinBin,MaxBin);
   h1_CosAngleCollinSoperCorrect300Mass700_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect300Mass700","",NbBins,MinBin,MaxBin);
@@ -131,6 +133,7 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   //            Start the histograms for the mass of Z                               =
   //                                                                                 =
   //==================================================================================
+
   // Build the histo with constant log bin width
   const int NMBINS = 100;
   const double MMIN = 60., MMAX = 6000.;
@@ -141,14 +144,14 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
     if (debug)
       std::cout << logMbins[ibin] << std::endl;
   }
-  h1_ZprimeRecomassBinWidth_        = std::make_shared<TH1D>("ZprimeRecomassBinWidth","ZprimeRecomassBinWidth",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthEE_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthEE","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBB_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthBB","",NMBINS, logMbins);
-  h1_ZprimeRecomassBinWidthBE_      = std::make_shared<TH1D>("ZprimeRecomassBinWidthBE","",NMBINS, logMbins);
-  h1_ZprimeRecomass60to120EE_       = std::make_shared<TH1D>("ZprimeRecomass60to120EE","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BB_       = std::make_shared<TH1D>("ZprimeRecomass60to120BB","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120BE_       = std::make_shared<TH1D>("ZprimeRecomass60to120BE","",60,60.0,120.0);
-  h1_ZprimeRecomass60to120_         = std::make_shared<TH1D>("ZprimeRecomass60to120","",60,60.0,120.0);
+  h1_ZprimeRecomassBinWidth_   = std::make_shared<TH1D>("ZprimeRecomassBinWidth",  "ZprimeRecomassBinWidth",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthEE_ = std::make_shared<TH1D>("ZprimeRecomassBinWidthEE","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBB_ = std::make_shared<TH1D>("ZprimeRecomassBinWidthBB","",NMBINS, logMbins);
+  h1_ZprimeRecomassBinWidthBE_ = std::make_shared<TH1D>("ZprimeRecomassBinWidthBE","",NMBINS, logMbins);
+  h1_ZprimeRecomass60to120EE_  = std::make_shared<TH1D>("ZprimeRecomass60to120EE", "",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BB_  = std::make_shared<TH1D>("ZprimeRecomass60to120BB", "",60,60.0,120.0);
+  h1_ZprimeRecomass60to120BE_  = std::make_shared<TH1D>("ZprimeRecomass60to120BE", "",60,60.0,120.0);
+  h1_ZprimeRecomass60to120_    = std::make_shared<TH1D>("ZprimeRecomass60to120",   "",60,60.0,120.0);
   // Book txt file for candidate events
   Char_t txtOUT[500];
   sprintf(txtOUT,"ZprimeToEleEle_13TeV_cand.txt");

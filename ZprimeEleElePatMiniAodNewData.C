@@ -34,7 +34,7 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   //values needed for AccepXeff study
   NbGen = 0;
   NbReco= 0;
-  int binMass   = 100; //100; //100; //100; //100; //100; //100; //100; //100; //100; //10000;
+  int binMass   = 10000; //100; //100; //100; //100; //100; //100; //100; //100; //100; //10000;
   float minMass = 0.0;
   float maxMass = 10000.0;
   MassCutMin = 0.0;
@@ -56,6 +56,7 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToEleEle_13TeV.root","recreate");
   // Enable Sumw2 for histograms as we'll be normalizing them
   TH1::SetDefaultSumw2();
+
   //==================================================================================
   //                                                                                 =
   //             Start the histograms for CollinSoper CMF                            =
@@ -65,7 +66,8 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   int NbBins   = 10;
   float MinBin = -1.0;
   float MaxBin =  1.0;
-  h1_ZprimeRecomass_                         = std::make_shared<TH1D>("ZprimeRecomass","",6000,0.0,6000.0);
+  // h1_ZprimeRecomass_                         = std::make_shared<TH1D>("ZprimeRecomass","",6000,0.0,6000.0);
+  h1_ZprimeRecomass_                         = std::make_shared<TH1D>("ZprimeRecomass","",binMass,minMass,maxMass);
   h1_CosAngleCollinSoperCorrect60Mass120_    = std::make_shared<TH1D>("CosAngleCollinSoperCorrect60Mass120","",NbBins,MinBin,MaxBin);
   h1_CosAngleCollinSoperCorrect120Mass300_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect120Mass300","",NbBins,MinBin,MaxBin);
   h1_CosAngleCollinSoperCorrect300Mass700_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect300Mass700","",NbBins,MinBin,MaxBin);

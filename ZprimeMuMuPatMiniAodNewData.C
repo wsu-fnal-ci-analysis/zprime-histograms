@@ -58,9 +58,10 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
   std::shared_ptr<TFile> output = std::make_shared<TFile>("ZprimeToMuMu_13TeV.root","recreate");
   // Enable Sumw2 for histograms as we'll be normalizing them
   TH1::SetDefaultSumw2();
+
   //==================================================================================
   //                                                                                 =
-  //             Start the histograms for CollinSoper CMF                            =
+  //             Dijet histograms                                                    =
   //                                                                                 =
   //==================================================================================
   h1_DijetEta1_       = std::make_shared<TH1D>("DijetEta1","",100,0.0,3.0);
@@ -85,6 +86,11 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
   h1_MassMuMuDijetBinWidthMET100_ = std::make_shared<TH1D>("MassMuMuDijetBinWidthMET100","MassMuMuDijetBinWidthMET100",NMBINS2, logMbins2);
   h1_MassMuMuDijet1GeVbinMET100_  = std::make_shared<TH1D>("MassMuMuDijet1GeVbinMET100","",3000,0.0,3000.0);
 
+  //==================================================================================
+  //                                                                                 =
+  //             Start the histograms for CollinSoper CMF                            =
+  //                                                                                 =
+  //==================================================================================
   NbFireHLT = 0;
   int NbBins   = 10;
   float MinBin = -1.0;
