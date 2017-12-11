@@ -1360,7 +1360,7 @@ float ZprimeMuMuPatMiniAodNewMC::smearedMass(float Eta1, float Phi1, float Pt1, 
   double mass = (*muon1 + *muon2).M();
   double massShifted = (shiftedMuon1 + shiftedMuon2).M();
 
-  return vtxMass*mass/massShifted;
+  return vtxMass*massShifted/mass;
 
 }
 float ZprimeMuMuPatMiniAodNewMC::scaledMass(float Eta1, float Phi1, float Pt1, float Charge1, float Eta2, float Phi2, float Pt2, float Charge2,
@@ -1381,7 +1381,7 @@ float ZprimeMuMuPatMiniAodNewMC::scaledMass(float Eta1, float Phi1, float Pt1, f
   double mass = (*muon1 + *muon2).M();
   double massShifted = (shiftedMuon1 + shiftedMuon2).M();
 
-  return vtxMass*mass/massShifted;
+  return vtxMass*massShifted/mass;
 
 }
 
