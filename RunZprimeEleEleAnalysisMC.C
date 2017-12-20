@@ -91,10 +91,12 @@ int main(int argc, char ** argv)
       dirInput="root://cmseos.fnal.gov///store/user/cmsdas/2016/LONG_EXERCISES/ZprimeDiLeptons/Data2015_ZprimeEE_13TeV_merged";
     } else if (mcconf.find("Spring16") < 50) {
       dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/Keep_Moriond17_MC_for_ele_analysis";
-      if (name.find("CITo2Mu") < 100)
-	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples";
-      else if (name.find("CITo2E") < 100)
-	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples";
+      if ((name.find("To2Mu") < 100) || (name.find("To2E") < 100))
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples_Dec15";
+      else if ((name.find("CITo2Mu") < 100) || (name.find("CITo2E") < 100))
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples_Dec15";
+      else if ((name.find("DYTo2Mu") < 100) || (name.find("DYTo2E") < 100))
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples_Dec15";
       else if (name.find("ZToMuMu") < 100)
 	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/MonteCarlo_Moriond";
       else if (name.find("WWTo2L2Nu_Mll") < 100)
