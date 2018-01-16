@@ -121,8 +121,12 @@ int main(int argc, char ** argv)
     if (mcconf.find("Spring16") < 50) {
       if (name.find("reHLT_DYtoMuMu") < 100 ) {
 	weight=0.96*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
+      } else if (name.find("reHLT_DYtoEE") < 100 ) {
+	weight=0.96*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
       } else if (name.find("ZToMuMu") < 50) {
 	weight=0.9714*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
+      } else if (name.find("ZToEE") < 50) {
+	weight=0.9334*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
       } else {
 	weight=lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
       }
