@@ -1450,7 +1450,7 @@ float ZprimeMuMuPatMiniAodNewData::CosThetaCollinSoper(float Et1,float Eta1,floa
     h1_CosAngleCollinSoperCorrect4900Mass5100_->Fill(costheta,m_weight);
     h1_absCosAngleCollinSoperCorrect4500Mass5500_->Fill(fabs(costheta),m_weight);
   }
-  
+
   /************************************************************************
    *
    * 2) tanphi = (Q^2 + Qt^2)^1/2 / Q (Dt dot R unit) /(Dt dot Qt unit)

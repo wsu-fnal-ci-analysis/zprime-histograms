@@ -47,6 +47,9 @@ class ZprimeMuMuPatMiniAodNewMC {
   Double_t        xsWeight;
   Bool_t          passPreFSRMInvCut;
   Bool_t          passMInvCut;
+  Bool_t          passST1MInvCut;
+  Bool_t          passST23MInvCut;
+  Bool_t          passHSMInvCut;
 
   std::vector<int>     *HLT_nb;
   std::vector<std::string>  *HLT_name;
@@ -191,6 +194,9 @@ class ZprimeMuMuPatMiniAodNewMC {
   TBranch        *b_xsWeight;
   TBranch        *b_passPreFSRMInvCut;
   TBranch        *b_passMInvCut;
+  TBranch        *b_passST1MInvCut;
+  TBranch        *b_passST23MInvCut;
+  TBranch        *b_passHSMInvCut;
 
   TBranch        *b_HLT_nb;   //!
   TBranch        *b_HLT_name;   //!
@@ -859,11 +865,15 @@ void ZprimeMuMuPatMiniAodNewMC::Init(TTree *tree)
 
   // special for CI smaples (will fail if not present... need to robustify
   isCISample = false;
-  if (std::string(name).find("CI") != std::string::npos) {
+  if ((std::string(name).find("CI") != std::string::npos) ||
+      (std::string(name).find("DYTo2") != std::string::npos)) {
     isCISample = true;
     fChain->SetBranchAddress("xsWeight",          &xsWeight,          &b_xsWeight);
     fChain->SetBranchAddress("passPreFSRMInvCut", &passPreFSRMInvCut, &b_passPreFSRMInvCut);
     fChain->SetBranchAddress("passMInvCut",       &passMInvCut,       &b_passMInvCut);
+    fChain->SetBranchAddress("passST1MInvCut",    &passST1MInvCut,    &b_passST1MInvCut);
+    fChain->SetBranchAddress("passST23MInvCut",   &passST23MInvCut,   &b_passST23MInvCut);
+    fChain->SetBranchAddress("passHSMInvCut",     &passHSMInvCut,     &b_passHSMInvCut);
   }
 
   fChain->SetBranchAddress("HLT_nb",       &HLT_nb,       &b_HLT_nb);
