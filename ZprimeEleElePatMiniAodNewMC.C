@@ -70,12 +70,18 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   float MaxBin =  1.0;
   // h1_ZprimeRecomass_                         = std::make_shared<TH1D>("ZprimeRecomass","",6000,0.0,6000.0);
   h1_ZprimeRecomass_                         = std::make_shared<TH1D>("ZprimeRecomass","",binMass,minMass,maxMass);
-  h1_CosAngleCollinSoperCorrect60Mass120_    = std::make_shared<TH1D>("CosAngleCollinSoperCorrect60Mass120","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect120Mass300_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect120Mass300","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect300Mass700_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect300Mass700","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect700Mass3000_  = std::make_shared<TH1D>("CosAngleCollinSoperCorrect700Mass3000","",NbBins,MinBin,MaxBin);
-  h1_CosAngleCollinSoperCorrect4900Mass5100_ = std::make_shared<TH1D>("CosAngleCollinSoperCorrect4900Mass5100","",NbBins,MinBin,MaxBin);
-  h1_absCosAngleCollinSoperCorrect4500Mass5500_ = std::make_shared<TH1D>("absCosAngleCollinSoperCorrect4500Mass5500","",5,0.0,1.0);
+  h1_CosAngleCollinSoperCorrect60Mass120_    = std::make_shared<TH1D>("CosAngleCollinSoperCorrect60Mass120",
+								      "",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect120Mass300_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect120Mass300",
+								      "",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect300Mass700_   = std::make_shared<TH1D>("CosAngleCollinSoperCorrect300Mass700",
+								      "",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect700Mass3000_  = std::make_shared<TH1D>("CosAngleCollinSoperCorrect700Mass3000",
+								      "",NbBins,MinBin,MaxBin);
+  h1_CosAngleCollinSoperCorrect4900Mass5100_ = std::make_shared<TH1D>("CosAngleCollinSoperCorrect4900Mass5100",
+								      "",NbBins,MinBin,MaxBin);
+  h1_absCosAngleCollinSoperCorrect4500Mass5500_ = std::make_shared<TH1D>("absCosAngleCollinSoperCorrect4500Mass5500",
+									 "",5,0.0,1.0);
 
   double etaBins[] = {-2.5,-1.566,-1.4442,0.,1.4442,1.566,2.5};
   std::array<std::string,9> etaBinLabels{"All","BB","BE","EE","BE+","BE-","E+E-","E-E-","E+E+"};
@@ -229,13 +235,16 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
     if (isCISample) {
       // have to choose which cut to use
       // if (!passMInvCut)
-      // 	 continue;
-      if (!passPreFSRMInvCut) {
+      // if (!passPreFSRMInvCut) {
+      // if (!passST1MInvCut) {
+      // if (!passST23MInvCut) {
+      if (!passHSMInvCut) {
 	if (debug)
 	  std::cout << "failed CI gen cut" << std::endl;
 	continue;
       }
     }
+
     /*std::cout <<"=======> jentry = "<<jentry<<
       "=======> Evt = "<<event_evtNo<<
       "=======> Run = "<<event_runNo<<

@@ -90,10 +90,12 @@ int main(int argc, char ** argv)
       dirInput="root://cmseos.fnal.gov///store/user/cmsdas/2016/LONG_EXERCISES/ZprimeDiLeptons/Data2015_ZprimeMuMu_13TeV_merged";
     } else if (mcconf.find("Spring16") < 50) {
       dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/MonteCarlo_Moriond";
-      if (name.find("CITo2Mu") < 100)
-	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples";
-      else if (name.find("CITo2E") < 100)
-	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples";
+      if ((name.find("To2Mu") < 100) || (name.find("To2E") < 100))
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples_Dec15";
+      else if ((name.find("CITo2Mu") < 100) || (name.find("CITo2E") < 100))
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples_Dec15";
+      else if ((name.find("DYTo2Mu") < 100) || (name.find("DYTo2E") < 100))
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples_Dec15";
       else if (name.find("reHLT_DYtoMuMu") < 100)
 	dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Spring16_ZprimeMuMu_13TeV_merged_HLT";
       else if (name.find("CMSSW803_MC_DYtoMuMu") < 100)
@@ -105,15 +107,19 @@ int main(int argc, char ** argv)
 	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/Keep_Moriond17_reMINIAOD_Data_ele_final";
     }
 
-    TString File=name;
+    TString File = name;
     Char_t namechar[300];
     sprintf(namechar,"%s/%s",dirInput.Data(),File.Data());
     float weight= -999.;
     if (mcconf.find("Spring16") < 50) {
       if (name.find("reHLT_DYtoMuMu") < 100 ) {
 	weight=0.96*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
+      } else if (name.find("reHLT_DYtoEE") < 100 ) {
+	weight=0.96*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
       } else if (name.find("ZToMuMu") < 50) {
 	weight=0.9714*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
+      } else if (name.find("ZToEE") < 50) {
+	weight=0.9334*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
       } else {
 	weight=lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
       }

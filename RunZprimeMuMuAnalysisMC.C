@@ -91,10 +91,12 @@ int main(int argc, char ** argv)
       dirInput="root://cmseos.fnal.gov///store/user/cmsdas/2016/LONG_EXERCISES/ZprimeDiLeptons/Data2015_ZprimeMuMu_13TeV_merged";
     } else if (mcconf.find("Spring16") < 50) {
       dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/MonteCarlo_Moriond";
-      if (name.find("CITo2Mu") < 100)
-	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples";
-      else if (name.find("CITo2E") < 100)
-	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples";
+      if ((name.find("To2Mu") < 100) || (name.find("To2E") < 100))
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples_Dec15";
+      else if ((name.find("CITo2Mu") < 100) || (name.find("CITo2E") < 100))
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples_Dec15";
+      else if ((name.find("DYTo2Mu") < 100) || (name.find("DYTo2E") < 100))
+	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples_Dec15";
       else if (name.find("ZToEE") < 100)
 	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/Keep_Moriond17_MC_for_ele_analysis";
       else if (name.find("reHLT_DYtoMuMu") < 100)
@@ -119,8 +121,12 @@ int main(int argc, char ** argv)
     if (mcconf.find("Spring16") < 50) {
       if (name.find("reHLT_DYtoMuMu") < 100 ) {
 	weight=0.96*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
+      } else if (name.find("reHLT_DYtoEE") < 100 ) {
+	weight=0.96*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
       } else if (name.find("ZToMuMu") < 50) {
 	weight=0.9714*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
+      } else if (name.find("ZToEE") < 50) {
+	weight=0.9334*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
       } else {
 	weight=lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
       }
@@ -139,6 +145,7 @@ int main(int argc, char ** argv)
     // std::shared_ptr<TTree> tree3 = std::make_shared<TTree>((TTree*)file3->Get("tree"));
     // std::shared_ptr<TTree> tree3((TTree*)file3->Get("tree"));
     std::cout << "Read file with name: " << namechar << " " << tree3->GetEntries() << std::endl;
+
 
     ZprimeMuMuPatMiniAodNewMC b(namechar,tree3,weight,dataconf,mcconf);
     // ZprimeMuMuPatMiniAodNewMC b(namechar,tree3.get(),weight,dataconf,mcconf);
