@@ -96,7 +96,6 @@ int main(int argc, char ** argv)
 	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples_Dec15";
       else if ((name.find("DYTo2Mu") < 100) || (name.find("DYTo2E") < 100))
 	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples_Dec15";
-	dirInput="root://cmseos.fnal.gov///store/group/lpcci2dileptons/ZprimeDiLeptonsAnalysis2017/CINtuples";
       else if (name.find("reHLT_DYtoMuMu") < 100)
 	dirInput="/lustre/cms/store/user/defilip/ZprimeAnalysis/Spring16_ZprimeMuMu_13TeV_merged_HLT";
       else if (name.find("CMSSW803_MC_DYtoMuMu") < 100)

@@ -483,9 +483,8 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
   h1_Wjets20GeVBBBEEE_ = std::make_shared<TH1D>("Wjets20GeVBBBEEE","",300,0.0,6000.0);
 
    // Pileup reweighting 2016 data vs Spring16 MC in 80x
-  TFile *_filePU;
-  _filePU= TFile::Open("puWeightsMoriond17_v2.root");     
-  TH1F *puweight = (TH1F*)_filePU->Get("weights"); 
+  TFile *filePU= TFile::Open("puWeightsMoriond17_v2.root");
+  TH1F *puweight = (TH1F*)filePU->Get("weights");
 
   // Book txt file for candidate events
   Char_t txtOUT[500];
@@ -561,11 +560,12 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
     newweight = m_weight;
 
     // Pileup Reweighting
-    Int_t binx = puweight->GetXaxis()->FindBin(num_PU_vertices); 
-    pu_weight=double(puweight->GetBinContent(binx));  
-    // Changing the weight for pileup 
-    newweight=m_weight*pu_weight; 
-    std::cout << "Starting weight + pileup, old weight and new = " << m_weight << " * " << newweight << std::endl;
+    Int_t binx = puweight->GetXaxis()->FindBin(num_PU_vertices);
+    pu_weight=double(puweight->GetBinContent(binx));
+    // Changing the weight for pileup
+    newweight = m_weight*pu_weight;
+    if (debug)
+      std::cout << "Starting weight + pileup, old weight and new = " << m_weight << " * " << newweight << std::endl;
 
     if (isCISample) {
       // have to choose which cut to use
@@ -1381,11 +1381,13 @@ float ZprimeMuMuPatMiniAodNewMC::smearedMass(float Eta1, float Phi1, float Pt1, 
   double ratio1 = GetResultionUncert(Pt1,Eta1);
   double ratio2 = GetResultionUncert(Pt2,Eta2);
 
-  TLorentzVector * muon1 = new TLorentzVector();
+  // TLorentzVector * muon1 = new TLorentzVector();
+  std::shared_ptr<TLorentzVector> muon1 = std::make_shared<TLorentzVector>();
   muon1->SetPtEtaPhiM(Pt1,Eta1,Phi1,MUON_MASS);
   TLorentzVector shiftedMuon1 = GetShiftedMuon(muon1->Px(),muon1->Py(),muon1->Pz(),muon1->E(), ratio1);
 
-  TLorentzVector * muon2 = new TLorentzVector();
+  // TLorentzVector * muon2 = new TLorentzVector();
+  std::shared_ptr<TLorentzVector> muon2 = std::make_shared<TLorentzVector>();
   muon2->SetPtEtaPhiM(Pt2,Eta2,Phi2,MUON_MASS);
   TLorentzVector shiftedMuon2 = GetShiftedMuon(muon2->Px(),muon2->Py(),muon2->Pz(),muon2->E(), ratio2);
 
@@ -1402,11 +1404,13 @@ float ZprimeMuMuPatMiniAodNewMC::scaledMass(float Eta1, float Phi1, float Pt1, f
   double ratio1 = GetScaleBias(Eta1,Phi1, Pt1, Charge1);
   double ratio2 = GetScaleBias(Eta2,Phi2, Pt2, Charge2);
 
-  TLorentzVector * muon1 = new TLorentzVector();
+  // TLorentzVector * muon1 = new TLorentzVector();
+  std::shared_ptr<TLorentzVector> muon1 = std::make_shared<TLorentzVector>();
   muon1->SetPtEtaPhiM(Pt1,Eta1,Phi1,MUON_MASS);
   TLorentzVector shiftedMuon1 = GetShiftedMuon(muon1->Px(),muon1->Py(),muon1->Pz(),muon1->E(), ratio1);
 
-  TLorentzVector * muon2 = new TLorentzVector();
+  // TLorentzVector * muon2 = new TLorentzVector();
+  std::shared_ptr<TLorentzVector> muon2 = std::make_shared<TLorentzVector>();
   muon2->SetPtEtaPhiM(Pt2,Eta2,Phi2,MUON_MASS);
   TLorentzVector shiftedMuon2 = GetShiftedMuon(muon2->Px(),muon2->Py(),muon2->Pz(),muon2->E(), ratio2);
 
