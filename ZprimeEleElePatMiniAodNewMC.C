@@ -161,9 +161,8 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   h1_ZprimeRecomass60to120_    = std::make_shared<TH1D>("ZprimeRecomass60to120",   "",60,60.0,120.0);
 
   // Pileup reweighting 2016 data vs Spring16 MC in 80x
-  TFile *_filePU;
-  _filePU= TFile::Open("puWeightsMoriond17_v2.root");
-  TH1F *puweight = (TH1F*)_filePU->Get("weights");
+  TFile *filePU = TFile::Open("puWeightsMoriond17_v2.root");
+  TH1F *puweight = (TH1F*)filePU->Get("weights");
 
   // Book txt file for candidate events
   Char_t txtOUT[500];
@@ -240,11 +239,12 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
     newweight = m_weight;
 
     // Pileup Reweighting
-    Int_t binx = puweight->GetXaxis()->FindBin(num_PU_vertices); 
-    pu_weight=double(puweight->GetBinContent(binx));  
-    // Changing the weight for pileup 
-    newweight=m_weight*pu_weight; 
-    std::cout << "Starting weight + pileup, old weight and new = " << m_weight << " * " << newweight << std::endl;
+    Int_t binx = puweight->GetXaxis()->FindBin(num_PU_vertices);
+    pu_weight=double(puweight->GetBinContent(binx));
+    // Changing the weight for pileup
+    newweight = m_weight*pu_weight;
+    if (debug)
+      std::cout << "Starting weight + pileup, old weight and new = " << m_weight << " * " << newweight << std::endl;
 
     if (isCISample) {
       // have to choose which cut to use
