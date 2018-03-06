@@ -271,11 +271,11 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
     //============================================================
     bool firstEleFinal  = SelectFirstEle(Etele1,Enele1,EtaTrakele1,PhiTrakele1,Chargeele1,
                                          EtaSCele1,PhiSCele1,flagel1,
-                                         m_genET1,m_genPhi1,m_genEta1,m_genEn1);
+                                         m_genET1,m_genEta1,m_genPhi1,m_genEn1);
     bool secondEleFinal = SelectSecondEle(Chargeele1,flagel1,Etele1,EtaTrakele1,PhiTrakele1,
                                           Etele2,Enele2,EtaTrakele2,PhiTrakele2,Chargeele2,
                                           EtaSCele2,PhiSCele2,
-                                          m_genET2,m_genPhi2,m_genEta2,m_genEn2);
+                                          m_genET2,m_genEta2,m_genPhi2,m_genEn2);
     //=========================================================
     //        call the method for N-1 plots                   =
     //                                                        =
@@ -294,7 +294,6 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
 	std::cout << "failed m_recoMass" << std::endl;
       continue;
     }
-
     m_genMass = GenMass(m_genET1, m_genPhi1, m_genEta1, m_genEn1,
 			m_genET2, m_genPhi2, m_genEta2, m_genEn2);
 
@@ -405,7 +404,7 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
       m_csAngle = CosThetaCollinSoper(Etele1,EtaSCele1,PhiSCele1,Enele1,
 				      Etele2,EtaSCele2,PhiSCele2,Enele2,
 				      Chargeele1,m_recoMass);
-      PlotRecoInfo(m_recoMass,EtaSCele1,EtaSCele2);
+      PlotRecoInfo(m_recoMass,m_genMass,EtaSCele1,EtaSCele2,inputfile);
     }
   }
 
@@ -541,7 +540,7 @@ bool ZprimeEleElePatMiniAodNewMC::SelectFirstEle(float &ETele1,float &Enele1,flo
 bool ZprimeEleElePatMiniAodNewMC::SelectSecondEle(int ChargeEle1,unsigned FlagEle1,float ETele1,float Etaele1,float Phiele1,
 						  float &ETele2,float &Enele2,float &Etaele2,float &Phiele2,int &ChargeEle2,
 						  float &EtaSCele2,float &PhiSCele2,
-                                                  float &genEle1Pt, float &genEle1Eta, float &genEle1Phi, float &genEle1En)
+                                                  float &genEle2Pt, float &genEle2Eta, float &genEle2Phi, float &genEle2En)
 {
   int NbHEEPele = 0;
   unsigned iflag = -10;
@@ -557,7 +556,7 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondEle(int ChargeEle1,unsigned FlagEl
     if (ET > 35 && fabs(Ele_etaSC->at(i)) < 1.4442 && Ele_isPassHeepID->at(i)==1) {  //Barrel
       if (ET>highestpt) {
 	bool GenRecoMatch1 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i),
-                                             genEle1Pt, genEle1Eta, genEle1Phi, genEle1En);
+                                             genEle2Pt, genEle2Eta, genEle2Phi, genEle2En);
 	if (GenRecoMatch1 == 0) continue;
 	highestpt=ET;
 	iflag  = i;
@@ -566,7 +565,7 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondEle(int ChargeEle1,unsigned FlagEl
     } else if (ET > 35 && fabs(Ele_etaSC->at(i)) > 1.566 && fabs(Ele_etaSC->at(i)) < 2.5 && Ele_isPassHeepID->at(i)==1) {  //endcap
       if (ET>highestpt) {
 	bool GenRecoMatch2 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i),
-                                             genEle1Pt, genEle1Eta, genEle1Phi, genEle1En);
+                                             genEle2Pt, genEle2Eta, genEle2Phi, genEle2En);
 	if (GenRecoMatch2 == 0) continue;
 	highestpt=ET;
 	iflag  = i;
@@ -590,7 +589,7 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondEle(int ChargeEle1,unsigned FlagEl
     return false;
   }
 }
-void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float etaEle1,float etaEle2)
+void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float genMassEle,float etaEle1,float etaEle2,TString name)
 {
   //----------------------------------------------------------
   if (fabs(etaEle1) < 1.4442 && fabs(etaEle2) < 1.4442) {
@@ -633,9 +632,8 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float etaEle1,float
 
   // only for DY POWHEG??
   float weight10 = 1.;
-  if (inputfile.Contains("NNPDF30"))
-    weight10 = MassCorrection(MassEle);
-
+  if (name.Contains("NNPDF30"))
+    weight10 = MassCorrection(genMassEle);
   newweight = newweight*weight10;
   m_recoMassCorr = m_recoMass*weight10;
 
