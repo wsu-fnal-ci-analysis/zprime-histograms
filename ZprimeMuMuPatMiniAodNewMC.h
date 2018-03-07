@@ -373,7 +373,7 @@ class ZprimeMuMuPatMiniAodNewMC {
                     float PtTunePMuBestTrack,float PtTunePMu,float PtMuBestTrack,
                     float PtGenerated,float etaMu1, float pMu1,
                     float PtTunePMuBestTrack2,float PtTunePMu2,float PtMuBestTrack2,
-                    float PtGenerated2,float etaMu2, float pMuMu2, float bosonPt, TString name);
+                    float PtGenerated2,float etaMu2, float pMuMu2, float bosonPt);
   void PickThehighestMass(float &vtxHighestMass,float &vtxHighestChi2,int EvtNb);
   double ThreeDangle(float pxMu1,float pyMu1,float pzMu1,float pMu1,
                      float pxMu2,float pyMu2,float pzMu2,float pMu2);

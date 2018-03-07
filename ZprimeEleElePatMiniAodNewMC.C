@@ -173,8 +173,8 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   sprintf(outform,"run: lumi: event: dil_mass: pTele1: pTele2: Etaele1: Etaele2:");
   output_txt << outform << std::endl;
 
-  TString inputfile=name;
-  inputfile=name;
+  // TString inputfile = name; // redefinition
+  inputfile = name;
   std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
   std::cout << "Weight of the sample is= " << m_weight << std::endl;
 
@@ -404,7 +404,7 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
       m_csAngle = CosThetaCollinSoper(Etele1,EtaSCele1,PhiSCele1,Enele1,
 				      Etele2,EtaSCele2,PhiSCele2,Enele2,
 				      Chargeele1,m_recoMass);
-      PlotRecoInfo(m_recoMass,m_genMass,EtaSCele1,EtaSCele2,inputfile);
+      PlotRecoInfo(m_recoMass,m_genMass,EtaSCele1,EtaSCele2);
     }
   }
 
@@ -589,7 +589,7 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondEle(int ChargeEle1,unsigned FlagEl
     return false;
   }
 }
-void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float genMassEle,float etaEle1,float etaEle2,TString name)
+void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float genMassEle,float etaEle1,float etaEle2)
 {
   //----------------------------------------------------------
   if (fabs(etaEle1) < 1.4442 && fabs(etaEle2) < 1.4442) {
@@ -632,8 +632,9 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float genMassEle,fl
 
   // only for DY POWHEG??
   float weight10 = 1.;
-  if (name.Contains("NNPDF30"))
+  if (inputfile.Contains("NNPDF30"))
     weight10 = MassCorrection(genMassEle);
+
   newweight = newweight*weight10;
   m_recoMassCorr = m_recoMass*weight10;
 
