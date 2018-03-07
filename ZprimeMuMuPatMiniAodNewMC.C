@@ -495,10 +495,10 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
   sprintf (outform,"run: lumi: event: dil_mass: pTmu1: pTmu2: Etamu1: Etamu2:");
   output_txt  << outform << std::endl;
 
-  TString inputfile=name;
-  inputfile=name;
+  // TString inputfile = name; // redefinition
+  inputfile = name;
   std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
-  std::cout << "Weight of the sample is= " << m_weight << std::endl;
+  std::cout << "Weight of the sample is= "   << m_weight << std::endl;
 
   //==================================================================================
   if (fChain == 0) return;
@@ -778,11 +778,11 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
           }
         }
 
-
         Boson(pxRecMu1,pyRecMu1,pzRecMu1,EnRecMu1,pxRecMu2,pyRecMu2,pzRecMu2,EnRecMu2,
               ChargeRecMu1,PFMet_et_cor,PFMet_px_cor,PFMet_py_cor,PFMet_pz_cor,PFMet_en_cor, m_bosonPt);
-        PlotRecoInfo(CosmicRejec,m_vtxMassMu,m_genMass,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,m_ptGen1,EtaRecMu1, pRecMu1,
-                     PtRecTunePMuBestTrack2,PtRecTunePMu2,PtRecMuBestTrack2,m_ptGen2,EtaRecMu2, pRecMu2, m_bosonPt, inputfile);
+        PlotRecoInfo(CosmicRejec,m_vtxMassMu,m_genMass,
+                     PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,m_ptGen1,EtaRecMu1, pRecMu1,
+                     PtRecTunePMuBestTrack2,PtRecTunePMu2,PtRecMuBestTrack2,m_ptGen2,EtaRecMu2, pRecMu2, m_bosonPt);
         PlotGenInfo(m_genMass,m_genEta1,m_genEta2,m_genET1,m_genET2,m_genEn1,m_genEn2);
         m_csAngle = CosThetaCollinSoper(PtRecTunePMuBestTrack1,EtaRecMu1,PhiRecMu1,EnRecMu1,
                                         PtRecTunePMuBestTrack2,EtaRecMu2,PhiRecMu2,EnRecMu2,
@@ -1058,7 +1058,7 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
 					     float PtTunePMuBestTrack,float PtTunePMu,float PtMuBestTrack,
 					     float PtGenerated, float etaMu1, float pMu1,
 					     float PtTunePMuBestTrack2,float PtTunePMu2,float PtMuBestTrack2,
-					     float PtGenerated2,float etaMu2, float pMu2, float bosonPt, TString name)
+					     float PtGenerated2,float etaMu2, float pMu2, float bosonPt)
 {
   //----------------------------------------------------------
   if (vertexMassMu>900.0) {
@@ -1076,7 +1076,7 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
 
   // only for DY POWHEG??
   float weight10 = 1.;
-  if (name.Contains("NNPDF30"))
+  if (inputfile.Contains("NNPDF30"))
     weight10 = MassCorrection(MassGenerated, bosonPt, etaMu1, etaMu2);
 
   newweight = newweight*weight10;
@@ -1092,13 +1092,14 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
   float SF1 = 1.;
   float SF2 = 1.;
 
-  if (fabs(etaMu1) <= 1.6 && pMu1 > 100) SF1 = (0.994 - 4.08e-6 * pMu1)/(0.994 - 4.08e-6 * 100);
-  else if (fabs(etaMu1) > 1.6 && pMu1 > 200)  SF1 = ((0.9784 - 4.73e-5 * pMu1)/(0.9908 - 1.26e-5 * pMu1)) / ((0.9784 - 4.73e-5 * 200)/(0.9908 - 1.26e-5 * 200)) ;
-  if (fabs(etaMu2) <= 1.6 && pMu2 > 100) SF2 = (0.994 - 4.08e-6 * pMu2)/(0.994 - 4.08e-6 * 100);
-  else if (fabs(etaMu2) > 1.6 && pMu2 > 200)  SF2 = ((0.9784 - 4.73e-5 * pMu2)/(0.9908 - 1.26e-5 * pMu2)) / ((0.9784 - 4.73e-5 * 200)/(0.9908 - 1.26e-5 * 200) ) ;
-
-
-
+  if (fabs(etaMu1) <= 1.6 && pMu1 > 100)
+    SF1 = (0.994 - 4.08e-6 * pMu1)/(0.994 - 4.08e-6 * 100);
+  else if (fabs(etaMu1) > 1.6 && pMu1 > 200)
+    SF1 = ((0.9784 - 4.73e-5 * pMu1)/(0.9908 - 1.26e-5 * pMu1)) / ((0.9784 - 4.73e-5 * 200)/(0.9908 - 1.26e-5 * 200)) ;
+  if (fabs(etaMu2) <= 1.6 && pMu2 > 100)
+    SF2 = (0.994 - 4.08e-6 * pMu2)/(0.994 - 4.08e-6 * 100);
+  else if (fabs(etaMu2) > 1.6 && pMu2 > 200)
+    SF2 = ((0.9784 - 4.73e-5 * pMu2)/(0.9908 - 1.26e-5 * pMu2)) / ((0.9784 - 4.73e-5 * 200)/(0.9908 - 1.26e-5 * 200) ) ;
 
   h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        0.,newweight);
   h2_CSMassBinned_       ->Fill(m_vtxMassMu,               0.,newweight);

@@ -168,8 +168,8 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
   sprintf (outform,"run: lumi: event: dil_mass: pTele1: pTele2: Etaele1: Etaele2:");
   output_txt  << outform << std::endl;
 
-  TString inputfile=name;
-  inputfile=name;
+  // TString inputfile = name; // redefinition
+  inputfile = name;
   std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
   std::cout << "Weight of the sample is= " << m_weight << std::endl;
 

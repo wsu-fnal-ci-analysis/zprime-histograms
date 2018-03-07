@@ -340,8 +340,8 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
   sprintf (outform,"run: lumi: event: dil_mass: pTmu1: pTmu2: Etamu1: Etamu2:");
   output_txt  << outform << std::endl;
 
-  TString inputfile=name;
-  inputfile=name;
+  // TString inputfile = name; // redefinition
+  inputfile = name;
   std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
   std::cout << "Weight of the sample is= " << m_weight << std::endl;
 
@@ -496,7 +496,9 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
 	if (passBTaggingDiscriminator3==1) {
 	  h1_BTagMassMuMu_->Fill(m_vtxMassMu);
 	}
-	PlotRecoInfo(CosmicRejec,m_vtxMassMu,m_genMass,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,mPtGen1,EtaRecMu1,
+
+	PlotRecoInfo(CosmicRejec,m_vtxMassMu,m_genMass,
+		     PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,mPtGen1,EtaRecMu1,
 		     PtRecTunePMuBestTrack2,PtRecTunePMu2,PtRecMuBestTrack2,mPtGen2,EtaRecMu2);
 	m_csAngle = CosThetaCollinSoper(PtRecTunePMuBestTrack1,EtaRecMu1,PhiRecMu1,EnRecMu1,
 					PtRecTunePMuBestTrack2,EtaRecMu2,PhiRecMu2,EnRecMu2,
