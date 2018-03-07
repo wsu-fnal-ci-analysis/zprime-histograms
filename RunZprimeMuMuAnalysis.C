@@ -117,7 +117,7 @@ int main(int argc, char ** argv)
       } else if (name.find("reHLT_DYtoEE") < 100 ) {
 	weight=0.96*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
       } else if (name.find("ZToMuMu") < 50) {
-	weight=0.9714*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
+	weight=0.9638*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
       } else if (name.find("ZToEE") < 50) {
 	weight=0.9334*lumifb*(xsection[i]*1000.*nskim[i]/ninput[i])/nskim[i];
       } else {
