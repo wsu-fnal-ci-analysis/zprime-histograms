@@ -23,9 +23,11 @@
 bool myfunction (int i,int j) { return (i < j); }
 bool picklargemass (float lhs,float rhs) { return (lhs > rhs); }
 TString inputfile;
+bool debug = false;
 
-void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
+void ZprimeEleElePatMiniAodNewData::Loop(bool ldebug)
 {
+  debug = ldebug;
   time_t start,end;
   double dif;
   time (&start);
@@ -276,8 +278,12 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
     //=========================================================
     if (event_runNo >= 276453 && event_runNo <= 278822) {
       bool fireHLT1 = isPassHLT1();
-      if (fireHLT1 == 0)
+      if (fireHLT1 == 0) {
+	if (debug)
+	  std::cout << "failed HLT1" << std::endl;
 	continue;
+      }
+
       bool RecoEle1MatchingWithHLT1 = RecoHLTEleMatching1(EtaSCele1,PhiSCele1);
       bool RecoEle2MatchingWithHLT2 = RecoHLTEleMatching1(EtaSCele2,PhiSCele2);
       if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
@@ -288,8 +294,12 @@ void ZprimeEleElePatMiniAodNewData::Loop(bool debug)
       }
     } else {
       bool fireHLT2 = isPassHLT2();
-      if (fireHLT2 == 0)
+      if (fireHLT2 == 0) {
+	if (debug)
+	  std::cout << "failed HLT2" << std::endl;
 	continue;
+      }
+
       bool RecoEle1MatchingWithHLT3 = RecoHLTEleMatching2(EtaSCele1,PhiSCele1);
       bool RecoEle2MatchingWithHLT4 = RecoHLTEleMatching2(EtaSCele2,PhiSCele2);
       if (RecoEle1MatchingWithHLT3==1 && RecoEle2MatchingWithHLT4==1) {
@@ -1065,8 +1075,12 @@ void ZprimeEleElePatMiniAodNewData::DrawDiJetMassBB()
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;
 	bool fireHLT1 = isPassHLT2();
-	if (fireHLT1 == 0)
+	if (fireHLT1 == 0) {
+	  if (debug)
+	    std::cout << "DrawDiJetMassBB::failed HLT2" << std::endl;
 	  continue;
+	}
+
 	bool RecoEle1MatchingWithHLT1 = RecoHLTEleMatching2(Ele_etaSC->at(jet1),Ele_phiSC->at(jet1));
 	bool RecoEle2MatchingWithHLT2 = RecoHLTEleMatching2(Ele_etaSC->at(jet2),Ele_phiSC->at(jet2));
 	if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
@@ -1112,8 +1126,12 @@ void ZprimeEleElePatMiniAodNewData::DrawDiJetMassBE()
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;
 	bool fireHLT1 = isPassHLT2();
-	if (fireHLT1 == 0)
+	if (fireHLT1 == 0) {
+	  if (debug)
+	    std::cout << "DrawDiJetMassBE::failed HLT2" << std::endl;
 	  continue;
+	}
+
 	bool RecoEle1MatchingWithHLT1 = RecoHLTEleMatching2(Ele_etaSC->at(jet1),Ele_phiSC->at(jet1));
 	bool RecoEle2MatchingWithHLT2 = RecoHLTEleMatching2(Ele_etaSC->at(jet2),Ele_phiSC->at(jet2));
 	if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
@@ -1161,8 +1179,12 @@ void ZprimeEleElePatMiniAodNewData::DrawDiJetMassEE()
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;
 	bool fireHLT1 = isPassHLT2();
-	if (fireHLT1 == 0)
+	if (fireHLT1 == 0) {
+	  if (debug)
+	    std::cout << "DrawDiJetMassEE::failed HLT2" << std::endl;
 	  continue;
+	}
+
 	bool RecoEle1MatchingWithHLT1 = RecoHLTEleMatching2(Ele_etaSC->at(jet1),Ele_phiSC->at(jet1));
 	bool RecoEle2MatchingWithHLT2 = RecoHLTEleMatching2(Ele_etaSC->at(jet2),Ele_phiSC->at(jet2));
 	if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
@@ -1201,8 +1223,12 @@ void ZprimeEleElePatMiniAodNewData::DrawWJetsMassBB()
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;
 	bool fireHLT1 = isPassHLT2();
-	if (fireHLT1 == 0)
+	if (fireHLT1 == 0) {
+	  if (debug)
+	    std::cout << "DrawWJetsMassBB::failed HLT2" << std::endl;
 	  continue;
+	}
+
 	bool RecoEle1MatchingWithHLT1 = RecoHLTEleMatching2(Ele_etaSC->at(ele),Ele_phiSC->at(ele));
 	bool RecoEle2MatchingWithHLT2 = RecoHLTEleMatching2(Ele_etaSC->at(jet),Ele_phiSC->at(jet));
 	if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
@@ -1241,8 +1267,12 @@ void ZprimeEleElePatMiniAodNewData::DrawWJetsMassBE1()
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;
 	bool fireHLT1 = isPassHLT2();
-	if (fireHLT1 == 0)
+	if (fireHLT1 == 0) {
+	  if (debug)
+	    std::cout << "DrawWJetsMassBE1::failed HLT2" << std::endl;
 	  continue;
+	}
+
 	bool RecoEle1MatchingWithHLT1 = RecoHLTEleMatching2(Ele_etaSC->at(ele),Ele_phiSC->at(ele));
 	bool RecoEle2MatchingWithHLT2 = RecoHLTEleMatching2(Ele_etaSC->at(jet),Ele_phiSC->at(jet));
 	if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
@@ -1281,8 +1311,12 @@ void ZprimeEleElePatMiniAodNewData::DrawWJetsMassBE2()
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;
 	bool fireHLT1 = isPassHLT2();
-	if (fireHLT1 == 0)
+	if (fireHLT1 == 0) {
+	  if (debug)
+	    std::cout << "DrawWJetsMassBE2::failed HLT2" << std::endl;
 	  continue;
+	}
+
 	bool RecoEle1MatchingWithHLT1 = RecoHLTEleMatching2(Ele_etaSC->at(ele),Ele_phiSC->at(ele));
 	bool RecoEle2MatchingWithHLT2 = RecoHLTEleMatching2(Ele_etaSC->at(jet),Ele_phiSC->at(jet));
 	if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
@@ -1322,8 +1356,12 @@ void ZprimeEleElePatMiniAodNewData::DrawWJetsMassEE()
       if (MassDiJet > 60.0) {
 	invmass = MassDiJet;
 	bool fireHLT1 = isPassHLT2();
-	if (fireHLT1 == 0)
+	if (fireHLT1 == 0) {
+	  if (debug)
+	    std::cout << "DrawWJetsMassEE::failed HLT2" << std::endl;
 	  continue;
+	}
+
 	bool RecoEle1MatchingWithHLT1 = RecoHLTEleMatching2(Ele_etaSC->at(ele),Ele_phiSC->at(ele));
 	bool RecoEle2MatchingWithHLT2 = RecoHLTEleMatching2(Ele_etaSC->at(jet),Ele_phiSC->at(jet));
 	if (RecoEle1MatchingWithHLT1==1 && RecoEle2MatchingWithHLT2==1) {
@@ -1364,4 +1402,71 @@ float ZprimeEleElePatMiniAodNewData::FRweight(float Et,float eta)
       return 0.0423239;
   } else
     return 0.;
+}
+
+double ZprimeEleElePatMiniAodNewData::TurnOn(double Eta, double Et)
+{
+  double function = 0.0;
+  double a = 0.0;
+  double b = 0.0;
+  double c = 0.0;
+  double d = 0.0;
+  double e = 0.0;
+  double f = 0.0;
+
+  if (fabs(Eta)<0.79) {
+    a = 0.099;
+    b = 32.902;
+    c = 2.063;
+    d = 0.900;
+    e = 33.034;
+    f = 0.625;
+  }
+
+  if (fabs(Eta)>0.79 && fabs(Eta)<1.1) {
+    a = 0.868;
+    b = 33.229;
+    c = 0.706;
+    d = 0.132;
+    e = 33.328;
+    f = 1.777;
+  }
+
+  if (fabs(Eta)>1.1 && fabs(Eta)<1.4442) {
+    a = 0.231;
+    b = 33.311;
+    c = 1.534;
+    d = 0.769;
+    e = 33.347;
+    f = 0.718;
+  }
+
+  if (fabs(Eta)>1.566 && fabs(Eta)<1.7) {
+    a = 0.189;
+    b = 32.636;
+    c = 2.063;
+    d = 0.808;
+    e = 33.047;
+    f = 0.844;
+  }
+
+  if (fabs(Eta)>1.7 && fabs(Eta)<2.1) {
+    a = 0.362;
+    b = 33.510;
+    c = 1.669;
+    d = 0.637;
+    e = 33.264;
+    f = 0.861;
+  }
+
+  if (fabs(Eta)>2.1 && fabs(Eta)<2.50) {
+    a = 0.536;
+    b = 34.688;
+    c = 1.771;
+    d = 0.462;
+    e = 34.155;
+    f = 1.048;
+  }
+
+  return 0.5*a*(1+erf((Et-b)/(sqrt(2)*c))) + 0.5*d*(1+erf((Et-e)/(sqrt(2)*f)));
 }

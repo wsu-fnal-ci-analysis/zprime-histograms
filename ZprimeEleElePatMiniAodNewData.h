@@ -397,6 +397,7 @@ class ZprimeEleElePatMiniAodNewData {
   void DrawWJetsMassBE2();
   void DrawWJetsMassEE();
   float FRweight(float Et,float eta);
+  double TurnOn(double Eta, double Et);
 
   //================================================================================
   float HLT_pt,HLT_eta,HLT_phi;

@@ -459,7 +459,12 @@ void ZprimeMuMuPatMiniAodNewData::Loop(bool debug)
     //                                                        =
     //=========================================================
     bool fireHLT2 = isPassHLT();
-    if (fireHLT2 == 0) continue;
+    if (fireHLT2 == 0) {
+      if (debug)
+	std::cout << "failed HLT" << std::endl;
+      continue;
+    }
+
     bool RecoMuon1MatchingWithHLT1 = RecoHLTMuonMatching(EtaRecMu1,PhiRecMu1);
     bool RecoMuon2MatchingWithHLT2 = RecoHLTMuonMatching(EtaRecMu2,PhiRecMu2);
     if (RecoMuon1MatchingWithHLT1==1 || RecoMuon2MatchingWithHLT2==1) {

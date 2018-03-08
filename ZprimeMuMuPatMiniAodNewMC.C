@@ -629,8 +629,10 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 
     m_genMass = GenMass(m_genET1, m_genPhi1, m_genEta1, m_genEn1,
 			m_genET2, m_genPhi2, m_genEta2, m_genEn2);
-    m_vtxMassSmearedMu = smearedMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1, EtaRecMu2, PhiRecMu2, PtRecTunePMuBestTrack2, m_vtxMassMu);
-    m_vtxMassScaledMu  = scaledMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1, ChargeRecMu1,  EtaRecMu2, PhiRecMu2, PtRecTunePMuBestTrack2, ChargeRecMu2, m_vtxMassMu);
+    m_vtxMassSmearedMu = smearedMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1,
+				     EtaRecMu2, PhiRecMu2, PtRecTunePMuBestTrack2, m_vtxMassMu);
+    m_vtxMassScaledMu  = scaledMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1, ChargeRecMu1,
+				    EtaRecMu2, PhiRecMu2, PtRecTunePMuBestTrack2, ChargeRecMu2, m_vtxMassMu);
 
     double CosmicRejec = ThreeDangle(pxRecMu1,pyRecMu1,pzRecMu1,pRecMu1,
 				     pxRecMu2,pyRecMu2,pzRecMu2,pRecMu2);
@@ -649,9 +651,12 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
     //        start doing matching between reco & HLT         =
     //                                                        =
     //=========================================================
-    bool fireHLT2 = isPassHLT();
-
-    if (fireHLT2 == 0) continue;
+    bool fireHLT = isPassHLT();
+    // if (fireHLT == 0) {
+    //   if (debug)
+    // 	std::cout << "failed HLT" << std::endl;
+    //   continue;
+    // }
 
     bool RecoMuon1MatchingWithHLT1 = RecoHLTMuonMatching(EtaRecMu1,PhiRecMu1);
     bool RecoMuon2MatchingWithHLT2 = RecoHLTMuonMatching(EtaRecMu2,PhiRecMu2);
