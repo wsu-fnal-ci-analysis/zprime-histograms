@@ -1082,7 +1082,8 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
   // only for DY POWHEG??
   float weight10 = 1.;
   if (inputfile.Contains("NNPDF30"))
-    weight10 = MassCorrection(MassGenerated, bosonPt, etaMu1, etaMu2);
+    // weight10 = MassCorrection(MassGenerated, bosonPt, etaMu1, etaMu2);
+    weight10 = MassCorrection(vertexMassMu, bosonPt, etaMu1, etaMu2);
 
   newweight = newweight*weight10;
   m_recoMassCorr = vertexMassMu*weight10;
