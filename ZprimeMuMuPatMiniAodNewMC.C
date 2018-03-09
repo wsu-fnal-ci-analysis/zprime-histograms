@@ -2212,6 +2212,7 @@ double ZprimeMuMuPatMiniAodNewMC::MassCorrection(float M, float pT, float Eta1, 
   float d = 0.;
   float mAdj = M;
 
+  /*
   if (pT > 30 && M < 170) {
     mAdj = M - 130;
     if (fabs(Eta1) <= 1.2 && fabs(Eta2) <= 1.2) { //sigma BB
@@ -2238,6 +2239,7 @@ double ZprimeMuMuPatMiniAodNewMC::MassCorrection(float M, float pT, float Eta1, 
       d =  -4.068e-12;
     }
   } else { // what about pT < 30?
+  */
     mAdj = M - 400;
     if (fabs(Eta1) <= 1.2 && fabs(Eta2) <= 1.2) { //sigma BB
       a =  1.036;
@@ -2262,7 +2264,7 @@ double ZprimeMuMuPatMiniAodNewMC::MassCorrection(float M, float pT, float Eta1, 
       c =  3.176e-08;
       d =  -4.068e-12;
     }
-  }
+  // }
 
   double function = d*pow(mAdj,3) + c*pow(mAdj,2) + b*pow(mAdj,1) + a;
   return function;
