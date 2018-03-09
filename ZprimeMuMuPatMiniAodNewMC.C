@@ -627,8 +627,8 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 
     PickThehighestMass(m_vtxMassMu,m_vtxChi2Mu,event_evtNo);
 
-    m_genMass = GenMass(m_genET1, m_genPhi1, m_genEta1, m_genEn1,
-			m_genET2, m_genPhi2, m_genEta2, m_genEn2);
+    m_genMass = GenMass(m_genET1, m_genEta1, m_genPhi1, m_genEn1,
+			m_genET2, m_genEta2, m_genPhi2, m_genEn2);
     m_vtxMassSmearedMu = smearedMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1,
 				     EtaRecMu2, PhiRecMu2, PtRecTunePMuBestTrack2, m_vtxMassMu);
     m_vtxMassScaledMu  = scaledMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1, ChargeRecMu1,
@@ -652,11 +652,11 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
     //                                                        =
     //=========================================================
     bool fireHLT = isPassHLT();
-    // if (fireHLT == 0) {
-    //   if (debug)
-    // 	std::cout << "failed HLT" << std::endl;
-    //   continue;
-    // }
+    if (fireHLT == 0) {
+      if (debug)
+    	std::cout << "failed HLT" << std::endl;
+      continue;
+    }
 
     bool RecoMuon1MatchingWithHLT1 = RecoHLTMuonMatching(EtaRecMu1,PhiRecMu1);
     bool RecoMuon2MatchingWithHLT2 = RecoHLTMuonMatching(EtaRecMu2,PhiRecMu2);
@@ -1082,8 +1082,7 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
   // only for DY POWHEG??
   float weight10 = 1.;
   if (inputfile.Contains("NNPDF30"))
-    // weight10 = MassCorrection(MassGenerated, bosonPt, etaMu1, etaMu2);
-    weight10 = MassCorrection(vertexMassMu, bosonPt, etaMu1, etaMu2);
+    weight10 = MassCorrection(MassGenerated, bosonPt, etaMu1, etaMu2);
 
   newweight = newweight*weight10;
   m_recoMassCorr = vertexMassMu*weight10;
@@ -1559,8 +1558,8 @@ bool ZprimeMuMuPatMiniAodNewMC::SelectSecondGenMu(unsigned GenFlag1, float ETMu1
 }
 
 //============================ Method to compute gen level invariant mass ========================
-float ZprimeMuMuPatMiniAodNewMC::GenMass(float ETMu1, float PhiMu1, float EtaMu1,float EnMu1,
-					 float ETMu2, float PhiMu2, float EtaMu2,float EnMu2)
+float ZprimeMuMuPatMiniAodNewMC::GenMass(float ETMu1, float EtaMu1, float PhiMu1,float EnMu1,
+					 float ETMu2, float EtaMu2, float PhiMu2,float EnMu2)
 {
   TLorentzVector mu1, mu2;
   // mu1.SetPtEtaPhiE(ETMu1,EtaMu1,PhiMu1,EnMu1);
