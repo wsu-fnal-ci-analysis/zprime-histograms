@@ -296,8 +296,8 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool ldebug)
 	std::cout << "failed m_recoMass" << std::endl;
       continue;
     }
-    m_genMass = GenMass(m_genET1, m_genPhi1, m_genEta1, m_genEn1,
-			m_genET2, m_genPhi2, m_genEta2, m_genEn2);
+    m_genMass = GenMass(m_genET1, m_genEta1, m_genPhi1, m_genEn1,
+			m_genET2, m_genEta2, m_genPhi2, m_genEn2);
 
     m_recoMassSmeared = smearedMass(EtaTrakele1, EtaTrakele2, m_recoMass, m_genMass, m_scaleUnc);
 
@@ -864,8 +864,8 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondGenEle(unsigned GenFlag1,float ETE
 }
 
 //============================ Method to compute gen level invariant mass ========================
-float ZprimeEleElePatMiniAodNewMC::GenMass(float ETEle1, float PhiEle1, float EtaEle1,float EnEle1,
-					   float ETEle2, float PhiEle2, float EtaEle2,float EnEle2)
+float ZprimeEleElePatMiniAodNewMC::GenMass(float ETEle1, float EtaEle1, float PhiEle1,float EnEle1,
+					   float ETEle2, float EtaEle2, float PhiEle2,float EnEle2)
 {
   TLorentzVector ele1, ele2;
   // ele1.SetPtEtaPhiE(ETEle1,EtaEle1,PhiEle1,EnEle1);
