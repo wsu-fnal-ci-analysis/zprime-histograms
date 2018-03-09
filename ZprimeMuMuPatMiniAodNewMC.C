@@ -2228,10 +2228,10 @@ double ZprimeMuMuPatMiniAodNewMC::MassCorrection(float M, float pT, float Eta1, 
       d =  1.401e-06;
     } else if ((fabs(Eta1) > 1.2 && fabs(Eta1) < 2.4) &&
 	       (fabs(Eta2) > 1.2 && fabs(Eta2) < 2.4)) {  //EE
-      a =  1.067;
-      b = -0.000112;
-      c =  3.176e-08;
-      d =  -4.068e-12;
+      a =  1.012;
+      b = -0.001607;
+      c =  8.796e-07;
+      d =  1.401e-06;
     } else { // other?
       a =  1.067;
       b = -0.000112;
@@ -2254,10 +2254,10 @@ double ZprimeMuMuPatMiniAodNewMC::MassCorrection(float M, float pT, float Eta1, 
       d = -9.037e-12;
     } else if ((fabs(Eta1) > 1.2 && fabs(Eta1) < 2.4) &&
 	       (fabs(Eta2) > 1.2 && fabs(Eta2) < 2.4)) {  //EE
-      a =  1.067;
-      b = -0.000112;
-      c =  3.176e-08;
-      d =  -4.068e-12;
+      a =  1.052;
+      b = -0.0001471;
+      c =  5.903e-08;
+      d = -9.037e-12;
     } else { // other?
       a =  1.067;
       b = -0.000112;
