@@ -752,7 +752,7 @@ float ZprimeEleElePatMiniAodNewMC::smearedMass(float Eta1, float Eta2,
 
   //sigma BB
   if (fabs(Eta1) <= 1.4442 && fabs(Eta2) <= 1.4442) {
-    scaleUnc = 0.01;
+    scaleUnc = 0.02;
     a =  0.00701;
     b =  3.32e-05;
     c = -1.29e-08;
@@ -760,7 +760,7 @@ float ZprimeEleElePatMiniAodNewMC::smearedMass(float Eta1, float Eta2,
     e = -2.05e-16;
   } else if ((fabs(Eta1) < 1.4442 && (fabs(Eta2) > 1.566 && fabs(Eta2) < 2.5)) ||
 	     (fabs(Eta2) < 1.4442 && (fabs(Eta1) > 1.566 && fabs(Eta1) < 2.5))) {  //BE
-    scaleUnc = 0.02;
+    scaleUnc = 0.01;
     a =  0.0124;
     b =  3.75e-05;
     c = -1.52e-08;
@@ -768,7 +768,7 @@ float ZprimeEleElePatMiniAodNewMC::smearedMass(float Eta1, float Eta2,
     e = -2.85e-16;
   } else if ((fabs(Eta1) > 1.566 && fabs(Eta1) < 2.5) &&
 	     (fabs(Eta2) > 1.566 && fabs(Eta2) < 2.5)) {  //EE
-    scaleUnc = 0.02; //?
+    scaleUnc = 0.01; //?
     a =  0.0124;
     b =  3.75e-05;
     c = -1.52e-08;
