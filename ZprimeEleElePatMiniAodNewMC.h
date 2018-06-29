@@ -382,6 +382,7 @@ class ZprimeEleElePatMiniAodNewMC {
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
   double MassCorrection(float M);
+  double TurnOn(double Eta, double Et);
   bool SelectFirstEle(float &ETele1,float &Enele1,float &Etaele1,
                       float &Phiele1,int &ChargeEle1,float &EtaSCele1,
                       float &PhiSCele1,unsigned &FlagEle1,
@@ -393,7 +394,7 @@ class ZprimeEleElePatMiniAodNewMC {
   float Mass(float Pt1,float Eta1,float Phi1,float En1,
              float Pt2,float Eta2,float Phi2,float En2);
   float smearedMass(float Eta1,float Eta2,float vtxMass,float genMass, float &scaleUnc);
-  void PlotRecoInfo(float MassEle,float etaEle1,float etaEle2);
+  void PlotRecoInfo(float MassEle,float genMassEle,float etaEle1,float etaEle2);
   bool SelectFirstGenEle(float &ETEle1,float &PhiSCEle1,
                          float &EtaSCEle1,float &EnEle1,
                          int &IDele1,int &Statele1,

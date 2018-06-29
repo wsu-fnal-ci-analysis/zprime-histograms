@@ -503,10 +503,10 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
   sprintf (outform,"run: lumi: event: dil_mass: pTmu1: pTmu2: Etamu1: Etamu2:");
   output_txt  << outform << std::endl;
 
-  TString inputfile=name;
-  inputfile=name;
+  // TString inputfile = name; // redefinition
+  inputfile = name;
   std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
-  std::cout << "Weight of the sample is= " << m_weight << std::endl;
+  std::cout << "Weight of the sample is= "   << m_weight << std::endl;
 
   //==================================================================================
   if (fChain == 0) return;
@@ -637,10 +637,12 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
 
     PickThehighestMass(m_vtxMassMu,m_vtxChi2Mu,event_evtNo);
 
-    m_genMass = GenMass(m_genET1, m_genPhi1, m_genEta1, m_genEn1,
-			m_genET2, m_genPhi2, m_genEta2, m_genEn2);
-    m_vtxMassSmearedMu = smearedMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1, EtaRecMu2, PhiRecMu2, PtRecTunePMuBestTrack2, m_vtxMassMu);
-    m_vtxMassScaledMu  = scaledMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1, ChargeRecMu1,  EtaRecMu2, PhiRecMu2, PtRecTunePMuBestTrack2, ChargeRecMu2, m_vtxMassMu);
+    m_genMass = GenMass(m_genET1, m_genEta1, m_genPhi1, m_genEn1,
+			m_genET2, m_genEta2, m_genPhi2, m_genEn2);
+    m_vtxMassSmearedMu = smearedMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1,
+				     EtaRecMu2, PhiRecMu2, PtRecTunePMuBestTrack2, m_vtxMassMu);
+    m_vtxMassScaledMu  = scaledMass(EtaRecMu1, PhiRecMu1, PtRecTunePMuBestTrack1, ChargeRecMu1,
+				    EtaRecMu2, PhiRecMu2, PtRecTunePMuBestTrack2, ChargeRecMu2, m_vtxMassMu);
 
     double CosmicRejec = ThreeDangle(pxRecMu1,pyRecMu1,pzRecMu1,pRecMu1,
 				     pxRecMu2,pyRecMu2,pzRecMu2,pRecMu2);
@@ -659,9 +661,12 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
     //        start doing matching between reco & HLT         =
     //                                                        =
     //=========================================================
-    bool fireHLT2 = isPassHLT();
-
-    if (fireHLT2 == 0) continue;
+    bool fireHLT = isPassHLT();
+    if (fireHLT == 0) {
+      if (debug)
+    	std::cout << "failed HLT" << std::endl;
+      continue;
+    }
 
     bool RecoMuon1MatchingWithHLT1 = RecoHLTMuonMatching(EtaRecMu1,PhiRecMu1);
     bool RecoMuon2MatchingWithHLT2 = RecoHLTMuonMatching(EtaRecMu2,PhiRecMu2);
@@ -788,10 +793,10 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
           }
         }
 
-
         Boson(pxRecMu1,pyRecMu1,pzRecMu1,EnRecMu1,pxRecMu2,pyRecMu2,pzRecMu2,EnRecMu2,
               ChargeRecMu1,PFMet_et_cor,PFMet_px_cor,PFMet_py_cor,PFMet_pz_cor,PFMet_en_cor, m_bosonPt);
-        PlotRecoInfo(CosmicRejec,m_vtxMassMu,m_genMass,PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,m_ptGen1,EtaRecMu1, pRecMu1,
+        PlotRecoInfo(CosmicRejec,m_vtxMassMu,m_genMass,
+                     PtRecTunePMuBestTrack1,PtRecTunePMu1,PtRecMuBestTrack1,m_ptGen1,EtaRecMu1, pRecMu1,
                      PtRecTunePMuBestTrack2,PtRecTunePMu2,PtRecMuBestTrack2,m_ptGen2,EtaRecMu2, pRecMu2, m_bosonPt);
         PlotGenInfo(m_genMass,m_genEta1,m_genEta2,m_genET1,m_genET2,m_genEn1,m_genEn2);
         m_csAngle = CosThetaCollinSoper(PtRecTunePMuBestTrack1,EtaRecMu1,PhiRecMu1,EnRecMu1,
@@ -1087,7 +1092,7 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
   // only for DY POWHEG??
   float weight10 = 1.;
   if (inputfile.Contains("NNPDF30"))
-    weight10 = MassCorrection(vertexMassMu, bosonPt, etaMu1, etaMu2);
+    weight10 = MassCorrection(MassGenerated, bosonPt, etaMu1, etaMu2);
 
   newweight = newweight*weight10;
   m_recoMassCorr = vertexMassMu*weight10;
@@ -1102,13 +1107,14 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
   float SF1 = 1.;
   float SF2 = 1.;
 
-  if (fabs(etaMu1) <= 1.6 && pMu1 > 100) SF1 = (0.994 - 4.08e-6 * pMu1)/(0.994 - 4.08e-6 * 100);
-  else if (fabs(etaMu1) > 1.6 && pMu1 > 200)  SF1 = ((0.9784 - 4.73e-5 * pMu1)/(0.9908 - 1.26e-5 * pMu1)) / ((0.9784 - 4.73e-5 * 200)/(0.9908 - 1.26e-5 * 200)) ;
-  if (fabs(etaMu2) <= 1.6 && pMu2 > 100) SF2 = (0.994 - 4.08e-6 * pMu2)/(0.994 - 4.08e-6 * 100);
-  else if (fabs(etaMu2) > 1.6 && pMu2 > 200)  SF2 = ((0.9784 - 4.73e-5 * pMu2)/(0.9908 - 1.26e-5 * pMu2)) / ((0.9784 - 4.73e-5 * 200)/(0.9908 - 1.26e-5 * 200) ) ;
-
-
-
+  if (fabs(etaMu1) <= 1.6 && pMu1 > 100)
+    SF1 = (0.994 - 4.08e-6 * pMu1)/(0.994 - 4.08e-6 * 100);
+  else if (fabs(etaMu1) > 1.6 && pMu1 > 200)
+    SF1 = ((0.9784 - 4.73e-5 * pMu1)/(0.9908 - 1.26e-5 * pMu1)) / ((0.9784 - 4.73e-5 * 200)/(0.9908 - 1.26e-5 * 200)) ;
+  if (fabs(etaMu2) <= 1.6 && pMu2 > 100)
+    SF2 = (0.994 - 4.08e-6 * pMu2)/(0.994 - 4.08e-6 * 100);
+  else if (fabs(etaMu2) > 1.6 && pMu2 > 200)
+    SF2 = ((0.9784 - 4.73e-5 * pMu2)/(0.9908 - 1.26e-5 * pMu2)) / ((0.9784 - 4.73e-5 * 200)/(0.9908 - 1.26e-5 * 200) ) ;
 
   h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        0.,newweight);
   h2_CSMassBinned_       ->Fill(m_vtxMassMu,               0.,newweight);
@@ -1581,8 +1587,8 @@ bool ZprimeMuMuPatMiniAodNewMC::SelectSecondGenMu(unsigned GenFlag1, float ETMu1
 }
 
 //============================ Method to compute gen level invariant mass ========================
-float ZprimeMuMuPatMiniAodNewMC::GenMass(float ETMu1, float PhiMu1, float EtaMu1,float EnMu1,
-					 float ETMu2, float PhiMu2, float EtaMu2,float EnMu2)
+float ZprimeMuMuPatMiniAodNewMC::GenMass(float ETMu1, float EtaMu1, float PhiMu1,float EnMu1,
+					 float ETMu2, float EtaMu2, float PhiMu2,float EnMu2)
 {
   TLorentzVector mu1, mu2;
   // mu1.SetPtEtaPhiE(ETMu1,EtaMu1,PhiMu1,EnMu1);
@@ -2235,8 +2241,9 @@ double ZprimeMuMuPatMiniAodNewMC::MassCorrection(float M, float pT, float Eta1, 
   float d = 0.;
   float mAdj = M;
 
-  if (pT > 30 && pT < 170) {
-    mAdj = M - 170;
+  /*
+  if (pT > 30 && M < 170) {
+    mAdj = M - 130;
     if (fabs(Eta1) <= 1.2 && fabs(Eta2) <= 1.2) { //sigma BB
       a =  1.003;
       b = -0.0002904;
@@ -2255,12 +2262,13 @@ double ZprimeMuMuPatMiniAodNewMC::MassCorrection(float M, float pT, float Eta1, 
       c =  8.796e-07;
       d =  1.401e-06;
     } else { // other?
-      a =  1.012;
-      b = -0.001607;
-      c =  8.796e-07;
-      d =  1.401e-06;
+      a =  1.067;
+      b = -0.000112;
+      c =  3.176e-08;
+      d =  -4.068e-12;
     }
   } else { // what about pT < 30?
+  */
     mAdj = M - 400;
     if (fabs(Eta1) <= 1.2 && fabs(Eta2) <= 1.2) { //sigma BB
       a =  1.036;
@@ -2285,7 +2293,7 @@ double ZprimeMuMuPatMiniAodNewMC::MassCorrection(float M, float pT, float Eta1, 
       c =  5.903e-08;
       d = -9.037e-12;
     }
-  }
+  // }
 
   double function = d*pow(mAdj,3) + c*pow(mAdj,2) + b*pow(mAdj,1) + a;
   return function;

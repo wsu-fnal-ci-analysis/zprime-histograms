@@ -28,9 +28,11 @@ float newweight = 1.;
 float pu_weight=1.;
 float pu_weightDown=1.;
 float pu_weightUp=1.;
+bool debug = false;
 
-void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
+void ZprimeEleElePatMiniAodNewMC::Loop(bool ldebug)
 {
+  debug = ldebug;
   time_t start,end;
   double dif;
   time (&start);
@@ -181,8 +183,8 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
   sprintf(outform,"run: lumi: event: dil_mass: pTele1: pTele2: Etaele1: Etaele2:");
   output_txt << outform << std::endl;
 
-  TString inputfile=name;
-  inputfile=name;
+  // TString inputfile = name; // redefinition
+  inputfile = name;
   std::cout << "Name of the input file is= " << inputfile.Data() << std::endl;
   std::cout << "Weight of the sample is= " << m_weight << std::endl;
 
@@ -281,11 +283,11 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
     //============================================================
     bool firstEleFinal  = SelectFirstEle(Etele1,Enele1,EtaTrakele1,PhiTrakele1,Chargeele1,
                                          EtaSCele1,PhiSCele1,flagel1,
-                                         m_genET1,m_genPhi1,m_genEta1,m_genEn1);
+                                         m_genET1,m_genEta1,m_genPhi1,m_genEn1);
     bool secondEleFinal = SelectSecondEle(Chargeele1,flagel1,Etele1,EtaTrakele1,PhiTrakele1,
                                           Etele2,Enele2,EtaTrakele2,PhiTrakele2,Chargeele2,
                                           EtaSCele2,PhiSCele2,
-                                          m_genET2,m_genPhi2,m_genEta2,m_genEn2);
+                                          m_genET2,m_genEta2,m_genPhi2,m_genEn2);
     //=========================================================
     //        call the method for N-1 plots                   =
     //                                                        =
@@ -304,9 +306,8 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
 	std::cout << "failed m_recoMass" << std::endl;
       continue;
     }
-
-    m_genMass = GenMass(m_genET1, m_genPhi1, m_genEta1, m_genEn1,
-			m_genET2, m_genPhi2, m_genEta2, m_genEn2);
+    m_genMass = GenMass(m_genET1, m_genEta1, m_genPhi1, m_genEn1,
+			m_genET2, m_genEta2, m_genPhi2, m_genEn2);
 
     m_recoMassSmeared = smearedMass(EtaTrakele1, EtaTrakele2, m_recoMass, m_genMass, m_scaleUnc);
 
@@ -314,12 +315,16 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
     //        start doing matching between reco & HLT         =
     //                                                        =
     //=========================================================
-    bool fireHLT2 = isPassHLT();
-    if (fireHLT2 == 0) {
-      if (debug)
-	std::cout << "failed HLT" << std::endl;
-      continue;
-    }
+    bool fireHLT = isPassHLT();
+    // if (fireHLT == 0) {
+    //   if (debug)
+    // 	std::cout << "failed HLT" << std::endl;
+    //   continue;
+    // }
+
+    double el1hltw = TurnOn(EtaSCele1,Etele1);
+    double el2hltw = TurnOn(EtaSCele2,Etele2);
+    newweight = newweight*el1hltw*el2hltw;
 
     bool RecoEle1MatchingWithHLT1 = RecoHLTEleMatching(EtaSCele1,PhiSCele1);
     bool RecoEle2MatchingWithHLT2 = RecoHLTEleMatching(EtaSCele2,PhiSCele2);
@@ -415,7 +420,7 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool debug)
       m_csAngle = CosThetaCollinSoper(Etele1,EtaSCele1,PhiSCele1,Enele1,
 				      Etele2,EtaSCele2,PhiSCele2,Enele2,
 				      Chargeele1,m_recoMass);
-      PlotRecoInfo(m_recoMass,EtaSCele1,EtaSCele2);
+      PlotRecoInfo(m_recoMass,m_genMass,EtaSCele1,EtaSCele2);
     }
   }
 
@@ -551,7 +556,7 @@ bool ZprimeEleElePatMiniAodNewMC::SelectFirstEle(float &ETele1,float &Enele1,flo
 bool ZprimeEleElePatMiniAodNewMC::SelectSecondEle(int ChargeEle1,unsigned FlagEle1,float ETele1,float Etaele1,float Phiele1,
 						  float &ETele2,float &Enele2,float &Etaele2,float &Phiele2,int &ChargeEle2,
 						  float &EtaSCele2,float &PhiSCele2,
-                                                  float &genEle1Pt, float &genEle1Eta, float &genEle1Phi, float &genEle1En)
+                                                  float &genEle2Pt, float &genEle2Eta, float &genEle2Phi, float &genEle2En)
 {
   int NbHEEPele = 0;
   unsigned iflag = -10;
@@ -567,7 +572,7 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondEle(int ChargeEle1,unsigned FlagEl
     if (ET > 35 && fabs(Ele_etaSC->at(i)) < 1.4442 && Ele_isPassHeepID->at(i)==1) {  //Barrel
       if (ET>highestpt) {
 	bool GenRecoMatch1 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i),
-                                             genEle1Pt, genEle1Eta, genEle1Phi, genEle1En);
+                                             genEle2Pt, genEle2Eta, genEle2Phi, genEle2En);
 	if (GenRecoMatch1 == 0) continue;
 	highestpt=ET;
 	iflag  = i;
@@ -576,7 +581,7 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondEle(int ChargeEle1,unsigned FlagEl
     } else if (ET > 35 && fabs(Ele_etaSC->at(i)) > 1.566 && fabs(Ele_etaSC->at(i)) < 2.5 && Ele_isPassHeepID->at(i)==1) {  //endcap
       if (ET>highestpt) {
 	bool GenRecoMatch2 = GenRecoMatchEle(Ele_etaSC->at(i),Ele_phiSC->at(i),
-                                             genEle1Pt, genEle1Eta, genEle1Phi, genEle1En);
+                                             genEle2Pt, genEle2Eta, genEle2Phi, genEle2En);
 	if (GenRecoMatch2 == 0) continue;
 	highestpt=ET;
 	iflag  = i;
@@ -600,7 +605,7 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondEle(int ChargeEle1,unsigned FlagEl
     return false;
   }
 }
-void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float etaEle1,float etaEle2)
+void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float genMassEle,float etaEle1,float etaEle2)
 {
   //----------------------------------------------------------
   if (fabs(etaEle1) < 1.4442 && fabs(etaEle2) < 1.4442) {
@@ -644,7 +649,7 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float etaEle1,float
   // only for DY POWHEG??
   float weight10 = 1.;
   if (inputfile.Contains("NNPDF30"))
-    weight10 = MassCorrection(MassEle);
+    weight10 = MassCorrection(genMassEle);
 
   newweight = newweight*weight10;
   m_recoMassCorr = m_recoMass*weight10;
@@ -889,8 +894,8 @@ bool ZprimeEleElePatMiniAodNewMC::SelectSecondGenEle(unsigned GenFlag1,float ETE
 }
 
 //============================ Method to compute gen level invariant mass ========================
-float ZprimeEleElePatMiniAodNewMC::GenMass(float ETEle1, float PhiEle1, float EtaEle1,float EnEle1,
-					   float ETEle2, float PhiEle2, float EtaEle2,float EnEle2)
+float ZprimeEleElePatMiniAodNewMC::GenMass(float ETEle1, float EtaEle1, float PhiEle1,float EnEle1,
+					   float ETEle2, float EtaEle2, float PhiEle2,float EnEle2)
 {
   TLorentzVector ele1, ele2;
   // ele1.SetPtEtaPhiE(ETEle1,EtaEle1,PhiEle1,EnEle1);
@@ -1076,4 +1081,72 @@ double ZprimeEleElePatMiniAodNewMC::MassCorrection(float M)
   float d = -3.94886e-12;
   double function = d*pow(M,3) + c*pow(M,2) + b*pow(M,1) + a;
   return function;
+}
+
+
+double ZprimeEleElePatMiniAodNewMC::TurnOn(double Eta, double Et)
+{
+  double function = 0.0;
+  double a = 0.0;
+  double b = 0.0;
+  double c = 0.0;
+  double d = 0.0;
+  double e = 0.0;
+  double f = 0.0;
+
+  if (fabs(Eta)<0.79) {
+    a = 0.099;
+    b = 32.902;
+    c = 2.063;
+    d = 0.900;
+    e = 33.034;
+    f = 0.625;
+  }
+
+  if (fabs(Eta)>0.79 && fabs(Eta)<1.1) {
+    a = 0.868;
+    b = 33.229;
+    c = 0.706;
+    d = 0.132;
+    e = 33.328;
+    f = 1.777;
+  }
+
+  if (fabs(Eta)>1.1 && fabs(Eta)<1.4442) {
+    a = 0.231;
+    b = 33.311;
+    c = 1.534;
+    d = 0.769;
+    e = 33.347;
+    f = 0.718;
+  }
+
+  if (fabs(Eta)>1.566 && fabs(Eta)<1.7) {
+    a = 0.189;
+    b = 32.636;
+    c = 2.063;
+    d = 0.808;
+    e = 33.047;
+    f = 0.844;
+  }
+
+  if (fabs(Eta)>1.7 && fabs(Eta)<2.1) {
+    a = 0.362;
+    b = 33.510;
+    c = 1.669;
+    d = 0.637;
+    e = 33.264;
+    f = 0.861;
+  }
+
+  if (fabs(Eta)>2.1 && fabs(Eta)<2.50) {
+    a = 0.536;
+    b = 34.688;
+    c = 1.771;
+    d = 0.462;
+    e = 34.155;
+    f = 1.048;
+  }
+
+  return 0.5*a*(1+erf((Et-b)/(sqrt(2)*c))) + 0.5*d*(1+erf((Et-e)/(sqrt(2)*f)));
 }
