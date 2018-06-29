@@ -26,6 +26,8 @@ bool picklargemass (float lhs,float rhs) { return (lhs > rhs); }
 TString inputfile;
 float newweight = 1.;
 float pu_weight=1.;
+float pu_weightDown=1.;
+float pu_weightUp=1.;
 bool debug = false;
 
 void ZprimeEleElePatMiniAodNewMC::Loop(bool ldebug)
@@ -111,7 +113,9 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool ldebug)
   h2_CSMassBinned_        = std::make_shared<TH2D>("CSMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
   h2_CSMassUpBinned_      = std::make_shared<TH2D>("CSMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
   h2_CSMassDownBinned_    = std::make_shared<TH2D>("CSMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
-  // h2_CSPosSmearedMassBinned_ = std::make_shared<TH2D>("CSPosSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
+  h2_CSMassPUUpBinned_      = std::make_shared<TH2D>("CSMassPUUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
+  h2_CSMassPUDownBinned_    = std::make_shared<TH2D>("CSMassPUDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+ // h2_CSPosSmearedMassBinned_ = std::make_shared<TH2D>("CSPosSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
   // h2_CSPosMassBinned_        = std::make_shared<TH2D>("CSPosMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
   // h2_CSPosMassUpBinned_      = std::make_shared<TH2D>("CSPosMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
   // h2_CSPosMassDownBinned_    = std::make_shared<TH2D>("CSPosMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
@@ -125,6 +129,8 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool ldebug)
       h2_CSMassBinned_       ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
       h2_CSMassUpBinned_     ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
       h2_CSMassDownBinned_   ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
+      h2_CSMassPUUpBinned_     ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
+      h2_CSMassPUDownBinned_   ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
       // h2_CSPosSmearedMassBinned_->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
       // h2_CSPosMassBinned_       ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
       // h2_CSPosMassUpBinned_     ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
@@ -165,6 +171,8 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool ldebug)
   // Pileup reweighting 2016 data vs Spring16 MC in 80x
   TFile *filePU = TFile::Open("puWeightsMoriond17_v2.root");
   TH1F *puweight = (TH1F*)filePU->Get("weights");
+  TH1F *puweightUp = (TH1F*)filePU->Get("weights_varUp");
+  TH1F *puweightDown = (TH1F*)filePU->Get("weights_varDn");
 
   // Book txt file for candidate events
   Char_t txtOUT[500];
@@ -243,6 +251,8 @@ void ZprimeEleElePatMiniAodNewMC::Loop(bool ldebug)
     // Pileup Reweighting
     Int_t binx = puweight->GetXaxis()->FindBin(num_PU_vertices);
     pu_weight=double(puweight->GetBinContent(binx));
+    pu_weightUp=double(puweightUp->GetBinContent(binx));
+    pu_weightDown=double(puweightDown->GetBinContent(binx));
     // Changing the weight for pileup
     newweight = m_weight*pu_weight;
     if (debug)
@@ -643,11 +653,14 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float genMassEle,fl
 
   newweight = newweight*weight10;
   m_recoMassCorr = m_recoMass*weight10;
-
+  float weightPUUp = newweight*pu_weightUp/pu_weight;
+  float weightPUDown = newweight*pu_weightDown/pu_weight;
   //----------------------------------------------------------
   if (!(inputfile.Contains("WW") && MassEle>2000.)) {
     // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        0.,newweight);
     h2_CSMassBinned_       ->Fill(MassEle,               0.,newweight);
+    h2_CSMassPUUpBinned_   ->Fill(MassEle,               0.,weightPUUp);
+    h2_CSMassPUDownBinned_ ->Fill(MassEle,               0.,weightPUDown);
     h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),0.,newweight);
     h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),0.,newweight);
     if (m_csAngle > 0) {
@@ -655,11 +668,15 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float genMassEle,fl
       h2_CSMassBinned_       ->Fill(MassEle,               2.,newweight);
       h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),2.,newweight);
       h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),2.,newweight);
+      h2_CSMassPUUpBinned_   ->Fill(MassEle,               2.,weightPUUp);
+      h2_CSMassPUDownBinned_ ->Fill(MassEle,               2.,weightPUDown);
     } else {
       // h2_CSSmearedMassBinned_->Fill(m_smearedMass,        1.,newweight);
       h2_CSMassBinned_       ->Fill(MassEle,               1.,newweight);
       h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),1.,newweight);
       h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),1.,newweight);
+      h2_CSMassPUUpBinned_   ->Fill(MassEle,               1.,weightPUUp);
+      h2_CSMassPUDownBinned_ ->Fill(MassEle,               1.,weightPUDown);
     }
 
     int priEtaBin = -1;
@@ -691,12 +708,16 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float genMassEle,fl
     h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+0,newweight);
     h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+0,newweight);
     h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+0,newweight);
+    h2_CSMassPUUpBinned_   ->Fill(MassEle,               (priEtaBin*3)+0,weightPUUp);
+    h2_CSMassPUDownBinned_ ->Fill(MassEle,               (priEtaBin*3)+0,weightPUDown);
     if (secEtaBin > 0) {
       // std::cout << "secondary bin (" << secEtaBin << "*3)+0(" << (secEtaBin*3)+0 << ")" << std::endl;
       // h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+0,newweight);
       h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+0,newweight);
       h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+0,newweight);
       h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+0,newweight);
+      h2_CSMassPUUpBinned_   ->Fill(MassEle,               (secEtaBin*3)+0,weightPUUp);
+      h2_CSMassPUDownBinned_ ->Fill(MassEle,               (secEtaBin*3)+0,weightPUDown);
     }
     if (m_csAngle > 0) {
       // std::cout << "primary bin (" << priEtaBin << "*3)+2(" << (priEtaBin*3)+2 << ")" << std::endl;
@@ -704,12 +725,17 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float genMassEle,fl
       h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+2,newweight);
       h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+2,newweight);
       h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+2,newweight);
+      h2_CSMassPUUpBinned_   ->Fill(MassEle,               (priEtaBin*3)+2,weightPUUp);
+      h2_CSMassPUDownBinned_ ->Fill(MassEle,               (priEtaBin*3)+2,weightPUDown);
+
       if (secEtaBin > 0) {
 	// std::cout << "secondary bin (" << secEtaBin << "*3)+2(" << (secEtaBin*3)+2 << ")" << std::endl;
 	// h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+2,newweight);
 	h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+2,newweight);
 	h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+2,newweight);
 	h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+2,newweight);
+        h2_CSMassPUUpBinned_   ->Fill(MassEle,               (secEtaBin*3)+2,weightPUUp);
+        h2_CSMassPUDownBinned_ ->Fill(MassEle,               (secEtaBin*3)+2,weightPUDown);
       }
     } else {
       // std::cout << "primary bin (" << priEtaBin << "*3)+1(" << (priEtaBin*3)+1 << ")" << std::endl;
@@ -717,12 +743,16 @@ void ZprimeEleElePatMiniAodNewMC::PlotRecoInfo(float MassEle,float genMassEle,fl
       h2_CSMassBinned_       ->Fill(MassEle,               (priEtaBin*3)+1,newweight);
       h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(priEtaBin*3)+1,newweight);
       h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(priEtaBin*3)+1,newweight);
+      h2_CSMassPUUpBinned_   ->Fill(MassEle,               (priEtaBin*3)+1,weightPUUp);
+      h2_CSMassPUDownBinned_ ->Fill(MassEle,               (priEtaBin*3)+1,weightPUDown);
       if (secEtaBin > 0) {
 	// std::cout << "secondary bin (" << secEtaBin << "*3)+1(" << (secEtaBin*3)+1 << ")" << std::endl;
 	// h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+1,newweight);
 	h2_CSMassBinned_       ->Fill(MassEle,               (secEtaBin*3)+1,newweight);
 	h2_CSMassUpBinned_     ->Fill(MassEle*(1+m_scaleUnc),(secEtaBin*3)+1,newweight);
 	h2_CSMassDownBinned_   ->Fill(MassEle*(1-m_scaleUnc),(secEtaBin*3)+1,newweight);
+        h2_CSMassPUUpBinned_   ->Fill(MassEle,               (secEtaBin*3)+1,weightPUUp);
+        h2_CSMassPUDownBinned_ ->Fill(MassEle,               (secEtaBin*3)+1,weightPUDown);
       }
     }
   }

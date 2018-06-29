@@ -26,6 +26,8 @@ bool picklargemass (float lhs,float rhs) { return (lhs > rhs); }
 TString inputfile;
 float newweight = 1.;
 float pu_weight=1.;
+float pu_weightUp=1.;
+float pu_weightDown=1.;
 
 void ZprimeMuMuPatMiniAodNewMC::initMemberVariables()
 {
@@ -297,6 +299,8 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
   h2_CSMassMuIDBinned_    = std::make_shared<TH2D>("CSMassMuIDBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
   h2_CSMassUpBinned_      = std::make_shared<TH2D>("CSMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
   h2_CSMassDownBinned_    = std::make_shared<TH2D>("CSMassDownBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+  h2_CSMassPUUpBinned_    = std::make_shared<TH2D>("CSMassPUUpBinned"   ,"", 20000,0.,20000., 30,-0.5,29.5);
+  h2_CSMassPUDownBinned_  = std::make_shared<TH2D>("CSMassPUDownBinned" ,"", 20000,0.,20000., 30,-0.5,29.5);
   // h2_CSPosSmearedMassBinned_ = std::make_shared<TH2D>("CSPosSmearedMassBinned","", 20000,0.,20000., 30,-0.5,29.5);
   // h2_CSPosMassBinned_        = std::make_shared<TH2D>("CSPosMassBinned"       ,"", 20000,0.,20000., 30,-0.5,29.5);
   // h2_CSPosMassUpBinned_      = std::make_shared<TH2D>("CSPosMassUpBinned"     ,"", 20000,0.,20000., 30,-0.5,29.5);
@@ -312,6 +316,8 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
       h2_CSMassMuIDBinned_   ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
       h2_CSMassUpBinned_     ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
       h2_CSMassDownBinned_   ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
+      h2_CSMassPUUpBinned_     ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
+      h2_CSMassPUDownBinned_   ->GetYaxis()->SetBinLabel((eb*csBinLabels.size())+cb+1, (csBinLabels[cb]+etaBinLabels[eb]).c_str());
       // h2_CSPosSmearedMassBinned_->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
       // h2_CSPosMassBinned_       ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
       // h2_CSPosMassUpBinned_     ->GetYaxis()->SetBinLabel(eb+1+cb, (csBinLabels[cb]+", "+etaBinLabels[eb]).c_str());
@@ -485,6 +491,8 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
    // Pileup reweighting 2016 data vs Spring16 MC in 80x
   TFile *filePU= TFile::Open("puWeightsMoriond17_v2.root");
   TH1F *puweight = (TH1F*)filePU->Get("weights");
+  TH1F *puweightUp = (TH1F*)filePU->Get("weights_varUp");
+  TH1F *puweightDown = (TH1F*)filePU->Get("weights_varDn");
 
   // Book txt file for candidate events
   Char_t txtOUT[500];
@@ -562,6 +570,8 @@ void ZprimeMuMuPatMiniAodNewMC::Loop(bool debug)
     // Pileup Reweighting
     Int_t binx = puweight->GetXaxis()->FindBin(num_PU_vertices);
     pu_weight=double(puweight->GetBinContent(binx));
+    pu_weightUp=double(puweightUp->GetBinContent(binx));
+    pu_weightDown=double(puweightDown->GetBinContent(binx));
     // Changing the weight for pileup
     newweight = m_weight*pu_weight;
     if (debug)
@@ -1108,18 +1118,24 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
 
   h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        0.,newweight);
   h2_CSMassBinned_       ->Fill(m_vtxMassMu,               0.,newweight);
+  h2_CSMassPUUpBinned_   ->Fill(m_vtxMassMu,               0.,newweight/pu_weight*pu_weightUp);
+  h2_CSMassPUDownBinned_ ->Fill(m_vtxMassMu,               0.,newweight/pu_weight*pu_weightDown);
   h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               0.,newweight*SF1*SF2);
   h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         0.,newweight);
   h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         0.,newweight);
   if (m_csAngle > 0) {
     h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        2.,newweight);
     h2_CSMassBinned_       ->Fill(m_vtxMassMu,               2.,newweight);
+    h2_CSMassPUUpBinned_   ->Fill(m_vtxMassMu,               2.,newweight/pu_weight*pu_weightUp);
+    h2_CSMassPUDownBinned_ ->Fill(m_vtxMassMu,               2.,newweight/pu_weight*pu_weightDown);
     h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               2.,newweight*SF1*SF2);
     h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,               2.,newweight);
     h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,               2.,newweight);
   } else {
     h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        1.,newweight);
     h2_CSMassBinned_       ->Fill(m_vtxMassMu,               1.,newweight);
+    h2_CSMassPUUpBinned_   ->Fill(m_vtxMassMu,               1.,newweight/pu_weight*pu_weightUp);
+    h2_CSMassPUDownBinned_ ->Fill(m_vtxMassMu,               1.,newweight/pu_weight*pu_weightDown);
     h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               1.,newweight*SF1*SF2);
     h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         1.,newweight);
     h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         1.,newweight);
@@ -1288,6 +1304,9 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
   h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               (priEtaBin*3)+0,newweight*SF1*SF2);
   h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         (priEtaBin*3)+0,newweight);
   h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu          ,(priEtaBin*3)+0,newweight);
+  h2_CSMassPUUpBinned_   ->Fill(m_vtxMassMu,               (priEtaBin*3)+0,newweight/pu_weight*pu_weightUp);
+  h2_CSMassPUDownBinned_ ->Fill(m_vtxMassMu,               (priEtaBin*3)+0,newweight/pu_weight*pu_weightDown);
+
   if (secEtaBin > 0) {
     // std::cout << "secondary bin (" << secEtaBin << "*3)+0(" << (secEtaBin*3)+0 << ")" << std::endl;
     h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+0,newweight);
@@ -1295,6 +1314,8 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
     h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               (secEtaBin*3)+0,newweight*SF1*SF2);
     h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         (secEtaBin*3)+0,newweight);
     h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         (secEtaBin*3)+0,newweight);
+    h2_CSMassPUUpBinned_   ->Fill(m_vtxMassMu,               (secEtaBin*3)+0,newweight/pu_weight*pu_weightUp);
+    h2_CSMassPUDownBinned_ ->Fill(m_vtxMassMu,               (secEtaBin*3)+0,newweight/pu_weight*pu_weightDown);
   }
   if (m_csAngle > 0) {
     // std::cout << "primary bin (" << priEtaBin << "*3)+2(" << (priEtaBin*3)+2 << ")" << std::endl;
@@ -1303,6 +1324,8 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
     h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               (priEtaBin*3)+2,newweight*SF1*SF2);
     h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         (priEtaBin*3)+2,newweight);
     h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         (priEtaBin*3)+2,newweight);
+    h2_CSMassPUUpBinned_   ->Fill(m_vtxMassMu,               (priEtaBin*3)+2,newweight/pu_weight*pu_weightUp);
+    h2_CSMassPUDownBinned_ ->Fill(m_vtxMassMu,               (priEtaBin*3)+2,newweight/pu_weight*pu_weightDown);
     if (secEtaBin > 0) {
       // std::cout << "secondary bin (" << secEtaBin << "*3)+2(" << (secEtaBin*3)+2 << ")" << std::endl;
       h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+2,newweight);
@@ -1310,6 +1333,8 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
       h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               (secEtaBin*3)+2,newweight*SF1*SF2);
       h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         (secEtaBin*3)+2,newweight);
       h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         (secEtaBin*3)+2,newweight);
+      h2_CSMassPUUpBinned_   ->Fill(m_vtxMassMu,               (secEtaBin*3)+2,newweight/pu_weight*pu_weightUp);
+      h2_CSMassPUDownBinned_ ->Fill(m_vtxMassMu,               (secEtaBin*3)+2,newweight/pu_weight*pu_weightDown);
     }
   } else {
     // std::cout << "primary bin (" << priEtaBin << "*3)+1(" << (priEtaBin*3)+1 << ")" << std::endl;
@@ -1318,6 +1343,8 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
     h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               (priEtaBin*3)+1,newweight*SF1*SF2);
     h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         (priEtaBin*3)+1,newweight);
     h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         (priEtaBin*3)+1,newweight);
+    h2_CSMassPUUpBinned_   ->Fill(m_vtxMassMu,               (priEtaBin*3)+1,newweight/pu_weight*pu_weightUp);
+    h2_CSMassPUDownBinned_ ->Fill(m_vtxMassMu,               (priEtaBin*3)+1,newweight/pu_weight*pu_weightDown);
     if (secEtaBin > 0) {
       // std::cout << "secondary bin (" << secEtaBin << "*3)+1(" << (secEtaBin*3)+1 << ")" << std::endl;
       h2_CSSmearedMassBinned_->Fill(m_vtxMassSmearedMu,        (secEtaBin*3)+1,newweight);
@@ -1325,6 +1352,8 @@ void ZprimeMuMuPatMiniAodNewMC::PlotRecoInfo(float CosmicMuonRejec, float vertex
       h2_CSMassMuIDBinned_   ->Fill(m_vtxMassMu,               (secEtaBin*3)+1,newweight*SF1*SF2);
       h2_CSMassUpBinned_     ->Fill(m_vtxMassScaledMu,         (secEtaBin*3)+1,newweight);
       h2_CSMassDownBinned_   ->Fill(m_vtxMassScaledMu,         (secEtaBin*3)+1,newweight);
+      h2_CSMassPUUpBinned_   ->Fill(m_vtxMassMu,               (secEtaBin*3)+1,newweight/pu_weight*pu_weightUp);
+      h2_CSMassPUDownBinned_ ->Fill(m_vtxMassMu,               (secEtaBin*3)+1,newweight/pu_weight*pu_weightDown);
     }
   }
 

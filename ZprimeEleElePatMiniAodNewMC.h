@@ -461,6 +461,8 @@ class ZprimeEleElePatMiniAodNewMC {
   /* std::array<std::array<TH1D*,4> 3> h1_MassDownBinned_   ; */
   std::shared_ptr<TH2D> h2_CSSmearedMassBinned_;
   std::shared_ptr<TH2D> h2_CSMassBinned_       ;
+  std::shared_ptr<TH2D> h2_CSMassPUUpBinned_     ;
+  std::shared_ptr<TH2D> h2_CSMassPUDownBinned_     ;
   std::shared_ptr<TH2D> h2_CSMassUpBinned_     ;
   std::shared_ptr<TH2D> h2_CSMassDownBinned_   ;
   std::shared_ptr<TH2D> h2_CSPosSmearedMassBinned_;

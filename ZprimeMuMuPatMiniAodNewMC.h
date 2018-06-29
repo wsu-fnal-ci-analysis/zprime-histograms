@@ -564,6 +564,8 @@ class ZprimeMuMuPatMiniAodNewMC {
   std::shared_ptr<TH2D> h2_CSMassMuIDBinned_       ;
   std::shared_ptr<TH2D> h2_CSMassUpBinned_     ;
   std::shared_ptr<TH2D> h2_CSMassDownBinned_   ;
+  std::shared_ptr<TH2D> h2_CSMassPUUpBinned_     ;
+  std::shared_ptr<TH2D> h2_CSMassPUDownBinned_   ;
   std::shared_ptr<TH2D> h2_CSPosSmearedMassBinned_;
   std::shared_ptr<TH2D> h2_CSPosMassBinned_       ;
   std::shared_ptr<TH2D> h2_CSPosMassUpBinned_     ;
